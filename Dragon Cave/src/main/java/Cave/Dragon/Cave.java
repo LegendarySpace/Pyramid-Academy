@@ -15,7 +15,7 @@ public abstract class Cave {
     public static int d10() {
         return ThreadLocalRandom.current().nextInt(1, 10);
     }
-    public static int d3() {
+    public static int d5() {
         return ThreadLocalRandom.current().nextInt(1, 3);
     }
 }
