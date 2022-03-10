@@ -5,35 +5,34 @@ import java.util.Scanner;
 public class CaveFork extends Cave{
     Cave left;
     Cave right;
-    public CaveFork() {
-        if (dist < 3) {
+    public CaveFork(Scanner scanner, int dist) {
+        scan = scanner;
+        if (dist++ < 3) {
             left = switch (d10()) {
-                case 1 -> new CaveFork();
-                case 2,3,4,5 -> new CavePath();
-                default -> new CaveDen();
+                case 1 -> new CaveFork(scan, dist);
+                case 2,3,4,5 -> new CavePath(scan, dist);
+                default -> new CaveDen(scan, dist);
             };
             right = switch (d10()) {
-                case 1 -> new CaveFork();
-                case 2,3,4,5 -> new CavePath();
-                default -> new CaveDen();
+                case 1 -> new CaveFork(scan, dist);
+                case 2,3,4,5 -> new CavePath(scan, dist);
+                default -> new CaveDen(scan, dist);
             };
         } else {
-            left = new CaveDen();
-            right = new CaveDen();
+            left = new CaveDen(scan, dist);
+            right = new CaveDen(scan, dist);
         }
     }
 
     @Override
     public void explore() {
-        dist++;
+        System.out.println();
         System.out.println("As you make your way through the cave it suddenly widens and you encounter a forking path");
-        Scanner scan = new Scanner(System.in);
         String direction;
         do {
             System.out.println("Which direction do you go? (Left, Right)");
             direction = scan.next();
         } while (!direction.equalsIgnoreCase("left") && !direction.equalsIgnoreCase("right"));
-        scan.close();
 
         if (direction.equalsIgnoreCase("left")) left.explore();
         else right.explore();
