@@ -1,7 +1,6 @@
 package Cave.Dragon;
 
 import java.util.Scanner;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class DragonCave {
     public static String mtn = "Smaugenraug Mountains";
@@ -11,15 +10,14 @@ public class DragonCave {
     public static void main(String[] args) {
         introduction();
         scan = new Scanner(System.in);
-        String enter;
-        do {
-            System.out.println("Which side of the mountain do you decide to approach? (East, West, North)");
-            enter = scan.next();
-        } while (!(enter.equalsIgnoreCase("east") || enter.equalsIgnoreCase("west") || enter.equalsIgnoreCase("north")));
 
-        Cave entrance = determineCave(enter);
-        entrance.explore();
-
+        try {
+            Cave entrance = determineCave(eastWestNorth());
+            entrance.explore();
+        } catch (Exception e) {
+            System.out.println("Error entering the mountain");
+            e.printStackTrace();
+        }
         outro();
         scan.close();
     }
@@ -41,6 +39,21 @@ public class DragonCave {
         System.out.printf("Come back again to hear more tales from the %s.%n", mtn);
     }
 
+    public static String eastWestNorth() {
+        try {
+            String enter;
+            do {
+                System.out.println("Which side of the mountain do you decide to approach? (East, West, North)");
+                enter = scan.next();
+            } while (!(enter.equalsIgnoreCase("east") || enter.equalsIgnoreCase("west") || enter.equalsIgnoreCase("north")));
+            return enter;
+        } catch (Exception e) {
+            System.out.println("Error getting user input!!!");
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static Cave determineCave(String direction) {
         if (direction.equalsIgnoreCase("east")) {
             // East is most likely to be a den
@@ -56,13 +69,13 @@ public class DragonCave {
                 case 2 -> new CaveDen(scan,0);
                 default -> new CavePath(scan,0);
             };
-        } else {
+        } else if (direction.equalsIgnoreCase("north")) {
             // North is most likely to be a fork
             return switch (Cave.d5()) {
                 case 1 -> new CaveDen(scan,0);
                 case 2 -> new CavePath(scan,0);
                 default -> new CaveFork(scan,0);
             };
-        }
+        } else return null;
     }
 }

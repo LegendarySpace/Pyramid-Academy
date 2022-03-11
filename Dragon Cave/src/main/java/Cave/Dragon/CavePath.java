@@ -20,13 +20,7 @@ public class CavePath extends Cave{
     public void explore() {
         System.out.println();
         System.out.println("Ahead is a long dark corridor. A sense of unease washes over you. If you leave now you can still make it home.");
-        String decision;
-        do {
-            System.out.println("Do you want to continue your journey? (y or n)");
-            decision = scan.next();
-            if (decision.length() > 1) decision = Character.toString(decision.charAt(0));
-        } while (!decision.equalsIgnoreCase("y") && !decision.equalsIgnoreCase("n"));
-        if (decision.equalsIgnoreCase("n")) return;
+        if (!continueJourney()) return;
 
         System.out.println("You continue down a long dark corridor. You can barely see and must move slowly.");
         System.out.println("As you make your way down the twisting path there's an occasional rumble");
@@ -36,5 +30,22 @@ public class CavePath extends Cave{
 
     public void encounter() {
         System.out.println("You encounter a wandering dragon and it devours you before you can react. GAME OVER!!!!");
+    }
+
+    public boolean continueJourney() {
+        try {
+            String decision;
+            do {
+                System.out.println("Do you want to continue your journey? (y or n)");
+                decision = scan.next();
+            } while (!decision.equalsIgnoreCase("y") && !decision.equalsIgnoreCase("yes") &&
+                    !decision.equalsIgnoreCase("n") && !decision.equalsIgnoreCase("no"));
+
+            return decision.equalsIgnoreCase("y") || decision.equalsIgnoreCase("yes");
+        } catch (Exception e) {
+            System.out.println("Error getting user data!!");
+            e.printStackTrace();
+        }
+        return false;
     }
 }

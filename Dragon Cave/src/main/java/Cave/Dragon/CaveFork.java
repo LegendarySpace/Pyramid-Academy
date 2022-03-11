@@ -28,13 +28,23 @@ public class CaveFork extends Cave{
     public void explore() {
         System.out.println();
         System.out.println("As you make your way through the cave it suddenly widens and you encounter a forking path");
-        String direction;
-        do {
-            System.out.println("Which direction do you go? (Left, Right)");
-            direction = scan.next();
-        } while (!direction.equalsIgnoreCase("left") && !direction.equalsIgnoreCase("right"));
 
-        if (direction.equalsIgnoreCase("left")) left.explore();
+        if (leftOrRight().equalsIgnoreCase("left")) left.explore();
         else right.explore();
+    }
+
+    public String leftOrRight() {
+        try {
+            String direction;
+            do {
+                System.out.println("Which direction do you go? (Left, Right)");
+                direction = scan.next();
+            } while (!direction.equalsIgnoreCase("left") && !direction.equalsIgnoreCase("right"));
+            return direction;
+        } catch (Exception e) {
+            System.out.println("Error getting user choice!!");
+            e.printStackTrace();
+        }
+        return null;
     }
 }

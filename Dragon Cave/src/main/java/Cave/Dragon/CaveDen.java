@@ -3,8 +3,7 @@ package Cave.Dragon;
 import java.util.Scanner;
 
 public class CaveDen extends Cave{
-    // NOTE: 1 gold = $100
-    private int type;
+    private final int type;
     public CaveDen(Scanner scanner, int dist) {
         scan = scanner;
         type = switch(d20()) {
@@ -21,12 +20,13 @@ public class CaveDen extends Cave{
         System.out.println("It appears to be a dragon's den.");
         System.out.println();
         switch (type) {
-            case 1: kind(); break;
-            case 2: vicious(); break;
-            case 3: empty(); break;
+            case 1 -> kind();
+            case 2 -> vicious();
+            case 3 -> empty();
         }
     }
 
+    // NOTE: 1 gold = $100
     public void empty() {
         System.out.println("You search around cautiously but nobody appears to be home, in fact it looks abandoned.");
         System.out.println("You notice a small pile of gold glinting in the corner from the faint light seeping through cracks in the ceiling.");
