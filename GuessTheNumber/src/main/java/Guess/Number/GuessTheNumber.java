@@ -1,5 +1,6 @@
 package Guess.Number;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -56,7 +57,9 @@ public class GuessTheNumber {
             return guess;
         } catch (Exception e) {
             System.out.println("Error getting player guess");
-            e.printStackTrace();
+            if (!(e instanceof InputMismatchException)) {
+                e.printStackTrace();
+            }
         }
         return 0;
     }
