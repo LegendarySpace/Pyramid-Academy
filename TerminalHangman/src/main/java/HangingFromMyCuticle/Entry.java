@@ -14,8 +14,11 @@ public class Entry {
 
         System.out.printf("Welcome %s, have a wonderful time playing Hangman", name);
 
-        Hangman game = new Hangman(scan);
-        game.newGame();
+        Hangman game = new Hangman(scan, name);
+        boolean play;
+        do {
+            play = game.showMenu();
+        } while (play);
 
         scan.close();
     }

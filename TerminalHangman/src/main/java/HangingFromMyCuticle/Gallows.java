@@ -1,10 +1,11 @@
 package HangingFromMyCuticle;
 
 public class Gallows {
+    public static final int initialChances = 6;
     public int chancesRemaining;
 
     public Gallows() {
-        chancesRemaining = 6;
+        chancesRemaining = initialChances;
     }
 
     public void buildGallows() {
@@ -19,25 +20,25 @@ public class Gallows {
     }
 
     public void displayHead() {
-        boolean drawHead = chancesRemaining < 6;
+        boolean drawHead = chancesRemaining < (initialChances);
         System.out.printf("       %s        |   %n", drawHead? "_":" ");
         System.out.printf("      %s %s       |   %n", drawHead? "/":" ", drawHead? "\\":" ");
         System.out.printf("      %s%s%s       |   %n", drawHead? "\\":" ", drawHead? "_":" ", drawHead? "/":" ");
     }
 
     public void displayBody() {
-        boolean drawBody = chancesRemaining < 5;
+        boolean drawBody = chancesRemaining < (initialChances - 1);
         System.out.printf("    %s%s%s     |   %n", drawLeftArm()?"___":"   ", drawBody?"|":" ",drawRightArm()?"___":"   ");
         System.out.printf("       %s        |   %n", drawBody? "|":" ");
         System.out.printf("       %s        |   %n", drawBody? "|":" ");
     }
 
     public boolean drawLeftArm() {
-        return chancesRemaining < 4;
+        return chancesRemaining < (initialChances - 2);
     }
 
     public boolean drawRightArm() {
-        return chancesRemaining < 3;
+        return chancesRemaining < (initialChances - 3);
     }
 
     public void displayLegs() {
@@ -46,10 +47,10 @@ public class Gallows {
     }
 
     public boolean drawLeftLeg() {
-        return chancesRemaining < 2;
+        return chancesRemaining < (initialChances - 4);
     }
 
     public boolean drawRightLeg() {
-        return chancesRemaining < 1;
+        return chancesRemaining < (initialChances - 5);
     }
 }
