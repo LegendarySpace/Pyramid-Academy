@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
 
 import java.io.ByteArrayInputStream;
-import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -30,27 +30,29 @@ class GuessTheNumberTest {
         }
     }
 
-    /*@Test
+    @Test
     void makeGuessTest() {
-        List<Integer> values = List.of(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20);
-        for (int i : values) {
+        ArrayList<String> values = new ArrayList<>();
+        for (int i = 1; i <= 20; i++) values.add(Integer.toString(i));
+        for (String str : values) {
             GuessTheNumber.guessAttempts = 0;
-            GuessTheNumber.scan = new Scanner(new ByteArrayInputStream(BigInteger.valueOf(i).toByteArray()));   // Error converting int to inputstream
-            assertEquals(i, GuessTheNumber.makeGuess(), "Guess is not being correctly returned");
+            GuessTheNumber.scan = new Scanner(new ByteArrayInputStream(str.getBytes()));
+            assertEquals(Integer.parseInt(str), GuessTheNumber.makeGuess(), "Guess is not being correctly returned");
             GuessTheNumber.scan.close();
         }
-    }*/
+    }
 
-    /*@Test
+    @Test
     void invalidGuessTest() {
-        List<Integer> values = List.of(-1,-97, 65, 52, 21, 34);
-        for (int i : values) {
+        ArrayList<String> values = new ArrayList<>();
+        for (int i = -100; i <= 100; i++) if (i < 1 || i > 20) values.add(Integer.toString(i));
+        for (String str : values) {
             GuessTheNumber.guessAttempts = 0;
-            GuessTheNumber.scan = new Scanner(new ByteArrayInputStream(BigInteger.valueOf(i).toByteArray()));
+            GuessTheNumber.scan = new Scanner(new ByteArrayInputStream(str.getBytes()));
             assertEquals(0, GuessTheNumber.makeGuess(), "Guess is not being correctly verified");
             GuessTheNumber.scan.close();
         }
-    }*/
+    }
 
     @Test
     void wrongGuessTypeTest() {

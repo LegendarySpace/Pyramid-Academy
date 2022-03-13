@@ -1,6 +1,6 @@
 package Guess.Number;
 
-import java.util.InputMismatchException;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -51,13 +51,13 @@ public class GuessTheNumber {
             guessAttempts++;
             int guess;
             do {
-                System.out.print("Please enter a number between 1 and 20: ");
+                System.out.print("%nPlease enter a number between 1 and 20: ");
                 guess = scan.nextInt();
             } while (guess < 1 || guess > 20);
             return guess;
         } catch (Exception e) {
             System.out.println("Error getting player guess");
-            if (!(e instanceof InputMismatchException)) {
+            if (!(e instanceof NoSuchElementException)) {
                 e.printStackTrace();
             }
         }

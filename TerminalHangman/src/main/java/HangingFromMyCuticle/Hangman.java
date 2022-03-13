@@ -1,8 +1,5 @@
 package HangingFromMyCuticle;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.awt.print.Printable;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -11,11 +8,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Hangman {
     // common file names
@@ -38,6 +35,7 @@ public class Hangman {
         scan = scanner;
         player = name;
         gallows = new Gallows();
+        wordBuffer = new ArrayList<>();
     }
 
     public boolean showMenu() {
@@ -81,7 +79,7 @@ public class Hangman {
             return false;
         } else if (input.equalsIgnoreCase("c") || input.equalsIgnoreCase("continue")) {
             boolean play;
-            List<String> game = loadGame();
+            List<String> game = loadGame(nameSaveFile);
             if (game != null) play = continueGame(game);
             else play = newGame();
             while (play) play = newGame();
@@ -99,10 +97,11 @@ public class Hangman {
     public boolean newGame() {
         if (wordBuffer.size() < 2) loadWordByDifficulty();
         Collections.shuffle(wordBuffer);
-        secretWord = wordBuffer.get(0);
+        secretWord = wordBuffer.get(0).toUpperCase();
         wordBuffer.remove(0);
         lettersGuessed = "";
         lettersIncorrect = "";
+        gallows.chancesRemaining = Gallows.initialChances;
         return gameplayLoop();
     }
 
@@ -111,17 +110,18 @@ public class Hangman {
         secretWord = decodeString(list.get(0));
         lettersGuessed = list.get(1);
         lettersIncorrect = list.get(2);
+        gallows.chancesRemaining = Gallows.initialChances - lettersIncorrect.length();
         return gameplayLoop();
     }
 
     public void displayHighScores() {
-        List<String> highScores = loadScores();
+        List<String> highScores = loadScores(nameHighScores);
         int idx;
         for (int i = 0; i < scoreSheetSize; i++) {
             idx = i * 3;
-            if (idx < highScores.size()) System.out.printf("%d: %03d - %s at %s", i,
+            if (highScores != null && idx < highScores.size()) System.out.printf("%d: %03d - %s at %s%n", i,
                     Integer.parseInt(highScores.get(idx+1)), highScores.get(idx), highScores.get(idx+2));
-            else System.out.printf("%d:", i);
+            else System.out.printf("%d:%n", i);
         }
         System.out.println("Press Enter to return to Menu");
         scan.next();
@@ -144,12 +144,14 @@ public class Hangman {
     }
 
     public boolean gameplayLoop() {
-        int charactersRemaining = secretWord.replaceAll("["+lettersGuessed+"]", "").length();
+        int charactersRemaining = secretWord.replaceAll("[ "+lettersGuessed+"]", "").length();
         String guess;
+        displayGallows();
         while (charactersRemaining > 0 && gallows.chancesRemaining > 0) {   // secret word not revealed and chances remaining
             guess = inputGuessLetter();
             if (guess.equalsIgnoreCase("quit")) return false;
             checkLetterContained(guess);
+            charactersRemaining = secretWord.replaceAll("[ "+lettersGuessed+"]", "").length();
         }
         if (gallows.chancesRemaining <= 0) return loseMessage();
         return  winMessage();
@@ -164,7 +166,7 @@ public class Hangman {
                 result = scan.next();
                 if (result.equalsIgnoreCase("quit")) return quit;
                 if (result.equalsIgnoreCase("save")) {
-                    saveGame();
+                    saveGame(nameSaveFile);
                     return quit;
                 }
                 if (result.equalsIgnoreCase("help")) {
@@ -191,17 +193,22 @@ public class Hangman {
             gallows.chancesRemaining--;
             lettersIncorrect += letter;
         }
+        displayGallows();
+    }
+
+    public void displayGallows() {
         gallows.buildGallows();
-        String hiddenWord = secretWord.replaceAll("[^"+lettersGuessed+"]", "_");
+        String hiddenWord = secretWord.replaceAll("[^ "+lettersGuessed+"]", "_");
         System.out.printf("%s%s%n"," ".repeat((20-secretWord.length())/2), hiddenWord);
         System.out.println();
-        System.out.printf("%s%s%n"," ".repeat((20-lettersIncorrect.length())/2),lettersIncorrect);
+        System.out.printf("%s%s%n"," ".repeat((20-lettersIncorrect.length())/2-2),lettersIncorrect);
+        System.out.printf("You have %d chances remaining%n", gallows.chancesRemaining);
         System.out.println();
     }
 
     public boolean winMessage() {
         System.out.printf("Congratulations %s!!! You uncovered the word %s with %d chances remaining.%n", player, secretWord, gallows.chancesRemaining);
-        updateScores();
+        updateScores(nameHighScores);
         return inputPlayAgain();
     }
 
@@ -227,16 +234,16 @@ public class Hangman {
         return false;
     }
 
-    public boolean saveGame() {
-        File file = Paths.get(nameSaveFile).toFile();
+    public boolean saveGame(String saveFile) {
+        File file = Paths.get(saveFile).toFile();
         try {
             PrintWriter pw;
-            List<String> saves;
+            ArrayList<String> saves;
             if (!file.exists()) {
                 file.createNewFile();
-                saves = List.of();
+                saves = new ArrayList<>();
             } else {
-                saves = Files.readAllLines(file.toPath());
+                saves = new ArrayList<>(Files.readAllLines(file.toPath()));
                 int start = saves.indexOf("NAME: " + player);
                 if (start > -1) {
                     for (int i = 3; i >= 0; i--) saves.remove(start + i);
@@ -255,11 +262,11 @@ public class Hangman {
         return false;
     }
 
-    public List<String> loadGame() {
-        File file = Paths.get(nameSaveFile).toFile();
+    public List<String> loadGame(String saveFile) {
+        File file = Paths.get(saveFile).toFile();
         try {
             if (!file.exists()) return null;
-            List<String> saves =  Files.readAllLines(file.toPath());
+            ArrayList<String> saves =  new ArrayList<>(Files.readAllLines(file.toPath()));
             int start = saves.indexOf("NAME: " + player);
             if (start < 0) return null;
             List<String> result = saves.subList(start + 1, start + 4);
@@ -304,12 +311,12 @@ public class Hangman {
         try {
             URL url = getClass().getClassLoader().getResource(nameDictionary);
             Path p = Paths.get(url.toURI());
-            List<String> words = Files.readAllLines(p).stream()
+            ArrayList<String> words = Files.readAllLines(p).stream()
                     .filter(str -> str.length() > min && str.length() < max)
                     .filter(str -> {
                         int i = (int) str.toLowerCase().chars().distinct().count();
                         return i > uniqMin && i < uniqMax;
-                    }).distinct().toList();
+                    }).distinct().collect(Collectors.toCollection(ArrayList::new));
             Collections.shuffle(words);
             wordBuffer.addAll(words.subList(0, 100));
         } catch (Exception e) {
@@ -321,8 +328,8 @@ public class Hangman {
         }
     }
 
-    public List<String> loadScores() {
-        File file = Paths.get(nameHighScores).toFile();
+    public List<String> loadScores(String scoreFile) {
+        File file = Paths.get(scoreFile).toFile();
         try {
             if (!file.exists()) return null;
             return Files.readAllLines(file.toPath());
@@ -333,14 +340,14 @@ public class Hangman {
         return null;
     }
 
-    public boolean updateScores() {
-        File file = Paths.get(nameHighScores).toFile();
+    public boolean updateScores(String scoreFile) {
+        File file = Paths.get(scoreFile).toFile();
         try {
-            List<String> scoreSheet;
+            ArrayList<String> scoreSheet;
             if (!file.exists()) {
                 file.createNewFile();
-                scoreSheet = List.of();
-            } else scoreSheet = Files.readAllLines(file.toPath());
+                scoreSheet = new ArrayList<>();
+            } else scoreSheet = new ArrayList<>(Files.readAllLines(file.toPath()));
             addScoreToList(scoreSheet);
             ReduceScoresSheet(scoreSheet);
             PrintWriter pw = new PrintWriter(new FileWriter(file.getAbsoluteFile(), false));
@@ -350,18 +357,18 @@ public class Hangman {
             return true;
         } catch (Exception e) {
             System.out.println("Error updating High Scores");
-            e.printStackTrace();
+            if (!(e instanceof UnsupportedOperationException)) e.printStackTrace();
         }
         return false;
     }
 
-    private void ReduceScoresSheet(List<String> scores) {
+    public void ReduceScoresSheet(ArrayList<String> scores) {
         if (scores == null) return;
         int sheetLimit = 3 * scoreSheetSize;
         while (scores.size() > sheetLimit) for (int i = 2; i >= 0; i--) scores.remove(sheetLimit);
     }
 
-    private void addScoreToList(List<String> scores) {
+    public void addScoreToList(ArrayList<String> scores) {
         // Each record is 3 lines: name, score, date
         if (scores == null) return;
         int myScore = calculateScore();
@@ -378,7 +385,7 @@ public class Hangman {
     }
 
     public int calculateScore() {
-        String str = secretWord.replaceAll("[^"+lettersGuessed+"]", ""); // Remove any letters not guessed
+        String str = secretWord.replaceAll("[^ "+lettersGuessed+"]", ""); // Remove any letters not guessed
         return (str.length() * pointsPerGuess) - (lettersIncorrect.length() * pointsLostPerIncorrect);
     }
 
