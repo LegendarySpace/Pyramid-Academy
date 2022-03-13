@@ -25,6 +25,8 @@ public class Hangman {
     public static final int scoreSheetSize = 10;
     public final Gallows gallows;
     public final String player;
+    public final int pointsPerGuess = 10;
+    public final int pointsLostPerIncorrect = 5;
     public Scanner scan;
 
     public ArrayList<String> wordBuffer;
@@ -62,7 +64,6 @@ public class Hangman {
                     !result.equalsIgnoreCase("s") && !result.equalsIgnoreCase("score") &&
                     !result.equalsIgnoreCase("h") && !result.equalsIgnoreCase("help") &&
                     !result.equalsIgnoreCase("q") && !result.equalsIgnoreCase("quit"));
-            // TODO: if (result == continue & !saveFile.exists()) result = new;
             return result;
         } catch (Exception e) {
             System.out.println("Error receiving menu input");
@@ -74,11 +75,15 @@ public class Hangman {
     public boolean processMenuSelection(String input) {
         if (input == null || input.isEmpty()) return false;
         if (input.equalsIgnoreCase("n") || input.equalsIgnoreCase("new")) {
-            boolean play = newGame();
-            while (play) play = newGame();
+            boolean play;
+            do play = newGame();
+            while (play);
             return false;
         } else if (input.equalsIgnoreCase("c") || input.equalsIgnoreCase("continue")) {
-            boolean play = continueGame(loadGame());
+            boolean play;
+            List<String> game = loadGame();
+            if (game != null) play = continueGame(game);
+            else play = newGame();
             while (play) play = newGame();
             return false;
         } else if (input.equalsIgnoreCase("s") || input.equalsIgnoreCase("score")) {
@@ -92,7 +97,7 @@ public class Hangman {
     }
 
     public boolean newGame() {
-        if (wordBuffer.size() < 2) loadWordBuffer();
+        if (wordBuffer.size() < 2) loadWordByDifficulty();
         Collections.shuffle(wordBuffer);
         secretWord = wordBuffer.get(0);
         wordBuffer.remove(0);
@@ -123,17 +128,30 @@ public class Hangman {
     }
 
     public void displayHelp() {
-        // TODO: Display help information
-        System.out.println(); // Game Rules
-        System.out.println(); // Total chances
-        System.out.println(); // Lose conditions
-        System.out.println(); // Win conditions
+        System.out.println("A secret word will be generated at random and an underscore will be placed in each letter's position."); // Game Rules
+        System.out.println("Each turn you will be prompted to guess a letter. If the secret word contains the letter all occurrences will be uncovered");
+        System.out.println("If  the letter you guess is not contained it will be added to the list of incorrect letter and a body part will be added to the hangman");
+        System.out.println();
+        System.out.printf("If you make %d incorrect guesses the hangman's body will be completed and the game will be over%n", Gallows.initialChances);
+        System.out.println("If you can discover the word before using up all your chances you win the game");
+        System.out.println();
+        System.out.printf("You gain %d points for each letter you uncover and lose %d points for each letter you guess wrong%n", pointsPerGuess, pointsLostPerIncorrect);
+        System.out.println();
+        System.out.println("At any time you can save your game to resume later by typing save, or exit the game by typing quit");
+        System.out.println("Have a great time playing");
         System.out.println("Press Enter to return to Menu");
         scan.next();
     }
 
     public boolean gameplayLoop() {
-        // TODO: exit conditions are win, loss or enter quit(return false)
+        int charactersRemaining = secretWord.replaceAll("["+lettersGuessed+"]", "").length();
+        String guess;
+        while (charactersRemaining > 0 && gallows.chancesRemaining > 0) {   // secret word not revealed and chances remaining
+            guess = inputGuessLetter();
+            if (guess.equalsIgnoreCase("quit")) return false;
+            checkLetterContained(guess);
+        }
+        if (gallows.chancesRemaining <= 0) return loseMessage();
         return  winMessage();
     }
 
@@ -165,6 +183,20 @@ public class Hangman {
             e.printStackTrace();
         }
         return quit;
+    }
+
+    public void checkLetterContained(String letter) {
+        lettersGuessed += letter;
+        if (!secretWord.contains(letter)) {
+            gallows.chancesRemaining--;
+            lettersIncorrect += letter;
+        }
+        gallows.buildGallows();
+        String hiddenWord = secretWord.replaceAll("[^"+lettersGuessed+"]", "_");
+        System.out.printf("%s%s%n"," ".repeat((20-secretWord.length())/2), hiddenWord);
+        System.out.println();
+        System.out.printf("%s%s%n"," ".repeat((20-lettersIncorrect.length())/2),lettersIncorrect);
+        System.out.println();
     }
 
     public boolean winMessage() {
@@ -244,12 +276,31 @@ public class Hangman {
         return null;
     }
 
-    public void loadWordBuffer() {
-        // TODO: Base min and max on difficulty
-        int min = 3;
-        int max = 20;
-        int uniqMin = 3;
-        int uniqMax = 20;
+    public void loadWordByDifficulty() {
+        wordBuffer.clear();
+        System.out.println();
+        String diff;
+        do {
+            System.out.println("Please choose a difficulty: ANY, EASY, NORMAL, HARD, CHALLENGING");
+            diff = scan.next();
+        } while (!(diff.equalsIgnoreCase("a") || diff.equalsIgnoreCase("any") ||
+                diff.equalsIgnoreCase("e") || diff.equalsIgnoreCase("easy") ||
+                diff.equalsIgnoreCase("n") || diff.equalsIgnoreCase("normal") ||
+                diff.equalsIgnoreCase("h") || diff.equalsIgnoreCase("hard") ||
+                diff.equalsIgnoreCase("c") || diff.equalsIgnoreCase("challenging")));
+
+        if (diff.equalsIgnoreCase("e") || diff.equalsIgnoreCase("easy")) {
+            loadWordBuffer(3, 6, 2, 6);
+        } else if (diff.equalsIgnoreCase("n") || diff.equalsIgnoreCase("normal")) {
+            loadWordBuffer(6, 10, 5, 10);
+        } else if (diff.equalsIgnoreCase("h") || diff.equalsIgnoreCase("hard")) {
+            loadWordBuffer(10, 15, 7, 15);
+        } else if (diff.equalsIgnoreCase("c") || diff.equalsIgnoreCase("challenging")) {
+            loadWordBuffer(15, 20, 10, 17);
+        } else loadWordBuffer(3,20,3,20);
+    }
+
+    public void loadWordBuffer(int min, int max, int uniqMin, int uniqMax) {
         try {
             URL url = getClass().getClassLoader().getResource(nameDictionary);
             Path p = Paths.get(url.toURI());
@@ -327,7 +378,8 @@ public class Hangman {
     }
 
     public int calculateScore() {
-        return (lettersGuessed.length() * 10) - (lettersIncorrect.length() * 15);
+        String str = secretWord.replaceAll("[^"+lettersGuessed+"]", ""); // Remove any letters not guessed
+        return (str.length() * pointsPerGuess) - (lettersIncorrect.length() * pointsLostPerIncorrect);
     }
 
     public String encodeString(String str) {    // Used to hide the secret words when saved to prevent exploit
