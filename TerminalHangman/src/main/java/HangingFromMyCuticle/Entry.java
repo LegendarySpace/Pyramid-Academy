@@ -10,9 +10,9 @@ public class Entry {
         System.out.println();
         System.out.print("Please enter your name:  ");
         Scanner scan = new Scanner(System.in);
-        name = scan.next();
+        name = scan.nextLine();
 
-        System.out.printf("Welcome %s, have a wonderful time playing Hangman", name);
+        System.out.printf("Welcome %s, have a wonderful time playing Hangman%n", name);
 
         Hangman game = new Hangman(scan, name);
         boolean play;

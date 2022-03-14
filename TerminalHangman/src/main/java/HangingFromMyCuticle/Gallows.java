@@ -21,38 +21,38 @@ public class Gallows {
         //
     }
 
-    public void displayHead() {
+    private void displayHead() {
         boolean drawHead = chancesRemaining < (initialChances);
         System.out.printf("       %s        |   %n", drawHead? "_":" ");
         System.out.printf("      %s %s       |   %n", drawHead? "/":" ", drawHead? "\\":" ");
         System.out.printf("      %s%s%s       |   %n", drawHead? "\\":" ", drawHead? "_":" ", drawHead? "/":" ");
     }
 
-    public void displayBody() {
+    private void displayBody() {
         boolean drawBody = chancesRemaining < (initialChances - 1);
         System.out.printf("    %s%s%s     |   %n", drawLeftArm()?"___":"   ", drawBody?"|":" ",drawRightArm()?"___":"   ");
         System.out.printf("       %s        |   %n", drawBody? "|":" ");
         System.out.printf("       %s        |   %n", drawBody? "|":" ");
     }
 
-    public boolean drawLeftArm() {
+    private boolean drawLeftArm() {
         return chancesRemaining < (initialChances - 2);
     }
 
-    public boolean drawRightArm() {
+    private boolean drawRightArm() {
         return chancesRemaining < (initialChances - 3);
     }
 
-    public void displayLegs() {
+    private void displayLegs() {
         System.out.printf("      %s %s       |   %n", drawLeftLeg()? "/":" ", drawRightLeg()? "\\":" ");
         System.out.printf("     %s   %s      |   %n", drawLeftLeg()? "/":" ", drawRightLeg()? "\\":" ");
     }
 
-    public boolean drawLeftLeg() {
+    private boolean drawLeftLeg() {
         return chancesRemaining < (initialChances - 4);
     }
 
-    public boolean drawRightLeg() {
+    private boolean drawRightLeg() {
         return chancesRemaining < (initialChances - 5);
     }
 }
