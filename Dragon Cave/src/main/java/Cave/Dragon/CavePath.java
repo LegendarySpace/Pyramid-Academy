@@ -1,18 +1,15 @@
 package Cave.Dragon;
 
-import java.util.Scanner;
-
 public class CavePath extends Cave{
     Cave connection;
-    public CavePath(Scanner scanner, int dist) {
-        scan = scanner;
+    public CavePath(int dist) {
         if (dist++ < 3) {
             switch (d10()) {
-                case 1, 2, 3, 4 -> connection = new CaveFork(scan, dist);     // 40% chance to spawn fork
-                default -> connection = new CaveDen(scan, dist);
+                case 1, 2, 3, 4 -> connection = new CaveFork(dist);     // 40% chance to spawn fork
+                default -> connection = new CaveDen(dist);
             }
         } else {
-            connection = new CaveDen(scan, dist);
+            connection = new CaveDen(dist);
         }
     }
 
@@ -28,24 +25,22 @@ public class CavePath extends Cave{
         else connection.explore();
     }
 
-    public void encounter() {
+    private void encounter() {
         System.out.println("You encounter a wandering dragon and it devours you before you can react. GAME OVER!!!!");
     }
 
-    public boolean continueJourney() {
-        try {
-            String decision;
-            do {
-                System.out.println("Do you want to continue your journey? (y or n)");
-                decision = scan.next();
-            } while (!decision.equalsIgnoreCase("y") && !decision.equalsIgnoreCase("yes") &&
-                    !decision.equalsIgnoreCase("n") && !decision.equalsIgnoreCase("no"));
+    protected boolean continueJourney() {
+        String message = "Do you want to continue your journey? (y or n)";
+        String error = "Error getting user data!!";
+        String decision = ensureInput(message, error);
+        if (yesOrNo(decision)) return decision.equalsIgnoreCase("y") || decision.equalsIgnoreCase("yes");
+        return continueJourney();
+    }
 
-            return decision.equalsIgnoreCase("y") || decision.equalsIgnoreCase("yes");
-        } catch (Exception e) {
-            System.out.println("Error getting user data!!");
-            e.printStackTrace();
-        }
+    protected boolean yesOrNo(String answer) {
+        if (answer.equalsIgnoreCase("y") || answer.equalsIgnoreCase("yes") ||
+                answer.equalsIgnoreCase("n") || answer.equalsIgnoreCase("no")) return true;
+        System.out.println("You did not choose Yes or No");
         return false;
     }
 }

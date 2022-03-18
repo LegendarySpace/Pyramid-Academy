@@ -1,14 +1,27 @@
 package HangingFromMyCuticle;
 
+// Handles graphic output
 public class Gallows {
     public static final int initialChances = 6;
-    public int chancesRemaining;
+    private int chancesRemaining;
 
     public Gallows() {
-        chancesRemaining = initialChances;
+        reset();
     }
 
-    public void buildGallows() {
+    public int getChancesRemaining() { return chancesRemaining; }
+    public void decrementChances() { --chancesRemaining; }
+    public boolean hasChances() { return chancesRemaining > 0; }
+    public void reset() {chancesRemaining = initialChances;}
+    public void reset(String incorrect) {
+        if (incorrect == null || incorrect.isEmpty()) {
+            reset();
+            return;
+        }
+        chancesRemaining = initialChances - incorrect.length();
+    }
+
+    public void buildGallows(String hiddenWord, String incorrect) {
         System.out.println();
         System.out.println("       +--------+   ");
         displayHead();
@@ -18,7 +31,11 @@ public class Gallows {
         System.out.println("                |   ");
         System.out.println("  ==============+=  ");
         System.out.println();
-        //
+        System.out.printf("%s%s%n"," ".repeat((20-hiddenWord.length())/2), hiddenWord);
+        System.out.println();
+        System.out.printf("%s%s%n"," ".repeat((20-incorrect.length())/2-2),incorrect);
+        System.out.printf("You have %d chances remaining%n", chancesRemaining);
+        System.out.println();
     }
 
     private void displayHead() {

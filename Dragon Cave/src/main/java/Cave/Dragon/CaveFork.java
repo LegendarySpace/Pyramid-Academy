@@ -1,26 +1,23 @@
 package Cave.Dragon;
 
-import java.util.Scanner;
-
 public class CaveFork extends Cave{
     Cave left;
     Cave right;
-    public CaveFork(Scanner scanner, int dist) {
-        scan = scanner;
+    public CaveFork(int dist) {
         if (dist++ < 3) {
             left = switch (d10()) {
-                case 1 -> new CaveFork(scan, dist);
-                case 2,3,4,5 -> new CavePath(scan, dist);
-                default -> new CaveDen(scan, dist);
+                case 1 -> new CaveFork(dist);
+                case 2,3,4,5 -> new CavePath(dist);
+                default -> new CaveDen(dist);
             };
             right = switch (d10()) {
-                case 1 -> new CaveFork(scan, dist);
-                case 2,3,4,5 -> new CavePath(scan, dist);
-                default -> new CaveDen(scan, dist);
+                case 1 -> new CaveFork(dist);
+                case 2,3,4,5 -> new CavePath(dist);
+                default -> new CaveDen(dist);
             };
         } else {
-            left = new CaveDen(scan, dist);
-            right = new CaveDen(scan, dist);
+            left = new CaveDen(dist);
+            right = new CaveDen(dist);
         }
     }
 
@@ -29,22 +26,22 @@ public class CaveFork extends Cave{
         System.out.println();
         System.out.println("As you make your way through the cave it suddenly widens and you encounter a forking path");
 
-        if (leftOrRight().equalsIgnoreCase("left")) left.explore();
+        if (chooseLeft()) left.explore();
         else right.explore();
     }
 
-    public String leftOrRight() {
-        try {
-            String direction;
-            do {
-                System.out.println("Which direction do you go? (Left, Right)");
-                direction = scan.next();
-            } while (!direction.equalsIgnoreCase("left") && !direction.equalsIgnoreCase("right"));
-            return direction;
-        } catch (Exception e) {
-            System.out.println("Error getting user choice!!");
-            e.printStackTrace();
-        }
-        return null;
+    public boolean chooseLeft() {
+        String message = "Which direction do you go? (Left, Right)";
+        String error = "Error getting user choice!!";
+        String direction = ensureInput(message, error);
+        if (!leftOrRight(direction)) return chooseLeft();
+        if (direction.equalsIgnoreCase("left")) return true;
+        return false;
+    }
+
+    public boolean leftOrRight(String direction) {
+        if (direction.equalsIgnoreCase("left") || direction.equalsIgnoreCase("right")) return true;
+        System.out.println("You did not choose Left or Right");
+        return false;
     }
 }

@@ -1,11 +1,8 @@
 package Cave.Dragon;
 
-import java.util.Scanner;
-
 public class CaveDen extends Cave{
     private final int type;
-    public CaveDen(Scanner scanner, int dist) {
-        scan = scanner;
+    public CaveDen(int dist) {
         type = switch(d20()) {
             case 2,3,4,5,6,7,8,9,10 -> 1;
             case 11,12,13,14,15,16,17,18,19 -> 2;

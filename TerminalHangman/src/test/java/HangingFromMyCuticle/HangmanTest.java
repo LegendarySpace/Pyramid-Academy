@@ -13,6 +13,7 @@ import java.util.concurrent.ThreadLocalRandom;
 class HangmanTest {
     public static final String nameSaveFile = "src/test/resources/SavedGame.txt";
     public static final String nameHighScores = "src/test/resources/HighScores.txt";
+    public static final String nameHeterograms = "src/test/resources/Heterograms.txt";
     public static Hangman hangman;
     public static String name = "Me";
 
@@ -25,6 +26,19 @@ class HangmanTest {
     @AfterEach
     void teardown() {
         hangman.scan.close();
+    }
+
+    @Test
+    void validValidateMenuOptionTest() {
+        List<String> values = List.of("n", "new", "c", "continue", "s", "score", "h", "help", "q", "quit");
+        for (String val : values) { assertTrue(hangman.validateMenuOption(val), "Menu selection not registering correctly"); }
+    }
+
+    @Test
+    void invalidValidateMenuOptionTest() {
+        List<String> values = List.of("Brian", "Jordan", "Jacob", "Zach", "Mike", "Luke", "sdfjf", "SDlsucVCIU",
+                "JdfklsKSqwFlkFDlS", "NwefS", "SDfjoefm", "xcVOPem", ".,mwefoi");
+        for (String val : values) { assertFalse(hangman.validateMenuOption(val), "Invalid menu option being accepted"); }
     }
 
     @Test   // Input buffer
@@ -41,71 +55,126 @@ class HangmanTest {
     @Test   // Input buffer
     void invalidInputMenuTest() {
         hangman.scan.close();
-        List<String> values = List.of("Brian", "Jordan", "Jacob", "Zach", "Mike", "Luke", "sdfjf", "SDlsucVCIU",
-                "JdfklsKSqwFlkFDlS", "NwefS", "SDfjoefm", "xcVOPem", ".,mwefoi");
+        List<String> values = List.of("Brian n", "Jordan n", "Jacob n", "Zach n", "Mike n", "Luke n", "sdfjf n", "SDlsucVCIU n",
+                "JdfklsKSqwFlkFDlS n", "NwefS n", "SDfjoefm n", "xcVOPem n", ".,mwefoi n");
         for (String val : values) {
             hangman.scan = new Scanner(new ByteArrayInputStream(val.getBytes()));
-            assertEquals("quit", hangman.inputMenu(), "Improperly handles incorrect input");
+            assertEquals("n", hangman.inputMenu(), "Improperly handles incorrect input");
             hangman.scan.close();
         }
     }
 
-    @Test   // input buffer
-    void validInputGuessLetterTest() {
-        hangman.scan.close();
+    @Test
+    void keywordTest() {
+        List<String> invalid = List.of("Brian", "Jordan", "Jacob", "Zach", "Mike", "Luke", "sdfjf", "SDlsucVCIU",
+                "JdfklsKSqwFlkFDlS", "NwefS", "SDfjoefm", "xcVOPem", ".,mwefoi");
+        for (String val : invalid) {
+            assertFalse(hangman.isKeyword(val, "", "", ""), "Invalid word accepted as keyword");
+        }
+        List<String> valid = List.of("help");//, "save", "quit"); // save and quit will exit system and should end test
+        for (String val : valid) {
+            hangman.scan = new Scanner(new ByteArrayInputStream("%n".getBytes()));
+            assertTrue(hangman.isKeyword(val, "", "", ""), "Keyword not registering correctly");
+        }
+    }
+
+    @Test
+    void correctValidateLetterTest() {
         List<String> values = List.of("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
                 "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z");
-        for (String val : values) {
-            hangman.lettersGuessed = "";
-            hangman.lettersIncorrect = "";
-            hangman.scan = new Scanner(new ByteArrayInputStream(val.getBytes()));
-            assertEquals(val, hangman.inputGuessLetter(), "Letter Guess is not correctly accepting input");
-            hangman.scan.close();
-            hangman.scan = new Scanner(new ByteArrayInputStream(val.toLowerCase().getBytes()));
-            assertEquals(val, hangman.inputGuessLetter(), "Letter Guess is not correctly accepting input");
-            hangman.scan.close();
+        for (String letter : values) {
+            assertTrue(hangman.validateLetter(letter, ""), String.format("%s is not registering as a letter", letter));
+            assertTrue(hangman.validateLetter(letter.toLowerCase(), ""), String.format("%s is not registering as a letter", letter.toLowerCase()));
         }
-        hangman.scan.close();
-        List<String> others = List.of("Brian", "Jordan", "Jacob", "Zach", "Mike", "Luke", "sdfjf", "SDlsucVCIU",
-                "JdfklsKSqwFlkFDlS", "NwefS", "SDfjoefm", "xcVOPem");
-        for (String val : others) {
-            hangman.scan = new Scanner(new ByteArrayInputStream(val.getBytes()));
-            assertEquals(Character.toString(val.charAt(0)).toUpperCase(), hangman.inputGuessLetter(),
-                    "Letter Guess is not correctly handling multicharacter Strings");
-            hangman.scan.close();
-        }
-
-
     }
 
-    @Test   // input buffer
-    void invalidInputGuessLetterTest() {
-        hangman.scan.close();
-        List<String> values = Arrays.asList("quit", "save", "help", "%n", ".,mwefoi", "!", "@", "(", "+", "~");
-        for (String val : values) {
-            hangman.lettersGuessed = "";
-            hangman.lettersIncorrect = "";
-            hangman.scan = new Scanner(new ByteArrayInputStream(val.getBytes()));
-            assertEquals("quit", hangman.inputGuessLetter(), "Invalid input not prompting quit");
-            hangman.scan.close();
+    @Test
+    void incorrectValidateLetterTest() {
+        String guessed = "abcdefghijklmnopqrstuvwxyz";
+        List<String> invalid = List.of("Brian", "Jordan", "Jacob", "Zach", "Mike", "Luke", "*sdfjf", "%SDlsucVCIU",
+                "JdfklsKSqwFlkFDlS", "-NwefS", "(SDfjoefm", "xcVOPem", ".,mwefoi", "A", "B", "C", "D", "E", "F", "G",
+                "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z");
+        for (String val : invalid) {
+            assertFalse(hangman.validateLetter(val, guessed), String.format("%s is incorrectly being considered a valid letter", val));
+            assertFalse(hangman.validateLetter(val.toLowerCase(), guessed), String.format("%s is incorrectly being considered a valid letter", val));
+            assertFalse(hangman.validateLetter(val.toUpperCase(), guessed), String.format("%s is incorrectly being considered a valid letter", val));
         }
-        hangman.lettersGuessed = "";
-        hangman.lettersIncorrect = "";
-        assertEquals("quit", hangman.inputGuessLetter(), "Invalid input not prompting quit");
-        hangman.scan.close();
     }
+
+    @Test
+    void validCheckLetterTest() {
+        String secret = "abcdefghijklmnopqrstuvwxyz";
+        List<String> values = List.of("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
+                "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", " ");
+        hangman.gallows.reset();
+        for (String letter : values) {
+            char l = letter.charAt(0);
+            String[] strings = {secret, "", " ", null};
+            for (String str : strings) {
+                assertEquals("", hangman.checkLetterContained(l, str, ""), String.format("%s should not be added to incorrect letters", letter));
+                assertEquals(Gallows.initialChances, hangman.gallows.getChancesRemaining(), "Lives decreased when it shouldn't have");
+            }
+        }
+    }
+
+    @Test
+    void invalidCheckLetterTest() {
+        List<String> values = List.of("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
+                "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z");
+        for (String letter : values) {
+            hangman.gallows.reset();
+            assertEquals(letter, hangman.checkLetterContained(letter.charAt(0), "123", ""), String.format("%s isn't being added to incorrectGuesses", letter));
+            assertEquals(Gallows.initialChances-1, hangman.gallows.getChancesRemaining(), "Lives are not decreasing properly");
+        }
+    }
+
+    @Test
+    void hiddenWordTest() {
+        String guessed = "abcdefghijklmnopqrstuvwxyz";
+        List<String> words = List.of("Brian", "Jordan", "Jacob", "Zach", "Mike", "Luke", "*sdfjf", "%SDlsucVCIU",
+                "JdfklsKSqwFlkFDlS", "-NwefS", "(SDfjoefm", "xcVOPem", ".,mwefoi", "A", "B", "C", "D", "E", "F", "G",
+                "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z");
+        for (String word : words) {
+            String w = word.replaceAll("[^a-zA-Z0-9]", "");
+            assertEquals("_".repeat(w.length()), hangman.getHiddenWord(word, ""), "Word is not properly hidden");
+            assertEquals(w, hangman.getHiddenWord(word, guessed), "Word is not properly uncovered");
+        }
+    }
+
+    @Test
+    void hiddenCharCountTest() {
+        String secret = "abcdefghijklmnopqrstuvwxyz";
+        List<String> guesses = hangman.loadWordBuffer("a", nameHeterograms);
+        for (String revealed : guesses) {
+            assertEquals(26-revealed.length(), hangman.getHiddenCharCount(secret, revealed),
+                    String.format("The number of hidden chars in secret word %s is incorrect", revealed));
+            assertEquals(26-revealed.length(), hangman.getHiddenCharCount(hangman.getHiddenWord(secret, revealed)),
+                    String.format("The number of hidden chars in hidden word %s is incorrect", revealed));
+        }
+    }
+
+    @Test
+    void revealedCharCountTest() {
+        String secret = "abcdefghijklmnopqrstuvwxyz";
+        List<String> guesses = hangman.loadWordBuffer("a", nameHeterograms);
+        for (String revealed : guesses) {
+            assertEquals(revealed.length(), hangman.getRevealedCharCount(secret, revealed), "The number of revealed chars in secret word is incorrect");
+            assertEquals(revealed.length(), hangman.getRevealedCharCount(hangman.getHiddenWord(secret, revealed)),
+                    "The number of revealed chars in hidden word is incorrect");
+        }
+    }
+
+
+
 
     @Test   // Input buffer, secret, letters guessed, chances
     void gameplayLoopFailTest() {
         hangman.scan.close();
-        List<String> fails = Arrays.asList("h i j k l m n", "a b c d e f g n", "quit");
+        List<String> fails = Arrays.asList("h i j k l m n", "a b c d e f g n"); //, "quit"); // quit will exit system and should end test
         for (String val : fails) {
-            hangman.lettersGuessed = "";
-            hangman.lettersIncorrect = "";
-            hangman.secretWord = "abcdefg";
-            hangman.gallows.chancesRemaining = 6;
+            hangman.gallows.reset();
             hangman.scan = new Scanner(new ByteArrayInputStream(val.getBytes()));
-            assertFalse(hangman.gameplayLoop(), "Gameplay loop incorrectly returning TRUE");
+            assertFalse(hangman.gameplayLoop("abcdefg", "", ""), "Gameplay loop incorrectly returning TRUE");
             hangman.scan.close();
         }
     }
@@ -115,43 +184,25 @@ class HangmanTest {
         hangman.scan.close();
         List<String> success = Arrays.asList("h i j k l m y", "a b c d e f g y");
         for (String val : success) {
-            hangman.lettersGuessed = "";
-            hangman.lettersIncorrect = "";
-            hangman.secretWord = "abcdefg";
-            hangman.gallows.chancesRemaining = 6;
+            hangman.gallows.reset();
             hangman.scan = new Scanner(new ByteArrayInputStream(val.getBytes()));
-            assertTrue(hangman.gameplayLoop(), "Gameplay loop incorrectly returning FALSE");
+            assertTrue(hangman.gameplayLoop("abcdefg", "", ""), "Gameplay loop incorrectly returning FALSE");
             hangman.scan.close();
         }
     }
 
-    @Test   // letters guessed and incorrect, secret word, chances remaining
-    void checkLetterNotContainedTest() {
-        for (int i = -10; i < 20; i++) {
-            hangman.lettersGuessed = "";
-            hangman.lettersIncorrect = "";
-            hangman.gallows.chancesRemaining = i;
-            hangman.secretWord = "a";
-            int rn = ThreadLocalRandom.current().nextInt(1, 10);
-            for (int j = 0; j < rn; j++) {
-                hangman.checkLetterContained("b");
-            }
-            assertEquals(i-rn, hangman.gallows.chancesRemaining, "Chances not properly decrementing");
-        }
-    }
 
-    @Test   // letters guessed and incorrect, secret word, chances remaining
-    void checkLetterContainedTest() {
-        for (int i = -10; i < 20; i++) {
-            hangman.lettersIncorrect = "";
-            hangman.lettersGuessed = "";
-            hangman.gallows.chancesRemaining = i;
-            hangman.secretWord = "a";
-            int rn = ThreadLocalRandom.current().nextInt(1, 10);
-            for (int j = 0; j < rn; j++) {
-                hangman.checkLetterContained("a");
-            }
-            assertEquals(i, hangman.gallows.chancesRemaining, "Chances unintentionally changing");
+
+    @Test
+    void validPlayAgainTest() {
+        List<String> valid = List.of("y", "yes", "n", "no");
+        for (String response : valid) {
+            assertTrue(hangman.validPlayAgain(response), "Valid responses are claimed invalid");;
+        }
+        List<String> invalid = List.of("Brian", "Jordan", "Jacob", "Zach", "Mike", "Luke", "sdfjf", "SDlsucVCIU",
+                "JdfklsKSqwFlkFDlS", "NwefS", "SDfjoefm", "xcVOPem");
+        for (String response : invalid) {
+            assertFalse(hangman.validPlayAgain(response), "Invalid responses are being considered valid");
         }
     }
 
@@ -159,12 +210,11 @@ class HangmanTest {
     void saveGameTest() {
         List<String> values = List.of("Brian", "Jordan", "Jacob", "Zach", "Mike", "Luke", "sdfjf", "SDlsucVCIU",
                 "JdfklsKSqwFlkFDlS", "NwefS", "SDfjoefm", "xcVOPem");
+        String guessed = "abcdefg";
+        String incorrect = "hijklmno";
         for (int i = 0; i < values.size(); i++) {
             Hangman h = new Hangman(hangman.scan, "Brian" + i);
-            h.secretWord = values.get(i);
-            h.lettersGuessed = "abcdefg";
-            h.lettersIncorrect = h.lettersGuessed.replaceAll("["+h.secretWord+"]","");
-            assertTrue(h.saveGame(nameSaveFile), "Game not saving correctly");
+            assertTrue(h.saveGame(nameSaveFile, values.get(i), guessed, incorrect), "Game not saving correctly");
         }
     }
 
@@ -172,34 +222,41 @@ class HangmanTest {
     void loadGameTest() {
         List<String> values = List.of("Brian", "Jordan", "Jacob", "Zach", "Mike", "Luke", "sdfjf", "SDlsucVCIU",
                 "JdfklsKSqwFlkFDlS", "NwefS", "SDfjoefm", "xcVOPem");
+        String guessed = "abcdefg";
+        String incorrect = "hijklmno";
         for (int i = 0; i < values.size(); i++) {
             Hangman h = new Hangman(hangman.scan, "Brian" + i);
-            h.secretWord = values.get(i);
-            h.lettersGuessed = "abcdefg";
-            h.lettersIncorrect = h.lettersGuessed.replaceAll("["+h.secretWord+"]","");
-            h.saveGame(nameSaveFile);
+            h.saveGame(nameSaveFile, values.get(i), guessed, incorrect);
             List<String> load = h.loadGame(nameSaveFile);
-            assertEquals(h.secretWord, load.get(0), "Secret word failed to load");
-            assertEquals(h.lettersGuessed, load.get(1), "failed to load letters guessed");
-            assertEquals(h.lettersIncorrect, load.get(2), "failed to load incorrect letters");
+            assertEquals(values.get(i), load.get(0), "Secret word failed to load");
+            assertEquals(guessed, load.get(1), "failed to load letters guessed");
+            assertEquals(incorrect, load.get(2), "failed to load incorrect letters");
+        }
+    }
+
+    @Test
+    void validDifficultyTest() {
+        List<String> values = List.of("a", "any", "e", "easy", "n", "normal", "h", "hard", "c", "challenging");
+        for (String response : values) {
+            assertTrue(hangman.validDifficulty(response), "Difficulty is not being registered");
+        }
+        List<String> invalid = List.of("Brian", "Jordan", "Jacob", "Zach", "Mike", "Luke", "*sdfjf", "%SDlsucVCIU",
+                "JdfklsKSqwFlkFDlS", "-NwefS", "(SDfjoefm", "xcVOPem", ".,mwefoi", "");
+        for (String response : invalid) {
+            assertFalse(hangman.validDifficulty(response), "Invalid difficulty is being accepted");
         }
     }
 
     @Test   // Pass an empty list and a filled list, player and calculate score
     void addScoreToListTest() {
-        List<String> values = List.of("Brian", "Jordan", "Jacob", "Zach", "Mike", "Luke", "sdfjf", "SDlsucVCIU",
-                "JdfklsKSqwFlkFDlS", "NwefS", "SDfjoefm", "xcVOPem");
-        for (String val : values) {
-            hangman.secretWord = val;
-            hangman.lettersGuessed = "abcdefg";
-            hangman.lettersIncorrect = hangman.lettersGuessed.replaceAll("["+hangman.secretWord+"]","");
+        for (int i = -200; i < 600; i += 10) {
             ArrayList<String> list = new ArrayList<>();
-            hangman.addScoreToList(list);
+            hangman.addScoreToList(list, i);
             assertEquals(name, list.get(0), "Name not being added to score list");
-            assertEquals(Integer.toString(hangman.calculateScore()), list.get(1), "Score not being added to score list");
+            assertEquals(Integer.toString(i), list.get(1), "Score not being added to score list");
         }
         ArrayList<String> list = null;
-        hangman.addScoreToList(list);
+        hangman.addScoreToList(list, 200);
         assertNull(list, "Null list should remain null but isn't");
     }
 
@@ -216,34 +273,8 @@ class HangmanTest {
 
     @Test   // Set file location, player, and calculate score
     void updateScoresTest() {
-        hangman.secretWord = "planet";
-        hangman.lettersGuessed = "abcefgln";
-        hangman.lettersIncorrect = hangman.lettersGuessed.replaceAll("["+hangman.secretWord+"]","");
-        assertTrue(hangman.updateScores(nameHighScores));
-        assertFalse(hangman.updateScores(null));
-    }
-
-    @Test   // Set input buffer
-    void successfulPlayAgainTest() {
-        hangman.scan.close();
-        List<String> values = List.of("y", "yes");
-        for (String val : values) {
-            hangman.scan = new Scanner(new ByteArrayInputStream(val.getBytes()));
-            assertTrue(hangman.inputPlayAgain());
-            hangman.scan.close();
-        }
-    }
-
-    @Test   // Set input buffer
-    void failedPlayAgainTest() {
-        hangman.scan.close();
-        List<String> values = List.of("n", "no", "q", "quit", "Brian", "Jordan", "Jacob", "Zach", "Mike", "Luke",
-                "sdfjf", "SDlsucVCIU", "JdfklsKSqwFlkFDlS", "NwefS", "SDfjoefm", "xcVOPem");
-        for (String val : values) {
-            hangman.scan = new Scanner(new ByteArrayInputStream(val.getBytes()));
-            assertFalse(hangman.inputPlayAgain());
-            hangman.scan.close();
-        }
+        assertTrue(hangman.updateScores(nameHighScores, 100), "Scores are not updating properly");
+        assertFalse(hangman.updateScores(null, 100), "Invalid score claiming to update");
     }
 
     @Test

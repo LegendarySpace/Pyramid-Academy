@@ -5,60 +5,69 @@ import org.junit.jupiter.api.*;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 class DragonCaveTest {
+    DragonCave dc;
+
+    @BeforeEach
+    void setup() {
+        dc = new DragonCave();
+    }
+
+    @Test
+    void validEastWestNorthTest() {
+        List<String> values = List.of("East", "EAST", "eAsT", "EasT", "eASt", "east", "West", "WEST","wEsT", "WesT",
+                "wESt", "west", "North", "NORTH", "nOrTh", "NoRtH", "NortH", "nORTh", "north");
+        for (String str : values) assertTrue(dc.eastWestNorth(str));
+    }
+
+    @Test
+    void invalidEastWestNorthTest() {
+        List<String> values = List.of("South", "SOUTH", "south", "sdfjf", "SDlsucVCIU",
+                "JdfklsKSqwFlkFDlS", "NwefS", "SDfjoefm", "xcVOPem", ".,mwefoi", "aaaaaaaaa", "ouiposdviohfja;lfhi");
+        for (String str : values) assertFalse(dc.eastWestNorth(str));
+    }
+
     @Test
     void determineCaveTest() {
         // assert determineCave(direction) does not return null unless direction is invalid
-        assertAll("CaveTest results",
-                () -> assertNotNull(DragonCave.determineCave("east"), "East mountain failed"),
-                () -> assertNotNull(DragonCave.determineCave("west"), "West mountain failed"),
-                () -> assertNotNull(DragonCave.determineCave("north"), "North mountain failed"),
-                () -> assertNull(DragonCave.determineCave("south"), "South mountain should be invalid"));
+       assertNotNull(dc.determineCave("east"), "East mountain failed");
+       assertNotNull(dc.determineCave("west"), "West mountain failed");
+       assertNotNull(dc.determineCave("north"), "North mountain failed");
+       List<String> values = List.of("South", "SOUTH", "south", "sdfjf", "SDlsucVCIU",
+                "JdfklsKSqwFlkFDlS", "NwefS", "SDfjoefm", "xcVOPem", ".,mwefoi");
+       for (String str : values) assertNull(dc.determineCave(str), String.format("%s should be invalid", str));
     }
 
     @Test
-    void eastTest() {
+    void approachMountainEastTest() {
         // assert different ByteArrayInputStreams return usable string
         List<String> values = List.of("East", "EAST", "eAsT", "EasT", "eASt", "east");
         for (String str : values) {
-            DragonCave.scan = new Scanner(new ByteArrayInputStream(str.getBytes()));
-            assertEquals("east", DragonCave.eastWestNorth().toLowerCase(), String.format("Direction input %s failed", str));
-            DragonCave.scan.close();
+            Cave.scan = new Scanner(new ByteArrayInputStream(str.getBytes()));
+            assertEquals("east", dc.approachMountain().toLowerCase(), String.format("Direction input %s failed", str));
+            Cave.scan.close();
         }
     }
 
     @Test
-    void westTest() {
+    void approachMountainWestTest() {
         List<String> values = List.of("West", "WEST","wEsT", "WesT", "wESt", "west");
         for (String str : values) {
-            DragonCave.scan = new Scanner(new ByteArrayInputStream(str.getBytes()));
-            assertEquals("west", DragonCave.eastWestNorth().toLowerCase(), String.format("Direction input %s failed", str));
-            DragonCave.scan.close();
+            Cave.scan = new Scanner(new ByteArrayInputStream(str.getBytes()));
+            assertEquals("west", dc.approachMountain().toLowerCase(), String.format("Direction input %s failed", str));
+            Cave.scan.close();
         }
     }
 
     @Test
-    void northTest() {
+    void approachMountainNorthTest() {
         List<String> values = List.of("North", "NORTH", "nOrTh", "NoRtH", "NortH", "nORTh", "north");
         for (String str : values) {
-            DragonCave.scan = new Scanner(new ByteArrayInputStream(str.getBytes()));
-            assertEquals("north", DragonCave.eastWestNorth().toLowerCase(), String.format("Direction input %s failed", str));
-            DragonCave.scan.close();
-        }
-    }
-
-    @Test
-    void invalidTest() {
-        List<String> values = List.of("South", "SOUTH", "south", "sdfjf", "SDlsucVCIU",
-                "JdfklsKSqwFlkFDlS", "NwefS", "SDfjoefm", "xcVOPem", ".,mwefoi");
-        for (String str : values) {
-            DragonCave.scan = new Scanner(new ByteArrayInputStream(str.getBytes()));
-            // assertThrows(NoSuchElementException.class, DragonCave::eastWestNorth, String.format("Invalid direction input %s should be null", str));
-            assertNull(DragonCave.eastWestNorth(), String.format("Invalid direction input %s should be null", str));
-            DragonCave.scan.close();
+            Cave.scan = new Scanner(new ByteArrayInputStream(str.getBytes()));
+            assertEquals("north", dc.approachMountain().toLowerCase(), String.format("Direction input %s failed", str));
+            Cave.scan.close();
         }
     }
 

@@ -5,24 +5,22 @@ import java.util.Scanner;
 public class DragonCave {
     public static String mtn = "Smaugenraug Mountains";
 
-    public static Scanner scan;
-
     public static void main(String[] args) {
-        introduction();
-        scan = new Scanner(System.in);
+        Cave.scan = new Scanner(System.in);
+        DragonCave dc = new DragonCave();
+        dc.introduction();
 
-        try {
-            Cave entrance = determineCave(eastWestNorth());
-            entrance.explore();
-        } catch (Exception e) {
-            System.out.println("Error entering the mountain");
-            e.printStackTrace();
-        }
-        outro();
-        scan.close();
+        Cave entrance;
+        do {
+            entrance = dc.determineCave(dc.approachMountain());
+        } while (entrance == null);
+        entrance.explore();
+
+        dc.outro();
+        Cave.scan.close();
     }
 
-    public static void introduction() {
+    private void introduction() {
         System.out.println("           DRAGON CAVE");
         System.out.println("        Adventure awaits");
         System.out.println("================================");
@@ -33,48 +31,51 @@ public class DragonCave {
         System.out.println("There's 2 types of dragons: kind dragons who share their treasure, and vicious dragons who devour all they encounter.");
     }
 
-    public static void outro() {
+    private void outro() {
         System.out.println();
         System.out.printf("A fitting end to your journey in %s, but things are just beginning for many other adventurers.%n", mtn);
         System.out.printf("Come back again to hear more tales from the %s.%n", mtn);
     }
 
-    public static String eastWestNorth() {
-        try {
-            String enter;
-            do {
-                System.out.println("Which side of the mountain do you decide to approach? (East, West, North)");
-                enter = scan.next();
-            } while (!(enter.equalsIgnoreCase("east") || enter.equalsIgnoreCase("west") || enter.equalsIgnoreCase("north")));
-            return enter;
-        } catch (Exception e) {
-            System.out.println("Error getting user input!!!");
-            e.printStackTrace();
-        }
-        return null;
+    protected String approachMountain() {
+        String message = "Which side of the mountain do you decide to approach? (East, West, North)";
+        String error = "Error getting user input!!!";
+        String enter = Cave.ensureInput(message, error);
+        if (eastWestNorth(enter)) return enter;
+        return approachMountain();
     }
 
-    public static Cave determineCave(String direction) {
+    protected boolean eastWestNorth(String direction) {
+        if (direction == null || direction.isEmpty() || !(direction.equalsIgnoreCase("east") ||
+                direction.equalsIgnoreCase("west") || direction.equalsIgnoreCase("north"))) {
+            System.out.println("You did not choose East, West, or North");
+            return false;
+        }
+        return true;
+    }
+
+    protected Cave determineCave(String direction) {
+        if (direction == null || direction.isEmpty()) return null;
         if (direction.equalsIgnoreCase("east")) {
             // East is most likely to be a den
             return switch (Cave.d5()) {
-                case 1 -> new CaveFork(scan,0);
-                case 2 -> new CavePath(scan,0);
-                default -> new CaveDen(scan,0);
+                case 1 -> new CaveFork(0);
+                case 2 -> new CavePath(0);
+                default -> new CaveDen(0);
             };
         } else if (direction.equalsIgnoreCase("west")) {
             // West is most likely to be a path
             return switch (Cave.d5()) {
-                case 1 -> new CaveFork(scan,0);
-                case 2 -> new CaveDen(scan,0);
-                default -> new CavePath(scan,0);
+                case 1 -> new CaveFork(0);
+                case 2 -> new CaveDen(0);
+                default -> new CavePath(0);
             };
         } else if (direction.equalsIgnoreCase("north")) {
             // North is most likely to be a fork
             return switch (Cave.d5()) {
-                case 1 -> new CaveDen(scan,0);
-                case 2 -> new CavePath(scan,0);
-                default -> new CaveFork(scan,0);
+                case 1 -> new CaveDen(0);
+                case 2 -> new CavePath(0);
+                default -> new CaveFork(0);
             };
         } else return null;
     }

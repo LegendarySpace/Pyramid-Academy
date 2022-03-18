@@ -1,5 +1,7 @@
 package HangingFromMyCuticle;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Entry {
@@ -7,19 +9,30 @@ public class Entry {
     public static void main(String[] args) {
         System.out.println(" LET'S PLAY HANGMAN ");
         System.out.println("====================");
-        System.out.println();
-        System.out.print("Please enter your name:  ");
         Scanner scan = new Scanner(System.in);
-        name = scan.nextLine();
-
-        System.out.printf("Welcome %s, have a wonderful time playing Hangman%n", name);
-
+        name = ensureName(scan, "Please enter your name: ", "Error getting user name!!");
         Hangman game = new Hangman(scan, name);
+
+        System.out.printf("%nWelcome %s, have a wonderful time playing Hangman%n", name);
         boolean play;
         do {
             play = game.showMenu();
         } while (play);
 
         scan.close();
+    }
+
+    public static String ensureName(Scanner scan, String message, String error) {
+        String result = "";
+        try {
+            System.out.print("%n"+message);
+            result = scan.nextLine();
+            return result;
+        } catch (Exception e) {
+            System.out.println("%n"+error);
+            e.printStackTrace();
+            ensureName(scan, message, error);
+        }
+        return result;
     }
 }

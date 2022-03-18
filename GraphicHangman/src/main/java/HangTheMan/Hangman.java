@@ -12,33 +12,33 @@ import java.util.stream.Collectors;
 public class Hangman {
     // common file names
     public static final String nameDictionary = "words_alpha.txt";
-    public static final String nameSaveFile = "src/main/resources/SavedGame.txt";
     public static final String nameHighScores = "src/main/resources/HighScores.txt";
+    public static final String nameSaveFile = "src/main/resources/SavedGame.txt";
     public static final int scoreSheetSize = 10;
+
+    public final int pointsLostPerIncorrect = 5;
+    public final int pointsPerGuess = 10;
     public final Gallows gallows;
     public final String player;
-    public final int pointsPerGuess = 10;
-    public final int pointsLostPerIncorrect = 5;
-    public Scanner scan;
 
     public ArrayList<String> wordBuffer;
-    public String secretWord;
-    public String lettersGuessed;
-    public String lettersIncorrect;
-    public String difficulty;
+    public Scanner scan;
 
     public Hangman(Scanner scanner, String name) {
         scan = scanner;
         player = name;
         gallows = new Gallows();
         wordBuffer = new ArrayList<>();
-        difficulty = "a";
     }
 
-    public boolean showMenu() {
-        inputLoadWordByDifficulty();
+    public boolean showMenu() { return processMenuSelection(inputMenu()); }
+
+    protected String inputMenu() {
+        String error = "Error receiving menu input";
         displayMenu();
-        return processMenuSelection(inputMenu());
+        String option = ensureInput("", error);
+        if (validateMenuOption(option)) return option;
+        return inputMenu();
     }
 
     private void displayMenu() {
@@ -50,36 +50,26 @@ public class Hangman {
         System.out.println("Quit Game:           quit");
     }
 
-    protected String inputMenu() {
-        String result;
-        try {
-            do {
-                result = scan.next();
-            } while (!result.equalsIgnoreCase("n") && !result.equalsIgnoreCase("new") &&
-                    !result.equalsIgnoreCase("c") && !result.equalsIgnoreCase("continue") &&
-                    !result.equalsIgnoreCase("s") && !result.equalsIgnoreCase("score") &&
-                    !result.equalsIgnoreCase("h") && !result.equalsIgnoreCase("help") &&
-                    !result.equalsIgnoreCase("q") && !result.equalsIgnoreCase("quit"));
-            return result;
-        } catch (Exception e) {
-            System.out.println("Error receiving menu input");
-            if (!(e instanceof NoSuchElementException)) e.printStackTrace();
-        }
-        return "quit";
+    protected boolean validateMenuOption(String option) {
+        if (option == null || option.isEmpty()) return false;
+        if (option.equalsIgnoreCase("n") || option.equalsIgnoreCase("new") ||
+                option.equalsIgnoreCase("c") || option.equalsIgnoreCase("continue") ||
+                option.equalsIgnoreCase("s") || option.equalsIgnoreCase("score") ||
+                option.equalsIgnoreCase("h") || option.equalsIgnoreCase("help") ||
+                option.equalsIgnoreCase("q") || option.equalsIgnoreCase("quit")) return true;
+        System.out.println("Not a valid menu choice");
+        return false;
     }
 
     protected boolean processMenuSelection(String input) {
         if (input == null || input.isEmpty()) return false;
         if (input.equalsIgnoreCase("n") || input.equalsIgnoreCase("new")) {
-            boolean play;
-            do play = newGame();
-            while (play);
+            if (newGame()) return processMenuSelection("n");
             return false;
         } else if (input.equalsIgnoreCase("c") || input.equalsIgnoreCase("continue")) {
             boolean play;
             List<String> game = loadGame(nameSaveFile);
-            play = continueGame(game);
-            while (play) play = newGame();
+            if (continueGame(game)) return processMenuSelection("n");
             return false;
         } else if (input.equalsIgnoreCase("s") || input.equalsIgnoreCase("score")) {
             displayHighScores();
@@ -92,23 +82,18 @@ public class Hangman {
     }
 
     private boolean newGame() {
-        if (wordBuffer.size() < 2) loadWordBuffer();
+        if (wordBuffer.size() < 2) inputLoadWordByDifficulty();
         Collections.shuffle(wordBuffer);
-        secretWord = wordBuffer.get(0).toUpperCase();
+        String secret = wordBuffer.get(0).toUpperCase();
         wordBuffer.remove(0);
-        lettersGuessed = "";
-        lettersIncorrect = "";
-        gallows.chancesRemaining = Gallows.initialChances;
-        return gameplayLoop();
+        gallows.reset();
+        return gameplayLoop(secret, "", "");
     }
 
     private boolean continueGame(List<String> list) {
-        if (list == null) return newGame();
-        secretWord = decodeString(list.get(0));
-        lettersGuessed = list.get(1);
-        lettersIncorrect = list.get(2);
-        gallows.chancesRemaining = Gallows.initialChances - lettersIncorrect.length();
-        return gameplayLoop();
+        if (list == null || list.size() < 3) return newGame();
+        gallows.reset(list.get(2));
+        return gameplayLoop(decodeString(list.get(0)), list.get(1), list.get(2));
     }
 
     private void displayHighScores() {
@@ -120,8 +105,7 @@ public class Hangman {
                     Integer.parseInt(highScores.get(idx+1)), highScores.get(idx), highScores.get(idx+2));
             else System.out.printf("%d:%n", i);
         }
-        System.out.println("Press Enter to return to Menu");
-        scan.next();
+        ensureInputLine("Press Enter to return to Menu", "Please enter any button");
     }
 
     private void displayHelp() {
@@ -136,125 +120,151 @@ public class Hangman {
         System.out.println();
         System.out.println("At any time you can save your game to resume later by typing save, or exit the game by typing quit");
         System.out.println("Have a great time playing");
-        System.out.println("Press Enter to return to Menu");
-        scan.next();
+        ensureInputLine("Press Enter to return to Menu", "Please enter any button");
     }
 
-    protected boolean gameplayLoop() {
-        int charactersRemaining = secretWord.replaceAll("[ "+lettersGuessed+"]", "").length();
-        String guess;
-        displayGallows();
-        while (charactersRemaining > 0 && gallows.chancesRemaining > 0) {   // secret word not revealed and chances remaining
-            guess = inputGuessLetter();
-            if (guess.equalsIgnoreCase("quit")) return false;
-            checkLetterContained(guess);
-            charactersRemaining = secretWord.replaceAll("[ "+lettersGuessed+"]", "").length();
+    protected boolean gameplayLoop(String secret, String attempted, String incorrect) {
+        gallows.buildGallows(getHiddenWord(secret, attempted), incorrect);
+        do {   // secret word not revealed and chances remaining
+            String guess = ensureInput("Guess a letter", "Error receiving Guessed Letter").toUpperCase();
+            if (isKeyword(guess, secret, attempted, incorrect)) continue;
+            if (!validateLetter(guess, attempted)) continue;
+            attempted += guess.charAt(0);
+            incorrect = checkLetterContained(guess.charAt(0), secret, attempted);
+            gallows.buildGallows(getHiddenWord(secret, attempted), incorrect);
+        } while (getHiddenCharCount(secret, attempted) > 0 && gallows.hasChances());
+        if (!gallows.hasChances()) return loseMessage(player);
+        return  winMessage(player, secret, gallows.getChancesRemaining());
+    }
+
+    protected boolean isKeyword(String word, String secret, String guessed, String incorrect) {
+        if (word == null || word.isEmpty()) return false;
+        if (word.equalsIgnoreCase("quit")) exit();
+        if (word.equalsIgnoreCase("save")) {
+            saveGame(nameSaveFile, secret, guessed, incorrect);
+            exit();
         }
-        if (gallows.chancesRemaining <= 0) return loseMessage();
-        return  winMessage();
-    }
-
-    protected String inputGuessLetter() {
-        final String quit = "quit";
-        String result;
-        try {
-            do {
-                System.out.println("Guess a letter");
-                result = scan.next();
-                if (result.equalsIgnoreCase("quit")) return quit;
-                if (result.equalsIgnoreCase("save")) {
-                    saveGame(nameSaveFile);
-                    return quit;
-                }
-                if (result.equalsIgnoreCase("help")) {
-                    displayHelp();
-                    result = "";
-                }
-                if (result.length() > 1) result = Character.toString(result.charAt(0));
-                if (lettersGuessed.contains(result.toUpperCase())) {
-                    System.out.printf("You have already guessed %s.%n", result);
-                    result = "";
-                }
-            } while (result.isEmpty() || !Character.isAlphabetic(result.charAt(0)));
-            return result.toUpperCase();
-        } catch (Exception e) {
-            System.out.println("Error receiving Guessed Letter");
-            if (!(e instanceof NoSuchElementException)) e.printStackTrace();
+        if (word.equalsIgnoreCase("help")) {
+            displayHelp();
+            return true;
         }
-        return quit;
+        return false;
     }
 
-    protected void checkLetterContained(String letter) {
-        lettersGuessed += letter;
-        if (!secretWord.contains(letter)) {
-            gallows.chancesRemaining--;
-            lettersIncorrect += letter;
+    protected boolean validateLetter(String word, String guessed) {
+        if (word == null || word.isEmpty() || !Character.isAlphabetic(word.charAt(0))) {
+            System.out.println("That was not a valid guess, please try again");
+            return false;
         }
-        displayGallows();
+        word = word.toUpperCase();        // Ensure all same case
+        guessed = guessed.toUpperCase();
+        String letter = Character.toString(word.charAt(0));
+        if (guessed.contains(letter)) {
+            System.out.printf("The letter %s was previously guessed, guess another letter%n", letter);
+            return false;
+        }
+        return true;
     }
 
-    private void displayGallows() {
-        gallows.buildGallows();
-        String hiddenWord = secretWord.replaceAll("[^ "+lettersGuessed+"]", "_");
-        System.out.printf("%s%s%n"," ".repeat((20-secretWord.length())/2), hiddenWord);
-        System.out.println();
-        System.out.printf("%s%s%n"," ".repeat((20-lettersIncorrect.length())/2-2),lettersIncorrect);
-        System.out.printf("You have %d chances remaining%n", gallows.chancesRemaining);
-        System.out.println();
+    protected String checkLetterContained(char letter, String secret, String incorrect) {
+        if (secret == null) return incorrect;
+        secret = secret.replaceAll("[ ]", "").toUpperCase();    // Remove any whitespace before testing
+        String l = Character.toString(letter).replaceAll("[ ]", "").toUpperCase();
+        if (secret.isEmpty() || l.isEmpty()) return incorrect;
+        if (!secret.contains(l)) {
+            gallows.decrementChances();
+            return incorrect += letter;
+        }
+        return incorrect;
     }
 
-    private boolean winMessage() {
-        System.out.printf("Congratulations %s!!! You uncovered the word %s with %d chances remaining.%n", player, secretWord, gallows.chancesRemaining);
-        updateScores(nameHighScores);
+    protected String getHiddenWord(String secret, String guessed) {
+        if (secret == null || guessed == null || secret.isEmpty()) return "";
+        String s = secret.replaceAll("[^a-zA-Z0-9]", "");
+        return s.replaceAll("[^ "+guessed.toUpperCase()+guessed.toLowerCase()+"]", "_");
+    }
+
+    protected int getHiddenCharCount(String secret, String guessed) {
+        if (secret == null || guessed == null || secret.isEmpty()) return 0;
+        String s = secret.replaceAll("[^a-zA-Z0-9]", "");
+        return s.toUpperCase().replaceAll("[ "+guessed.toUpperCase()+guessed.toLowerCase()+"]", "").length();
+    }
+
+    protected int getHiddenCharCount(String hidden) {
+        if (hidden == null || hidden.isEmpty()) return 0;
+        return hidden.replaceAll("[^_]", "").length();
+    }
+
+    protected int getRevealedCharCount(String secret, String guessed) {
+        if (secret == null || guessed == null || secret.isEmpty()) return 0;
+        String s = secret.replaceAll("[^a-zA-Z0-9]", "");
+        return s.toUpperCase().replaceAll("[^ "+guessed.toUpperCase()+guessed.toLowerCase()+"]", "").length();
+    }
+
+    protected int getRevealedCharCount(String hidden) {
+        if (hidden == null || hidden.isEmpty()) return 0;
+        return hidden.replaceAll("[_]", "").length();
+    }
+
+    private boolean winMessage(String name, String word, int lives) {
+        System.out.printf("Congratulations %s!!! You uncovered the word %s with %d chances remaining.%n", name, word, lives);
+        int myScore = calculateScore(word, lives);
+        updateScores(nameHighScores, myScore);
         return inputPlayAgain();
     }
 
-    private boolean loseMessage() {
+    private boolean loseMessage(String name) {  // TODO: Should update score if score is positive
         System.out.printf("GAME OVER!!! Sorry %s, you guessed %d letters incorrectly.%n", player, Gallows.initialChances);
         return inputPlayAgain();
     }
 
     protected boolean inputPlayAgain() {
-        String replay;
-        try {
-            do {
-                System.out.println("Would you like to play again?");
-                replay = scan.next();
-            } while (!replay.equalsIgnoreCase("y") && !replay.equalsIgnoreCase("yes") &&
-                    !replay.equalsIgnoreCase("n") && !replay.equalsIgnoreCase("no") &&
-                    !replay.equalsIgnoreCase("q") && !replay.equalsIgnoreCase("quit"));
-            return replay.equalsIgnoreCase("y") || replay.equalsIgnoreCase("yes");
-        } catch (Exception e) {
-            System.out.println("Error receiving replay result");
-            if (!(e instanceof NoSuchElementException)) e.printStackTrace();
-        }
-        return false;
+        String response = ensureInput("Would you like to play again", "Error receiving replay result");
+        if (!validPlayAgain(response)) inputPlayAgain();
+        return response.equalsIgnoreCase("y") || response.equalsIgnoreCase("yes");
     }
 
-    protected boolean saveGame(String saveFile) {
+    protected boolean validPlayAgain(String word) {
+        if (word == null || word.isEmpty() || !Character.isAlphabetic(word.charAt(0))) {
+            System.out.println("That was not a valid response, please try again");
+            return false;
+        }
+        if (word.equalsIgnoreCase("q") || word.equalsIgnoreCase("quit")) exit();
+        if (!(word.equalsIgnoreCase("y") || word.equalsIgnoreCase("yes") ||
+                word.equalsIgnoreCase("n") || word.equalsIgnoreCase("no"))) {
+            System.out.printf("%s is not a valid response", word);
+            return false;
+        }
+        return true;
+    }
+
+    protected int calculateScore(String hidden, int lives) {
+        return (getRevealedCharCount(hidden) * pointsPerGuess) - ((Gallows.initialChances - lives) * pointsLostPerIncorrect);
+    }
+
+    protected boolean saveGame(String saveFile, String secret, String guessed, String incorrect) {
+        List<String> saveDetails = List.of("NAME: " + player, encodeString(secret), guessed, incorrect);
         try {
             File file = Paths.get(saveFile).toFile();
-            if (!file.exists()) {
-                Files.write(file.toPath(), List.of("NAME: " + player, encodeString(secretWord), lettersGuessed, lettersIncorrect),
-                        StandardOpenOption.CREATE);
+            if (!file.exists()) {   // new Save file
+                Files.write(file.toPath(), saveDetails, StandardOpenOption.CREATE);
             } else {
                 ArrayList<String> saves = new ArrayList<>(Files.readAllLines(file.toPath()));
                 int start = saves.indexOf("NAME: " + player);
-                if (start > -1) {
+                if (start > -1) {   // Overwrite previous save details
                     for (int i = 3; i >= 0; i--) saves.remove(start + i);
-                    saves.addAll(List.of("NAME: " + player, encodeString(secretWord), lettersGuessed, lettersIncorrect));
+                    saves.addAll(saveDetails);
                     Files.write(file.toPath(), saves, StandardOpenOption.CREATE);
-                } else {
-                    Files.write(file.toPath(), List.of("NAME: " + player, encodeString(secretWord), lettersGuessed, lettersIncorrect),
-                            StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                } else {    // Add save details to file
+                    Files.write(file.toPath(), saveDetails, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
                 }
             }
             return true;
         } catch (Exception e) {
             System.out.println("Error saving game");
             e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
     protected List<String> loadGame(String saveFile) {
@@ -279,32 +289,36 @@ public class Hangman {
 
     protected void inputLoadWordByDifficulty() {
         wordBuffer.clear();
-        System.out.println();
-        String diff = "a";
-        try {
-            do {
-                System.out.println("Please choose a difficulty: ANY, EASY, NORMAL, HARD, CHALLENGING");
-                diff = scan.next();
-            } while (!(diff.equalsIgnoreCase("a") || diff.equalsIgnoreCase("any") ||
-                    diff.equalsIgnoreCase("e") || diff.equalsIgnoreCase("easy") ||
-                    diff.equalsIgnoreCase("n") || diff.equalsIgnoreCase("normal") ||
-                    diff.equalsIgnoreCase("h") || diff.equalsIgnoreCase("hard") ||
-                    diff.equalsIgnoreCase("c") || diff.equalsIgnoreCase("challenging")));
-        } catch (Exception e) {
-            System.out.println("Error receiving difficulty");
-        }
-
-        difficulty = diff;
-        loadWordBuffer();
+        String message = "Please choose a difficulty: ANY, EASY, NORMAL, HARD, CHALLENGING";
+        String error = "Error receiving difficulty";
+        String difficulty = ensureInput(message, error);
+        if (!validDifficulty(difficulty)) inputLoadWordByDifficulty();
+        wordBuffer.addAll(loadWordBuffer(difficulty, nameDictionary));
     }
 
-    private void loadWordBuffer() {
+    protected boolean validDifficulty(String difficulty) {
+        if (difficulty == null || difficulty.isEmpty() || !Character.isAlphabetic(difficulty.charAt(0))) {
+            System.out.println("That was not a valid response, please try again");
+            return false;
+        }
+        if (!(difficulty.equalsIgnoreCase("a") || difficulty.equalsIgnoreCase("any") ||
+                difficulty.equalsIgnoreCase("e") || difficulty.equalsIgnoreCase("easy") ||
+                difficulty.equalsIgnoreCase("n") || difficulty.equalsIgnoreCase("normal") ||
+                difficulty.equalsIgnoreCase("h") || difficulty.equalsIgnoreCase("hard") ||
+                difficulty.equalsIgnoreCase("c") || difficulty.equalsIgnoreCase("challenging"))) {
+            System.out.printf("%s is not a valid difficulty", difficulty);
+            return false;
+        }
+        return true;
+    }
+
+    protected List<String> loadWordBuffer(String difficulty, String dictionary) {
         int min = getWordMin(difficulty);
         int max = getWordMax(difficulty);
         int uniqMin = getWordUniqueMin(difficulty);
         int uniqMax = getWordUniqueMax(difficulty);
         try {
-            URL url = getClass().getClassLoader().getResource(nameDictionary);
+            URL url = getClass().getClassLoader().getResource(dictionary);
             Path p = Paths.get(url.toURI());
             ArrayList<String> words = Files.readAllLines(p).stream()
                     .filter(str -> str.length() > min && str.length() < max)
@@ -313,17 +327,18 @@ public class Hangman {
                         return i > uniqMin && i < uniqMax;
                     }).distinct().collect(Collectors.toCollection(ArrayList::new));
             Collections.shuffle(words);
-            wordBuffer.addAll(words.subList(0, 100));
+            return words.subList(0, 100);
         } catch (Exception e) {
             System.out.println("Error loading Dictionary");
             if (!(e instanceof URISyntaxException) && !(e instanceof NullPointerException)
                     && !(e instanceof IOException)) e.printStackTrace();
-            wordBuffer.addAll(List.of("Hello", "Goodbye", "Fork", "Planet", "Exoplanet",
-                    "Cosmology", "Physics", "Africa", "Neutron", "Proton", "Quark"));
+            return List.of("Helps", "customizable", "Fork", "Planet", "subdermatoglyphic",
+                    "dumbwaiter", "Physical", "importance", "computerizably", "misconjugatedly", "Quark");
         }
     }
 
-    private List<String> loadScores(String scoreFile) {
+    protected List<String> loadScores(String scoreFile) {
+        if (scoreFile == null || scoreFile.isEmpty()) return List.of();
         try {
             File file = Paths.get(scoreFile).toFile();
             if (!file.exists()) return null;
@@ -335,15 +350,14 @@ public class Hangman {
         return null;
     }
 
-    protected boolean updateScores(String scoreFile) {
+    protected boolean updateScores(String scoreFile, int score) {
+        if (scoreFile == null || scoreFile.isEmpty()) return false;
         try {
             File file = Paths.get(scoreFile).toFile();
             ArrayList<String> scoreSheet;
-            if (!file.exists()) {
-                file.createNewFile();
-                scoreSheet = new ArrayList<>();
-            } else scoreSheet = new ArrayList<>(Files.readAllLines(file.toPath()));
-            addScoreToList(scoreSheet);
+            if (file.createNewFile()) scoreSheet = new ArrayList<>();
+            else scoreSheet = new ArrayList<>(Files.readAllLines(file.toPath()));
+            addScoreToList(scoreSheet, score);
             reduceScoresSheet(scoreSheet);
             Files.write(file.toPath(), scoreSheet, StandardOpenOption.CREATE);
             return true;
@@ -355,24 +369,26 @@ public class Hangman {
     }
 
     protected static void reduceScoresSheet(ArrayList<String> scores) {
-        if (scores == null) return;
+        if (scores == null || scores.size() < 3) return;
         int sheetLimit = 3 * scoreSheetSize;
-        while (scores.size() > sheetLimit)
-            try { for (int i = 2; i >= 0; i--) scores.remove(sheetLimit); }
-            catch (Exception e) {
+        if (scores.size() > sheetLimit) {
+            try {
+                for (int i = 2; i >= 0; i--) scores.remove(sheetLimit);
+            } catch (Exception e) {
                 System.out.println("Error removing record from High Score list. Record may be store wrong");
                 if (!(e instanceof IndexOutOfBoundsException)) e.printStackTrace();
             }
+            reduceScoresSheet(scores);
+        }
     }
 
-    protected void addScoreToList(ArrayList<String> scores) {
+    protected void addScoreToList(ArrayList<String> scores, int score) {
         // Each record is 3 lines: name, score, date
         if (scores == null) return;
-        int myScore = calculateScore();
-        List<String> record = List.of(player, Integer.toString(myScore), LocalDate.now().toString());
+        List<String> record = List.of(player, Integer.toString(score), LocalDate.now().toString());
         boolean added = false;
         for (int i = 0; i < scores.size(); i += 3) {
-            if (Integer.parseInt(scores.get(i+1)) < myScore) {
+            if (Integer.parseInt(scores.get(i+1)) < score) {
                 scores.addAll(i, record);
                 added = true;
                 break;
@@ -381,12 +397,8 @@ public class Hangman {
         if (!added) scores.addAll(record);
     }
 
-    protected int calculateScore() {
-        String str = secretWord.replaceAll("[^ "+lettersGuessed+"]", ""); // Remove any letters not guessed
-        return (str.length() * pointsPerGuess) - (lettersIncorrect.length() * pointsLostPerIncorrect);
-    }
-
     public static int getWordMin(String diff) {
+        if (diff == null || diff.isEmpty()) return 3;
         if (diff.equalsIgnoreCase("n") || diff.equalsIgnoreCase("normal")) {
             return 6;
         } else if (diff.equalsIgnoreCase("h") || diff.equalsIgnoreCase("hard")) {
@@ -397,6 +409,7 @@ public class Hangman {
     }
 
     public static int getWordMax(String diff) {
+        if (diff == null || diff.isEmpty()) return 20;
         if (diff.equalsIgnoreCase("e") || diff.equalsIgnoreCase("easy")) {
             return 6;
         } else if (diff.equalsIgnoreCase("n") || diff.equalsIgnoreCase("normal")) {
@@ -407,6 +420,7 @@ public class Hangman {
     }
 
     public static int getWordUniqueMin(String diff) {
+        if (diff == null || diff.isEmpty()) return 2;
         if (diff.equalsIgnoreCase("n") || diff.equalsIgnoreCase("normal")) {
             return 5;
         } else if (diff.equalsIgnoreCase("h") || diff.equalsIgnoreCase("hard")) {
@@ -417,6 +431,7 @@ public class Hangman {
     }
 
     public static int getWordUniqueMax(String diff) {
+        if (diff == null || diff.isEmpty()) return 20;
         if (diff.equalsIgnoreCase("e") || diff.equalsIgnoreCase("easy")) {
             return 6;
         } else if (diff.equalsIgnoreCase("n") || diff.equalsIgnoreCase("normal")) {
@@ -426,6 +441,33 @@ public class Hangman {
         } else if (diff.equalsIgnoreCase("c") || diff.equalsIgnoreCase("challenging")) {
             return 17;
         } else return 20;
+    }
+
+    public String ensureInput(String message, String error) {
+        try {
+            System.out.println(message);
+            return scan.next();
+        } catch (Exception e) {
+            System.out.println(error);
+            e.printStackTrace();
+            return ensureInput(message, error);
+        }
+    }
+
+    public String ensureInputLine(String message, String error) {
+        try {
+            System.out.println(message);
+            return scan.nextLine();
+        } catch (Exception e) {
+            System.out.println(error);
+            e.printStackTrace();
+            return ensureInputLine(message, error);
+        }
+    }
+
+    public static void exit() {
+        System.out.println("Thank you for playing");
+        System.exit(0);
     }
 
     public static String encodeString(String str) {    // Used to hide the secret words when saved to prevent exploit
