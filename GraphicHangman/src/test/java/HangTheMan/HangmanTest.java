@@ -164,9 +164,6 @@ class HangmanTest {
         }
     }
 
-
-
-
     @Test   // Input buffer, secret, letters guessed, chances
     void gameplayLoopFailTest() {
         hangman.scan.close();
@@ -190,8 +187,6 @@ class HangmanTest {
             hangman.scan.close();
         }
     }
-
-
 
     @Test
     void validPlayAgainTest() {
@@ -273,8 +268,11 @@ class HangmanTest {
 
     @Test   // Set file location, player, and calculate score
     void updateScoresTest() {
-        assertTrue(hangman.updateScores(nameHighScores, 100), "Scores are not updating properly");
-        assertFalse(hangman.updateScores(null, 100), "Invalid score claiming to update");
+        List<Integer> list = List.of(-50,10,100,20,-40,50,200,600);
+        for (int score : list) {
+            assertTrue(hangman.updateScores(nameHighScores, score), "Scores are not updating properly");
+            assertFalse(hangman.updateScores(null, score), "Invalid score claiming to update");
+        }
     }
 
     @Test

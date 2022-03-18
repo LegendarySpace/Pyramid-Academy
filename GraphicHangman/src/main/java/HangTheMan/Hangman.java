@@ -98,14 +98,16 @@ public class Hangman {
 
     private void displayHighScores() {
         List<String> highScores = loadScores(nameHighScores);
-        int idx;
-        for (int i = 0; i < scoreSheetSize; i++) {
-            idx = i * 3;
-            if (highScores != null && idx < highScores.size()) System.out.printf("%d: %03d - %s at %s%n", i,
-                    Integer.parseInt(highScores.get(idx+1)), highScores.get(idx), highScores.get(idx+2));
-            else System.out.printf("%d:%n", i);
-        }
+        printHighScore(highScores, 0);
         ensureInputLine("Press Enter to return to Menu", "Please enter any button");
+    }
+
+    private void printHighScore(List<String> highScores, int iter) {
+        int idx = iter * 3;
+        if (highScores != null && idx < highScores.size()) System.out.printf("%d: %03d - %s at %s%n", iter,
+                Integer.parseInt(highScores.get(idx+1)), highScores.get(idx), highScores.get(idx+2));
+        else System.out.printf("%d:%n", iter);
+        if (iter < scoreSheetSize) printHighScore(highScores, iter+1);
     }
 
     private void displayHelp() {
@@ -125,16 +127,20 @@ public class Hangman {
 
     protected boolean gameplayLoop(String secret, String attempted, String incorrect) {
         gallows.buildGallows(getHiddenWord(secret, attempted), incorrect);
-        do {   // secret word not revealed and chances remaining
-            String guess = ensureInput("Guess a letter", "Error receiving Guessed Letter").toUpperCase();
-            if (isKeyword(guess, secret, attempted, incorrect)) continue;
-            if (!validateLetter(guess, attempted)) continue;
-            attempted += guess.charAt(0);
-            incorrect = checkLetterContained(guess.charAt(0), secret, attempted);
-            gallows.buildGallows(getHiddenWord(secret, attempted), incorrect);
-        } while (getHiddenCharCount(secret, attempted) > 0 && gallows.hasChances());
+        attempted = letterFetch(secret, attempted, incorrect);
         if (!gallows.hasChances()) return loseMessage(player);
         return  winMessage(player, secret, gallows.getChancesRemaining());
+    }
+
+    protected String letterFetch(String secret, String attempted, String incorrect) {
+        String guess = ensureInput("Guess a letter", "Error receiving Guessed Letter").toUpperCase();
+        if (isKeyword(guess, secret, attempted, incorrect)) return letterFetch(secret, attempted, incorrect);
+        if (!validateLetter(guess, attempted)) return letterFetch(secret, attempted, incorrect);
+        attempted += guess.charAt(0);
+        incorrect = checkLetterContained(guess.charAt(0), secret, attempted);
+        gallows.buildGallows(getHiddenWord(secret, attempted), incorrect);
+        if (getHiddenCharCount(secret, attempted) > 0 && gallows.hasChances()) return letterFetch(secret, attempted, incorrect);
+        return attempted;
     }
 
     protected boolean isKeyword(String word, String secret, String guessed, String incorrect) {
@@ -252,7 +258,10 @@ public class Hangman {
                 ArrayList<String> saves = new ArrayList<>(Files.readAllLines(file.toPath()));
                 int start = saves.indexOf("NAME: " + player);
                 if (start > -1) {   // Overwrite previous save details
-                    for (int i = 3; i >= 0; i--) saves.remove(start + i);
+                    saves.remove(start + 3);
+                    saves.remove(start + 2);
+                    saves.remove(start + 1);
+                    saves.remove(start);
                     saves.addAll(saveDetails);
                     Files.write(file.toPath(), saves, StandardOpenOption.CREATE);
                 } else {    // Add save details to file
@@ -277,7 +286,10 @@ public class Hangman {
             // sublist reflects changes to list, need an immutable list instead
             saves.set(start + 1, decodeString(saves.get(start + 1)));
             List<String> result = Arrays.asList(saves.subList(start + 1, start + 4).toArray(new String[0]));
-            for (int i = 3; i >= 0; i--) saves.remove(start + i);
+            saves.remove(start + 3);
+            saves.remove(start + 2);
+            saves.remove(start + 1);
+            saves.remove(start);
             Files.write(file.toPath(), saves, StandardOpenOption.CREATE);
             return result;
         } catch (Exception e) {
@@ -373,28 +385,29 @@ public class Hangman {
         int sheetLimit = 3 * scoreSheetSize;
         if (scores.size() > sheetLimit) {
             try {
-                for (int i = 2; i >= 0; i--) scores.remove(sheetLimit);
+                scores.remove(sheetLimit);
+                scores.remove(sheetLimit);
+                scores.remove(sheetLimit);
             } catch (Exception e) {
-                System.out.println("Error removing record from High Score list. Record may be store wrong");
+                System.out.println("Error removing record from High Score list. Record may be stored wrong");
                 if (!(e instanceof IndexOutOfBoundsException)) e.printStackTrace();
             }
             reduceScoresSheet(scores);
         }
     }
 
-    protected void addScoreToList(ArrayList<String> scores, int score) {
+    protected void addScoreToList(ArrayList<String> scoresList, int score) {
         // Each record is 3 lines: name, score, date
-        if (scores == null) return;
+        if (scoresList == null) return;
         List<String> record = List.of(player, Integer.toString(score), LocalDate.now().toString());
-        boolean added = false;
-        for (int i = 0; i < scores.size(); i += 3) {
-            if (Integer.parseInt(scores.get(i+1)) < score) {
-                scores.addAll(i, record);
-                added = true;
-                break;
-            }
-        }
-        if (!added) scores.addAll(record);
+        int idx = findRecordInsertionPoint(scoresList, score, 0);
+        scoresList.addAll(idx, record);
+    }
+
+    private int findRecordInsertionPoint(ArrayList<String> scoresList, int score, int iter) {
+        if (iter+2 >= scoresList.size()) return iter;     // End of list, return position
+        if (Integer.parseInt(scoresList.get(iter+1)) < score) return iter;  // Found target area, return position
+        return findRecordInsertionPoint(scoresList, score, iter+3);     // Target not found and list continues
     }
 
     public static int getWordMin(String diff) {
@@ -473,19 +486,27 @@ public class Hangman {
     public static String encodeString(String str) {    // Used to hide the secret words when saved to prevent exploit
         if (str == null || str.isEmpty()) return str;
         byte[] encode = str.getBytes(StandardCharsets.US_ASCII);
-        for (int i = 0; i < encode.length; i++) encode[i] -= offset;
         StringBuilder builder = new StringBuilder();
-        for (byte b : encode) builder.append((char) b);
-        return builder.toString();
+        return encodeByte(encode, builder, 0);
+    }
+
+    private static String encodeByte(byte[] word, StringBuilder builder, int iter) {
+        if (iter >= word.length) return builder.toString();
+        builder.append((char) (word[iter]-offset));
+        return encodeByte(word, builder, iter+1);
     }
 
     public static String decodeString(String str) {
         if (str == null || str.isEmpty()) return str;
         byte[] decode = str.getBytes(StandardCharsets.US_ASCII);
-        for (int i = 0; i < decode.length; i++) decode[i] += offset;
         StringBuilder builder = new StringBuilder();
-        for (byte b : decode) builder.append((char) b);
-        return builder.toString();
+        return decodeByte(decode, builder, 0);
+    }
+
+    private static String decodeByte(byte[] word, StringBuilder builder, int iter) {
+        if (iter >= word.length) return builder.toString();
+        builder.append((char) (word[iter]+offset));
+        return decodeByte(word, builder, iter+1);
     }
 
     private static final int offset = 45;
