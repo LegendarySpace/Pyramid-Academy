@@ -13,8 +13,6 @@ public class World {
     private final HashMap<Land, Object> worldMap;
     public final int boardHeight, boardWidth;
     public final Menu menu;
-    private final List<Humanoid> units;   // all characters in existence
-    private final List<Item> items;        // all items on world map
     // Holds information about all objects in the world and maps their position on the map
 
 
@@ -24,17 +22,11 @@ public class World {
         menu = new Menu(this);
         boardHeight = height;
         boardWidth = width;
-        units = new ArrayList<>();
-        items = new ArrayList<>();
     }
 
     public void spawnLand(Land land) { if (!landExists(land)) worldMap.put(land, null); }
     public void spawnLand(int row, int col) { spawnLand(new Land(row, col)); }
-    public void spawnObject(Land land, Object obj) {
-        if (!moveTo(land, obj)) return;
-        if (obj instanceof Humanoid h) units.add(h);
-        if (obj instanceof Item i) items.add(i);
-    }
+    public void spawnObject(Land land, Object obj) { moveTo(land, obj); }
 
     public boolean landExists(Land land) { return worldMap.containsKey(land); }
     public Land getLandByOccupant(Object obj) {
@@ -45,7 +37,7 @@ public class World {
         return null;
     }
     public boolean moveTo(Land land, Object obj) {
-        if (obj == null || !landExists(land)) return false;
+        if (obj == null) return false;
         Land prev = getLandByOccupant(obj);
         Object other = worldMap.get(land);
         if (prev != null) worldMap.put(prev, null);    // remove obj from previous location
@@ -63,19 +55,18 @@ public class World {
         }
         return true;
     }
+    public List<Humanoid> getUnits() { return worldMap.values().stream()
+            .filter(o -> o instanceof Humanoid).map(o -> (Humanoid) o).toList(); }
+    public List<Item> getItems() { return worldMap.values().stream()
+            .filter(o -> o instanceof Item).map(o -> (Item) o).toList(); }
 
     // Play Turn: iterate through each unit attempting to move them
     public void playTurn() {
         // May need to switch to an iterator instead of for loop so units can be removed during loop    // or record units to remove at end of loop
-        for (var unit : units) {        // TODO Use iterator
+        for (var unit : getUnits()) {        // TODO Use iterator
             if (!worldMap.containsValue(unit)) continue;
             menu.displayMenu(unit);
             displayMap();
-        }
-        // todo iterate through units and items removing anything that is no longer on the worldmap
-        for (int i = units.size() - 1; i >=0; i--) {
-            // if worldMap does not contain unit, remove it
-            if (!worldMap.containsValue(units.get(i))) units.remove(units.get(i));
         }
     }
 
@@ -131,16 +122,16 @@ public class World {
     }
 
     public boolean contains(Human human) {
-        return units.contains(human);
+        return getUnits().contains(human);
     }
     public boolean contains(List<Human> humans) {
         if (humans == null || humans.size() < 1) return false;
-        for (Human h : humans) if (units.contains(h)) return true;
+        for (Human h : humans) if (getUnits().contains(h)) return true;
         return false;
     }
 
     public boolean hasEnemies() {
-        for (var unit : units) if (unit instanceof Goblin) return true;
+        for (var unit : getUnits()) if (unit instanceof Goblin) return true;
         return false;
     }
 
