@@ -1,8 +1,5 @@
 package world.fantasy;
 
-import world.fantasy.Items.ItemOption;
-import world.fantasy.Items.equipment.Armor;
-import world.fantasy.Items.equipment.Weapon;
 import world.fantasy.creatures.Goblin;
 import world.fantasy.creatures.Human;
 import world.fantasy.creatures.Humanoid;
@@ -20,6 +17,7 @@ public class World {
     private final List<Item> items;        // all items on world map
     // Holds information about all objects in the world and maps their position on the map
 
+
     World(int height, int width) {
         scan = new Scanner(System.in);
         worldMap = new HashMap<>();
@@ -31,45 +29,37 @@ public class World {
     }
 
     public void spawnLand(Land land) { if (!landExists(land)) worldMap.put(land, null); }
-
+    public void spawnLand(int row, int col) { spawnLand(new Land(row, col)); }
     public void spawnObject(Land land, Object obj) {
-        worldMap.put(land, obj);
+        if (!moveTo(land, obj)) return;
         if (obj instanceof Humanoid h) units.add(h);
         if (obj instanceof Item i) items.add(i);
     }
 
     public boolean landExists(Land land) { return worldMap.containsKey(land); }
-
-    public Land getLandFromUnit(Humanoid unit) {
-        if (unit == null || !worldMap.containsValue(unit)) return null;
+    public Land getLandByOccupant(Object obj) {
+        if (obj == null || !worldMap.containsValue(obj)) return null;
         for (var entry : worldMap.entrySet()) {
-            if (unit.equals(entry.getValue())) return entry.getKey();
+            if (obj.equals(entry.getValue())) return entry.getKey();
         }
         return null;
     }
-
-    public Land getLandFromItem(Item item) {
-        if (item == null || !worldMap.containsValue(item)) return null;
-        for (var entry : worldMap.entrySet()) {
-            if (item.equals(entry.getValue())) return entry.getKey();
-        }
-        return null;
-    }
-
-    public boolean moveTo(Humanoid unit, Land land) {
-        if (!landExists(land) || unit == null) return false;
-        Land startPoint = getLandFromUnit(unit);
-        Object overlapObject = worldMap.get(land);
-
-        if (startPoint != null) worldMap.remove(startPoint);
-        Item drop = unit.encounter(overlapObject);
-        if (unit.getHealth() > 0) worldMap.put(land, unit);
-        if (drop != null && startPoint != null) worldMap.put(startPoint, drop);
-
-        // if worldMap does not contain overlap then remove it
-        if (!worldMap.containsValue(overlapObject)) {
-            if (overlapObject instanceof Humanoid h) units.remove(h);
-            if (overlapObject instanceof Item i) items.remove(i);
+    public boolean moveTo(Land land, Object obj) {
+        if (obj == null || !landExists(land)) return false;
+        Land prev = getLandByOccupant(obj);
+        Object other = worldMap.get(land);
+        if (prev != null) worldMap.put(prev, null);    // remove obj from previous location
+        if (other == null) worldMap.put(land, obj);
+        else {
+            if (obj instanceof Humanoid h) {
+                worldMap.put(prev, h.encounter(other));
+                if (!h.hasDied()) {
+                    worldMap.put(land, obj);
+                    return true;
+                }
+            }
+            else if (other instanceof Humanoid h) h.encounter(obj);
+            return false;
         }
         return true;
     }
@@ -82,15 +72,16 @@ public class World {
             menu.displayMenu(unit);
             displayMap();
         }
+        // todo iterate through units and items removing anything that is no longer on the worldmap
         for (int i = units.size() - 1; i >=0; i--) {
             // if worldMap does not contain unit, remove it
             if (!worldMap.containsValue(units.get(i))) units.remove(units.get(i));
         }
     }
 
-    public void movement(Humanoid unit) {
+    public void movement(Humanoid unit) {       // TODO: move elsewhere
         List<String> directions = new ArrayList<>();
-        Land current = getLandFromUnit(unit);
+        Land current = getLandByOccupant(unit);
         String direction;
         if (landExists(current.getNorth())) directions.add("n");
         if (landExists(current.getSouth())) directions.add("s");
@@ -113,7 +104,7 @@ public class World {
             case "s", "south" -> current.getSouth();
             default -> null;
         };
-        moveTo(unit, land);
+        moveTo(land, unit);
     }
 
     public void displayMap() {
@@ -142,7 +133,6 @@ public class World {
     public boolean contains(Human human) {
         return units.contains(human);
     }
-
     public boolean contains(List<Human> humans) {
         if (humans == null || humans.size() < 1) return false;
         for (Human h : humans) if (units.contains(h)) return true;
@@ -157,7 +147,7 @@ public class World {
 
 
 
-    
+
     public static int d6() { return ThreadLocalRandom.current().nextInt(1, 7); }
 
     public static int ensureIntInput(String message, String error) {

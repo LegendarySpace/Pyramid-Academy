@@ -191,7 +191,7 @@ public abstract class Humanoid {
         Item loot = null;
         if (obj instanceof Humanoid h) {
             attack(h);
-            if (h.getHealth() > 0) return h.encounter(this);
+            if (!h.hasDied()) return h.encounter(this);
             else loot = h.lootDrop();
         }
         if (obj instanceof Item i) loot = i;
@@ -250,6 +250,7 @@ public abstract class Humanoid {
         int reduction = (int) (incomingDamage * ThreadLocalRandom.current().nextDouble());
         return damage - reduction;
     }
+    public boolean hasDied() { return getHealth() <= 0; }
 
     // Leveling mechanics
     protected void applyStatPoint() {

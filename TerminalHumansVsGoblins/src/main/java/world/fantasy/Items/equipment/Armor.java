@@ -10,11 +10,6 @@ public class Armor extends Equipment {
         super(defence);
     }
 
-    @Override
-    public List<GearSlot> availableSlots() {
-        return null;
-    }
-
     public int getDefence() { return getTotal(); }
 
     @Override
@@ -25,6 +20,11 @@ public class Armor extends Equipment {
     @Override
     public String toDetailedString() {
         return "Armor of protecting" + ((getBonus() > 0)? " +" + getBonus():"");
+    }
+
+    @Override
+    public List<GearSlot> availableSlots() {
+        return getOwner().getArmorSlots();
     }
 
     @Override

@@ -1,5 +1,8 @@
 package world.fantasy.Items.equipment;
 import world.fantasy.Items.ItemOption;
+import world.fantasy.creatures.GearSlot;
+
+import java.util.List;
 
 public abstract class Weapon extends Equipment {
 
@@ -17,6 +20,10 @@ public abstract class Weapon extends Equipment {
 
     public int getDamage() { return getTotal(); }
 
+    @Override
+    public List<GearSlot> availableSlots() {
+        return getOwner().getWeaponSlots();
+    }
 
     @Override
     public void activate(ItemOption option) {

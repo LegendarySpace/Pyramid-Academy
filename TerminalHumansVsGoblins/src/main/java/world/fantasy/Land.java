@@ -4,6 +4,8 @@ public class Land implements Comparable<Land> {
     private int row;
     private int column;
 
+    public Object occupant;
+
     public Land() {
         row = 0;
         column = 0;
