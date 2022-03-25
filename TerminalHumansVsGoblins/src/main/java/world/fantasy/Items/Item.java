@@ -13,6 +13,16 @@ public class Item {
     public Humanoid getOwner() { return owner; }
     public void setOwner(Humanoid owner) { this.owner = owner; }
 
+    public List<ItemOption> getMenu() {
+        return List.of(ItemOption.INSPECT, ItemOption.DROP);
+    }
+
+    public void inspect() { System.out.println(toDetailedString()); }
+
+    public void drop() {
+        if (getOwner() != null) getOwner().dropItem(this);
+    }
+
     @Override
     public String toString() {
         return Character.toString('\u26b1');
@@ -22,7 +32,10 @@ public class Item {
         return "Item";
     }
 
-    public List<String> getMenu() {
-        return List.of("inspect", "drop");
+    public void activate(ItemOption option) {
+        switch (option) {
+            case INSPECT -> inspect();
+            case DROP -> drop();
+        }
     }
 }

@@ -50,4 +50,5 @@ public class Land implements Comparable<Land> {
         return Character.toString('\u2395');
         // alternate land: '\u26cb'  '\u26f6'    '\u2337'    '\u2395'
     }
+    // Allow land to hold an object
 }

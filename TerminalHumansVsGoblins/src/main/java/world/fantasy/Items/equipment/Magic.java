@@ -1,6 +1,6 @@
 package world.fantasy.Items.equipment;
 
-public class Magic extends Equipment {
+public class Magic extends Weapon {
     public Magic(int damage) {
         super(damage);
     }

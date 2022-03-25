@@ -1,8 +1,8 @@
 package world.fantasy;
 
-import world.fantasy.Items.consumable.Consumable;
+import world.fantasy.Items.ItemOption;
 import world.fantasy.Items.equipment.Armor;
-import world.fantasy.Items.equipment.Equipment;
+import world.fantasy.Items.equipment.Weapon;
 import world.fantasy.creatures.Goblin;
 import world.fantasy.creatures.Human;
 import world.fantasy.creatures.Humanoid;
@@ -10,12 +10,12 @@ import world.fantasy.Items.Item;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 public class World {
     public static Scanner scan;
     private final HashMap<Land, Object> worldMap;
     public final int boardHeight, boardWidth;
+    public final Menu menu;
     private final List<Humanoid> units;   // all characters in existence
     private final List<Item> items;        // all items on world map
     // Holds information about all objects in the world and maps their position on the map
@@ -23,6 +23,7 @@ public class World {
     World(int height, int width) {
         scan = new Scanner(System.in);
         worldMap = new HashMap<>();
+        menu = new Menu(this);
         boardHeight = height;
         boardWidth = width;
         units = new ArrayList<>();
@@ -78,8 +79,7 @@ public class World {
         // May need to switch to an iterator instead of for loop so units can be removed during loop    // or record units to remove at end of loop
         for (var unit : units) {        // TODO Use iterator
             if (!worldMap.containsValue(unit)) continue;
-            if (!unit.isNPC()) showTurnMenu(unit);
-            movement(unit);
+            menu.displayMenu(unit);
             displayMap();
         }
         for (int i = units.size() - 1; i >=0; i--) {
@@ -88,197 +88,7 @@ public class World {
         }
     }
 
-    private void showTurnMenu(Humanoid unit) {
-        // Options each turn will be: move, check inventory, check equipment, cast spells
-        String message = "Please select an action (Move, Inventory, Equipment)";
-        String error = "Error receiving input";
-        String menuInput = ensureInput(message, error);
-        if (validTurnMenu(menuInput)) { if (processTurnMenuOption(menuInput, unit)) return; }
-        else {
-            System.out.println("Not a valid menu option");
-        }
-        showTurnMenu(unit);
-    }
-
-    private boolean validTurnMenu(String option) {
-        if (option == null || option.isEmpty()) return false;
-        return option.equalsIgnoreCase("m") || option.equalsIgnoreCase("move") ||
-                option.equalsIgnoreCase("i") || option.equalsIgnoreCase("inventory") ||
-                option.equalsIgnoreCase("e") || option.equalsIgnoreCase("equipment");
-    }
-
-    private boolean processTurnMenuOption(String option, Humanoid unit) {
-        if (option == null || option.isEmpty()) return false;
-        // return true only if option is move
-        switch (option.toLowerCase()) {
-            case "m":
-            case "move": return true;
-            case "i":
-            case "inventory":
-                // First select an item in inventory first
-                if (unit.getInventory().size() == 0) {
-                    System.out.println("Inventory is empty");
-                    return false;
-                }
-                int idx = chooseInventoryItem(unit);
-                showInventoryMenu(unit, idx);
-                return false;
-            case "e":
-            case "equipment":
-                String str = chooseEquipment(unit);
-                showEquipmentMenu(unit, str);
-                return false;
-            default: return false;
-        }
-    }
-
-    private int chooseInventoryItem(Humanoid unit) {
-        // display inventory with position number each
-        String message = unit.displayInventory();
-        String error = "Your input was not a valid number";
-        int itemNum = ensureIntInput(message, error);
-        if (itemNum > -1 && itemNum < unit.getInventory().size()) return itemNum;
-        System.out.printf("%s is not a valid item number", itemNum);
-        return chooseInventoryItem(unit);
-    }
-
-    private void showInventoryMenu(Humanoid unit, int idx) {
-        // Options are inspect, equip, use, drop
-        var menus = unit.getItem(idx).getMenu();
-        StringBuilder sb = new StringBuilder();
-        for (String menu: menus) sb.append(" ").append(menu.toLowerCase());
-        String message = "Please select an option: ( " + sb.toString() + ")";
-        String error = "Trouble receiving input, please try again";
-        String menuInput = ensureInput(message, error);
-        if (validInventoryMenu(menuInput, menus)) processInventoryMenuOption(menuInput, unit, unit.getItem(idx));
-        else {
-            System.out.println("Not a valid menu option");
-            showInventoryMenu(unit, idx);
-        }
-    }
-
-    private boolean validInventoryMenu(String choice, List<String> options) {
-        if (options == null || options.size() < 1 || choice.isEmpty()) return false;
-        List<String> initial = options.stream().map(str -> str.substring(0, 1)).toList();
-        return options.contains(choice) || initial.contains(choice);
-    }
-
-    private void processInventoryMenuOption(String option, Humanoid unit, Item item) {
-        switch (option.toLowerCase()) {
-            case "i", "inspect" -> System.out.println(item.toDetailedString());
-            case "e", "equip" -> {
-                if (item instanceof Armor a) unit.equipArmor(a);
-                if (item instanceof Equipment e) {
-                    if (unit.getMainHand() == null) unit.equipOffHand(e);
-                    else unit.equipMainHand(e);
-                }
-            }
-            case "u", "use" -> unit.useItem(item);
-            case "d", "drop" -> unit.dropItem(item);
-        }
-    }
-
-    private String chooseEquipment(Humanoid unit) {
-        if (unit == null) return null;
-        // display inventory with position number each
-        List<String> slotNames = List.of("a", "armor", "m", "main", "mainhand", "main-hand",
-                "o", "off", "offhand", "off-hand");
-        String message = unit.displayEquipment() + "Choose a slot (armor, main, off)";
-        String error = "Your input was not a valid number";
-        String equipment = ensureInput(message, error);
-        if (validEquipmentSlot(equipment, slotNames)) {
-            if (slotNames.subList(0, 2).contains(equipment)) return "armor";
-            if (slotNames.subList(2, 6).contains(equipment)) return "main";
-            if (slotNames.subList(6, slotNames.size()).contains(equipment)) return "off";
-            return equipment;
-        }
-        System.out.printf("%s is not a valid equipment slot", equipment);
-        return chooseEquipment(unit);
-    }
-
-    private boolean validEquipmentSlot(String slot, List<String> list) {
-        if (list == null || slot == null || slot.isEmpty()) return false;
-        if (slot.equalsIgnoreCase("back") || slot.equalsIgnoreCase("quit")) return true;
-        return list.contains(slot.toLowerCase());
-    }
-
-    private void showEquipmentMenu(Humanoid unit, String slot) {
-        // Options are inspect, unequip, drop, switch hand
-        if (slot == null || slot.isEmpty() || slot.equalsIgnoreCase("quit") ||
-                slot.equalsIgnoreCase("back")) return;
-        List<String> options = getEquipmentOptions(unit, slot);
-        String message = String.format("Please select an option (%s)", String.join(", ", options));
-        String error = "Error receiving user input";
-        String menuInput = ensureInput(message, error);
-        if (validEquipmentMenu(menuInput, options)) processEquipmentMenuOption(unit, slot, menuInput);
-        else {
-            System.out.println("Not a valid menu option");
-            showEquipmentMenu(unit, slot);
-        }
-    }
-
-    private List<String> getEquipmentOptions(Humanoid unit, String slot) {
-        List<String> options = new ArrayList<>();
-        if (unit == null || slot == null || slot.isEmpty()) return options;
-        if ((slot.equalsIgnoreCase("armor") && unit.getArmor() != null) ||
-                (slot.equalsIgnoreCase("main") && unit.getMainHand() != null) ||
-                (slot.equalsIgnoreCase("off") && unit.getOffHand() != null)) {
-            options.add("inspect");
-            options.add("unequip");
-            options.add("drop");
-        }
-        options.add("auto");
-        return options;
-    }
-
-    private boolean validEquipmentMenu(String choice, List<String> options) {
-        if (options == null || choice == null || choice.isEmpty()) return false;
-        List<String> initials = options.stream().map(str -> str.toLowerCase().substring(0,1)).toList();
-        return options.contains(choice.toLowerCase()) || initials.contains(choice.toLowerCase());
-    }
-
-    private void processEquipmentMenuOption(Humanoid unit, String slot, String option) {
-        if (option.equalsIgnoreCase("inspect") || option.equalsIgnoreCase("i")) {
-            switch (slot) {
-                case "armor" -> unit.getArmor().toDetailedString();
-                case "main" -> unit.getMainHand().toDetailedString();
-                case "off" -> unit.getOffHand().toDetailedString();
-            }
-        } else if (option.equalsIgnoreCase("unequip") || option.equalsIgnoreCase("u")) {
-            switch (slot) {
-                case "armor" -> unit.unequipArmor();
-                case "main" -> unit.unequipMainHand();
-                case "off" -> unit.unequipOffHand();
-            }
-        } else if (option.equalsIgnoreCase("drop") || option.equalsIgnoreCase("d")) {
-            switch (slot) {
-                case "armor" -> { if (unit.getArmor() != null) unit.dropItem(unit.unequipArmor()); }
-                case "main" -> { if (unit.getMainHand() != null) unit.dropItem(unit.unequipMainHand()); }
-                case "off" -> { if (unit.getOffHand() != null) unit.dropItem(unit.unequipOffHand()); }
-            }
-        } else if (option.equalsIgnoreCase("auto") || option.equalsIgnoreCase("a")) {
-            switch (slot) {
-                case "armor" -> {
-                    unit.unequipArmor();
-                    var opt = unit.getInventory().stream().filter(itm -> itm instanceof Armor).map(itm -> (Armor) itm)
-                            .max(Comparator.comparingInt(Armor::getDefence));
-                    opt.ifPresent(unit::equipArmor);
-                }
-                case "main", "off" -> {
-                    unit.unequipMainHand();
-                    unit.unequipOffHand();
-                    var opt = unit.getInventory().stream().filter(itm -> itm instanceof Equipment).map(itm -> (Equipment) itm)
-                            .max(Comparator.comparingInt(Equipment::getDamage));
-                    opt.ifPresent(unit::equipMainHand);
-                    opt = unit.getInventory().stream().filter(itm -> itm instanceof Equipment).map(itm -> (Equipment) itm)
-                            .max(Comparator.comparingInt(Equipment::getDamage));
-                    opt.ifPresent(unit::equipOffHand);
-                }
-            }
-        }
-    }
-
-    private void movement(Humanoid unit) {
+    public void movement(Humanoid unit) {
         List<String> directions = new ArrayList<>();
         Land current = getLandFromUnit(unit);
         String direction;
@@ -344,6 +154,10 @@ public class World {
         return false;
     }
 
+
+
+
+    
     public static int d6() { return ThreadLocalRandom.current().nextInt(1, 7); }
 
     public static int ensureIntInput(String message, String error) {

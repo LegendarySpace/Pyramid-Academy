@@ -1,6 +1,6 @@
 package world.fantasy.Items.equipment;
 
-public class Shield extends Equipment {
+public class Shield extends Weapon {
     public Shield(int damage) {
         super(damage);
     }
