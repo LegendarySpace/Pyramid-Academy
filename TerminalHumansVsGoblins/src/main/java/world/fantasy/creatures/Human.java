@@ -1,6 +1,8 @@
 package world.fantasy.creatures;
 
-import static world.fantasy.World.*;
+import java.util.List;
+
+import static world.fantasy.world.World.*;
 
 public class Human extends Humanoid {
     // base stats are randomly generated from 2 random d6
@@ -21,6 +23,13 @@ public class Human extends Humanoid {
     @Override
     protected int getInitialSkillPoints() {
         return 1;
+    }
+
+    @Override
+    public List<UnitOption> menuOptions() {
+        var list = super.menuOptions();
+        list.addAll(List.of(UnitOption.INVENTORY, UnitOption.GEAR, /*UnitOption.SPELLS,*/ UnitOption.QUIT));
+        return list;
     }
 
     public Human(Boolean NPC) {

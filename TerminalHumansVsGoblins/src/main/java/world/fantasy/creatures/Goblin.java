@@ -1,6 +1,6 @@
 package world.fantasy.creatures;
 
-import static world.fantasy.World.d6;
+import static world.fantasy.world.World.d6;
 
 public class Goblin extends Humanoid {
     // Base stats randomly generated from 2 d6

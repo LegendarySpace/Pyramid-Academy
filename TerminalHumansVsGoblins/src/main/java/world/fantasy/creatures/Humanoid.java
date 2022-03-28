@@ -1,15 +1,14 @@
 package world.fantasy.creatures;
 
-import world.fantasy.Items.consumable.Consumable;
-import world.fantasy.Items.equipment.*;
-import world.fantasy.Items.*;
+import world.fantasy.items.consumable.Consumable;
+import world.fantasy.items.equipment.*;
+import world.fantasy.items.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Stream;
 
-import static world.fantasy.World.*;
+import static world.fantasy.world.World.*;
 
 public abstract class Humanoid {
     private int Health;         // Total health
@@ -50,11 +49,6 @@ public abstract class Humanoid {
     public boolean isNPC() { return bIsNPC; }
     public void setIsNPC(boolean bIsNPC) { this.bIsNPC = bIsNPC; }
     private int statModifier(int stat) { return (stat / 2) - 5; }
-    public int applyDamage(int damage) {
-        int reducedDamage = damageReduction(damage);
-        setHealth(getHealth()-reducedDamage);
-        return reducedDamage;
-    }
 
     // Inventory management
     public ArrayList<Item> getInventory() { return inventory; }
@@ -62,7 +56,7 @@ public abstract class Humanoid {
         List<String> list = inventory.stream().map(Item::toDetailedString).toList();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < list.size(); i++) {
-            sb.append(String.format("%s: %s\n", i, list.get(i)));
+            sb.append(String.format("\n%d: %s", i, list.get(i)));
         }
         return sb.toString();
     }
@@ -92,12 +86,12 @@ public abstract class Humanoid {
         StringBuilder sb = new StringBuilder();
         var slots = getAllSlots();
         for (var slot : slots) {
-            sb.append(slot.name()).append(": ");
+            sb.append("\n").append(slot.name()).append(": ");
             sb.append(switch (slot) {
                 case ARMOR -> (armor == null)? "none":armor.toDetailedString();
                 case MAINHAND -> (mainHand == null)? "none":mainHand.toDetailedString();
                 case OFFHAND -> (offHand == null)? "none":offHand.toDetailedString();
-            }).append("\n");
+            });
         }
         return sb.toString();
     }
@@ -105,6 +99,7 @@ public abstract class Humanoid {
     public void equipMainHand(Weapon item) {
         if (mainHand != null) unequipMainHand();
         mainHand = item;
+
         dropItem(item);
     }
     public Weapon unequipMainHand() {
@@ -112,6 +107,7 @@ public abstract class Humanoid {
         Weapon e = mainHand;
         inventory.add(mainHand);
         mainHand = null;
+        System.out.println(String.format("%s was unequipped from %s slot%n", e.toDetailedString(), GearSlot.MAINHAND));
         return e;
     }
     public Weapon getOffHand() { return offHand; }
@@ -125,6 +121,7 @@ public abstract class Humanoid {
         Weapon e = offHand;
         inventory.add(offHand);
         offHand = null;
+        System.out.println(String.format("%s was unequipped from %s slot%n", e.toDetailedString(), GearSlot.OFFHAND));
         return e;
     }
     public Armor getArmor() { return armor; }
@@ -134,42 +131,61 @@ public abstract class Humanoid {
         dropItem(item);
     }
     public Armor unequipArmor() {
-        if (armor != null) return null;
+        if (armor == null) return null;
         Armor a = armor;
         inventory.add(armor);
         armor = null;
+        System.out.println(String.format("%s was unequipped from %s slot%n", a.toDetailedString(), GearSlot.ARMOR));
         return a;
     }
     public boolean wearEquipment(GearSlot slot, Equipment item) {
         if (item == null) return false;
+        System.out.println(String.format("%s was equipped to %s slot\n", item.toDetailedString(), slot.name()));
         switch (slot) {
             case ARMOR:
-                if (item instanceof Armor a) equipArmor(a);
-                return true;
+                if (item instanceof Armor a) {
+                    equipArmor(a);
+                    return true;
+                }
             case MAINHAND:
-                if (item instanceof Weapon e) equipMainHand(e);
-                return true;
+                if (item instanceof Weapon e) {
+                    equipMainHand(e);
+                    return true;
+                }
             case OFFHAND:
-                if (item instanceof Weapon e) equipOffHand(e);
-                return true;
+                if (item instanceof Weapon e) {
+                    equipOffHand(e);
+                    return true;
+                }
         }
+        return false;
+    }
+    public boolean autoEquip(Equipment equipment) {
+        for (var slot : getAllSlots()) if (wearEquipment(slot, equipment)) return true;
         return false;
     }
     public boolean removeEquipment(Equipment item) {
         if (item == null) return false;
         switch (getSlotFromItem(item)) {
-            case ARMOR:
-                if (item instanceof Armor a) if (a == getArmor()) unequipArmor();
-                return true;
-            case MAINHAND:
-                if (item instanceof Weapon e) if (e == getMainHand()) unequipMainHand();
-                return true;
-            case OFFHAND:
-                if (item instanceof Weapon e) if (e == getOffHand()) unequipOffHand();
-                return true;
-            default:
-                return false;
+            case ARMOR -> { if (item instanceof Armor a) if (a == getArmor()) unequipArmor(); }
+            case MAINHAND -> { if (item instanceof Weapon e) if (e == getMainHand()) unequipMainHand(); }
+            case OFFHAND -> { if (item instanceof Weapon e) if (e == getOffHand()) unequipOffHand(); }
+            default -> { return false; }
         }
+        return true;
+    }
+    public boolean removeEquipment(GearSlot slot) {
+        if (slot == null) return false;
+        switch (slot) {
+            case ARMOR -> { unequipArmor(); }
+            case MAINHAND -> { unequipMainHand(); }
+            case OFFHAND -> { unequipOffHand(); }
+            default -> { return false; }
+        }
+        return true;
+    }
+    public void removeAll() {
+        for (GearSlot slot : GearSlot.values()) removeEquipment(slot);
     }
     public GearSlot getSlotFromItem(Equipment item) {
         if (item == getArmor()) return GearSlot.ARMOR;
@@ -190,9 +206,11 @@ public abstract class Humanoid {
         if (obj == null) return null;
         Item loot = null;
         if (obj instanceof Humanoid h) {
-            attack(h);
+            System.out.printf("%s attacked %s for %d damage, %s has %d health remaining %n",
+                    this, h, attack(h), h, h.getHealth());
             if (!h.hasDied()) return h.encounter(this);
-            else loot = h.lootDrop();
+            System.out.printf("%s has died%n", h);
+            loot = h.lootDrop();
         }
         if (obj instanceof Item i) loot = i;
 
@@ -200,16 +218,18 @@ public abstract class Humanoid {
             String message = String.format("Do you want to pick up %s?", loot.toDetailedString());
             if (!isNPC() && !yesOrNo(message)) return loot;
             pickupItem(loot);
+            if (loot instanceof Equipment e) {
+                if (!isNPC() && !yesOrNo("Would you like to auto equip this?")) return null;
+                autoEquip(e);
+            }
         }
         return null;
     }
     private Item lootDrop() {
         int dropChance = d6();
         if (dropChance == 1 || dropChance == 2) {
+            removeAll();
             var dropTable = getInventory();
-            if (mainHand != null) dropTable.add(mainHand);
-            if (offHand != null) dropTable.add(offHand);
-            if (armor != null) dropTable.add(armor);
             if (dropTable.size() < 1) return null;
             int pos = ThreadLocalRandom.current().nextInt(0, dropTable.size());
             Item dropped = dropTable.get(pos);
@@ -218,7 +238,7 @@ public abstract class Humanoid {
         }
         return null;
     }
-    public void attack(Humanoid humanoid) {
+    public int attack(Humanoid humanoid) {
         int primary;
         int secondary;
         if (mainHand == null) { primary = (int) ((getStrength() * 2 / 3) * .9); }
@@ -235,7 +255,12 @@ public abstract class Humanoid {
         else { secondary = getStrength(); }
 
         // remove primary + secondary from humanoid
-        humanoid.applyDamage((int) ((primary+secondary) * ThreadLocalRandom.current().nextDouble()));
+        return humanoid.applyDamage((int) ((primary+secondary) * ThreadLocalRandom.current().nextDouble()));
+    }
+    public int applyDamage(int damage) {
+        int reducedDamage = damageReduction(damage);
+        setHealth(getHealth()-reducedDamage);
+        return reducedDamage;
     }
     private int damageReduction(int damage) {
         int primary;
@@ -248,7 +273,7 @@ public abstract class Humanoid {
         else secondary = strength / 8;
         int incomingDamage = (armor == null)? (primary + secondary) : (primary + secondary + armor.getDefence());
         int reduction = (int) (incomingDamage * ThreadLocalRandom.current().nextDouble());
-        return damage - reduction;
+        return Math.max(3, damage - reduction);
     }
     public boolean hasDied() { return getHealth() <= 0; }
 

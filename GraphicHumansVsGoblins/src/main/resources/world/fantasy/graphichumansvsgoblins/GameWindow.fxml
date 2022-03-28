@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.gluonhq.charm.glisten.mvc.View?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="world.fantasy.graphichumansvsgoblins.GameWindow">
+   <children>
+      <FlowPane columnHalignment="CENTER" layoutY="1.0" prefHeight="407.0" prefWidth="601.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <SplitPane dividerPositions="0.5">
+               <items>
+                  <VBox>
+                     <children>
+                        <View>
+                           <center>
+                              <ImageView pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
+                                 <image>
+                                    <Image url="@../../../../../../../../Users/Brian/Pictures/CircleTriangleCircle.png" />
+                                 </image>
+                              </ImageView>
+                           </center>
+                        </View>
+                     </children>
+                  </VBox>
+                  <VBox>
+                     <children>
+                        <VBox id="stats">
+                           <children>
+                              <HBox alignment="CENTER" prefHeight="30.0">
+                                 <children>
+                                    <Separator />
+                                    <Label text="Health: " />
+                                    <Separator layoutX="10.0" layoutY="10.0" />
+                                    <Label layoutX="10.0" layoutY="10.0" text="Mana:" />
+                                    <Separator layoutX="10.0" layoutY="10.0" />
+                                 </children>
+                              </HBox>
+                              <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="30.0">
+                                 <children>
+                                    <Separator />
+                                    <Label text="Intelligence: " />
+                                    <Separator layoutX="10.0" layoutY="10.0" />
+                                    <Label layoutX="10.0" layoutY="10.0" text="Strength:" />
+                                    <Separator layoutX="10.0" layoutY="10.0" />
+                                    <Label layoutX="105.0" layoutY="10.0" text="Constitution" />
+                                    <Separator layoutX="159.0" layoutY="10.0" />
+                                 </children>
+                              </HBox>
+                              <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="30.0">
+                                 <children>
+                                    <Separator layoutX="170.0" layoutY="10.0" prefHeight="17.0" prefWidth="38.0" />
+                                    <Label text="Dexterity:" />
+                                    <Separator prefHeight="17.0" prefWidth="74.0" />
+                                    <Label alignment="CENTER_RIGHT" layoutX="10.0" layoutY="10.0" text="SP: " />
+                                    <Separator layoutX="73.0" layoutY="10.0" prefHeight="17.0" prefWidth="38.0" />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                        <Separator minHeight="-Infinity" orientation="VERTICAL" prefHeight="75.0" />
+                        <VBox>
+                           <children>
+                              <Separator minHeight="-Infinity" orientation="VERTICAL" prefHeight="10.0" />
+                              <HBox alignment="CENTER">
+                                 <children>
+                                    <Button mnemonicParsing="false" text="Helmet" />
+                                 </children>
+                              </HBox>
+                              <Separator layoutX="10.0" layoutY="10.0" minHeight="-Infinity" orientation="VERTICAL" prefHeight="20.0" />
+                              <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0">
+                                 <children>
+                                    <Separator layoutX="64.0" layoutY="59.0" prefWidth="25.0" />
+                                    <Button mnemonicParsing="false" text="MainHand" />
+                                    <Separator prefWidth="60.0" />
+                                    <Button mnemonicParsing="false" text="OffHand" />
+                                    <Separator layoutX="64.0" layoutY="59.0" prefWidth="25.0" />
+                                 </children>
+                              </HBox>
+                              <Separator layoutX="10.0" layoutY="10.0" minHeight="-Infinity" orientation="VERTICAL" prefHeight="10.0" />
+                           </children>
+                        </VBox>
+                        <Separator layoutX="10.0" layoutY="64.0" orientation="VERTICAL" prefHeight="120.0" />
+                        <VBox layoutX="10.0" layoutY="64.0">
+                           <children>
+                              <HBox alignment="CENTER" minHeight="-Infinity" prefHeight="50.0">
+                                 <children>
+                                    <Button mnemonicParsing="false" text="North" />
+                                 </children>
+                              </HBox>
+                              <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" minHeight="-Infinity" prefHeight="50.0" prefWidth="200.0">
+                                 <children>
+                                    <Separator layoutX="64.0" layoutY="59.0" minWidth="-Infinity" prefWidth="30.0" />
+                                    <Button mnemonicParsing="false" text="West" />
+                                    <Separator prefWidth="200.0" />
+                                    <Button mnemonicParsing="false" text="East" />
+                                    <Separator layoutX="10.0" layoutY="59.0" minWidth="-Infinity" prefWidth="30.0" />
+                                 </children>
+                              </HBox>
+                              <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" minHeight="-Infinity" prefHeight="50.0">
+                                 <children>
+                                    <Button mnemonicParsing="false" text="South" />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                        <Separator layoutX="10.0" layoutY="64.0" minHeight="-Infinity" orientation="VERTICAL" prefHeight="30.0" />
+                     </children>
+                  </VBox>
+               </items>
+            </SplitPane>
+         </children>
+      </FlowPane>
+   </children>
+</AnchorPane>

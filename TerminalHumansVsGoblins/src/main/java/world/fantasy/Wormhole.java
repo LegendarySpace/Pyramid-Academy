@@ -1,10 +1,12 @@
 package world.fantasy;
 
-import world.fantasy.Items.consumable.HealthPotion;
+import world.fantasy.items.consumable.HealthPotion;
 import world.fantasy.creatures.Goblin;
 import world.fantasy.creatures.Human;
-import world.fantasy.Items.equipment.*;
-import world.fantasy.Items.Item;
+import world.fantasy.items.equipment.*;
+import world.fantasy.items.Item;
+import world.fantasy.world.Land;
+import world.fantasy.world.World;
 
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
@@ -20,10 +22,10 @@ public class Wormhole {
             System.out.println("Failed to load world. System exiting");
             System.exit(0);
         }
-        world.displayMap();
         do {
             world.playTurn();
         } while (world.contains(players) && world.hasEnemies());
+        world.displayMap();
         if (!world.hasEnemies()) {
             // You have lost
             System.out.println("Congratulations on defeating the goblins");
