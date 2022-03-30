@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd"> <!-- bean definitions here -->
+
+    <bean id="Student" class="upsher.ryusei.Student">
+        <constructor-arg index="0" value="101" />
+        <constructor-arg index="1" value="Jacob" />
+        <constructor-arg index="2">
+            <list>
+                <ref bean="Phone1" />
+                <ref bean="Phone2" />
+                <ref bean="Phone3" />
+            </list>
+        </constructor-arg>
+        <constructor-arg index="3" ref="Address" />
+    </bean>
+
+    <bean id="Address" class="upsher.ryusei.Address">
+        <constructor-arg index="0" value="Smallville" />
+        <constructor-arg index="1" value="Kansas" />
+        <constructor-arg index="2" value="USA" />
+        <constructor-arg index="3" value="55555" />
+    </bean>
+
+    <bean id="Phone1" class="upsher.ryusei.Phone">
+        <constructor-arg index="0" value="6753546" />
+    </bean>
+
+    <bean id="Phone2" class="upsher.ryusei.Phone">
+        <constructor-arg index="0" value="489456884" />
+    </bean>
+
+    <bean id="Phone3" class="upsher.ryusei.Phone">
+        <constructor-arg index="0" value="3687351159" />
+    </bean>
+
+</beans>

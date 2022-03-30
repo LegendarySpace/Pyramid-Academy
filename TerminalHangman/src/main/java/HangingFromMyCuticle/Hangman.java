@@ -180,7 +180,7 @@ public class Hangman {
 
     protected String getHiddenWord(String secret, String guessed) {
         if (secret == null || guessed == null || secret.isEmpty()) return "";
-        String s = secret.replaceAll("[^a-zA-Z0-9]", "");
+        String s = secret.replaceAll("[^a-zA-Z]", "");
         return s.replaceAll("[^ "+guessed.toUpperCase()+guessed.toLowerCase()+"]", "_");
     }
 

@@ -3,6 +3,6 @@ module world.fantasy.graphichumansvsgoblins {
     requires javafx.fxml;
 
 
-    opens world.fantasy.graphichumansvsgoblins to javafx.fxml;
-    exports world.fantasy.graphichumansvsgoblins;
+    opens world.fantasy to javafx.fxml;
+    exports world.fantasy;
 }
