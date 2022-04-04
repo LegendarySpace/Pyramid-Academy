@@ -4,8 +4,6 @@ public class Land implements Comparable<Land> {
     private int row;
     private int column;
 
-    public Object occupant;
-
     public Land() {
         row = 0;
         column = 0;
@@ -25,6 +23,15 @@ public class Land implements Comparable<Land> {
     public Land getEast() { return new Land(row, column + 1); }
     public Land getSouth() { return new Land(row - 1, column); }
     public Land getWest() { return new Land(row, column - 1); }
+
+    public Land getDirection(Direction dir) {
+        return switch (dir) {
+            case NORTH -> getNorth();
+            case EAST -> getEast();
+            case SOUTH -> getSouth();
+            case WEST -> getWest();
+        };
+    }
 
     @Override
     public int hashCode() {

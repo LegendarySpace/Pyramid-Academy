@@ -2,11 +2,16 @@ package world.fantasy.items.consumable;
 
 import world.fantasy.items.Item;
 import world.fantasy.items.ItemOption;
+import world.fantasy.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Consumable extends Item {
+    public Consumable(World world) {
+        super(world);
+    }
+
     public void use() {
     }
 

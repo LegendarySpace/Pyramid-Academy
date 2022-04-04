@@ -1,101 +1,186 @@
 package world.fantasy.world;
 
+import world.fantasy.Actor;
 import world.fantasy.Menu;
 import world.fantasy.creatures.Goblin;
 import world.fantasy.creatures.Human;
 import world.fantasy.creatures.Creature;
 import world.fantasy.items.Item;
+import world.fantasy.items.consumable.HealthPotion;
+import world.fantasy.items.equipment.*;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 public class World {
+    public static final int MAX_DISPLAY_SIZE = 10;        // if bound is passed map turns to scroll
+    public HashSet<Land> lands;
+
+    public HashSet<Land> getLands() {
+        return lands;
+    }
+    public void setLands(HashSet<Land> lands) {
+        this.lands = lands;
+    }
+    public HashSet<Actor> getActors() {
+        return actors;
+    }
+    public void setActors(HashSet<Actor> actors) {
+        this.actors = actors;
+    }
+
+    public HashSet<Actor> actors;
+
     public static Scanner scan;
-    private final HashMap<Land, Object> worldMap;
-    public final int boardHeight, boardWidth;
-    public final Menu menu;
+    private HashMap<Land, Actor> worldMap;
+    public int boardHeight, boardWidth;
+    public Menu menu;
     // Holds information about all objects in the world and maps their position on the map
 
-
-    public World(int height, int width) {
-        scan = new Scanner(System.in);
-        worldMap = new HashMap<>();
-        menu = new Menu(this);
-        boardHeight = height;
-        boardWidth = width;
+    public World() {
+        this(5);
     }
 
-    public void spawnLand(Land land) { if (!landExists(land)) worldMap.put(land, null); }
-    public void spawnLand(int row, int col) { spawnLand(new Land(row, col)); }
-    public void spawnObject(Land land, Object obj) { moveTo(land, obj); }
-
-    public boolean landExists(Land land) { return worldMap.containsKey(land); }
-    public Land getLandByOccupant(Object obj) {
-        if (obj == null || !worldMap.containsValue(obj)) return null;
-        for (var entry : worldMap.entrySet()) {
-            if (obj.equals(entry.getValue())) return entry.getKey();
-        }
-        return null;
+    public World(int size) {
+        this(generateSquare(size));
     }
-    public boolean moveTo(Land land, Object obj) {
-        if (obj == null) return false;
-        Land prev = getLandByOccupant(obj);
-        Object other = worldMap.get(land);
-        if (prev != null) worldMap.put(prev, null);    // remove obj from previous location
-        if (other == null) worldMap.put(land, obj);
-        else {
-            if (obj instanceof Creature h) {
-                worldMap.put(prev, h.encounter(other));
-                if (!h.hasDied()) {
-                    worldMap.put(land, obj);
-                    return true;
-                }
-            }
-            else if (other instanceof Creature h) h.encounter(obj);
-            return false;
-        }
+
+    public World(List<Land> lands) {
+        this.lands = new HashSet<>(lands);
+        this.actors = new HashSet<>();
+    }
+
+    public boolean landExists(Land land) { return lands.contains(land); }
+    public List<Creature> getPlayers() {
+        return actors.stream().filter(a -> a instanceof  Creature)
+                .map(a -> (Creature) a).filter(a -> !a.isNPC()).toList();
+    }
+    public boolean hasPlayers() {
+        return !getPlayers().isEmpty();
+    }
+    public boolean hasEnemies() { return actors.stream().anyMatch(a -> a instanceof Goblin); }
+    public boolean spawnLand(Land land) { return lands.add(land); }
+    public boolean spawnLand(int row, int col) { return spawnLand(new Land(row, col)); }
+    public boolean spawnActor(Actor actor, Land location) {
+        if (actors.stream().anyMatch(x -> x.getPosition() == location)) return false;
+        actor.setPosition(location);
+        actors.add(actor);
         return true;
     }
-    public List<Creature> getUnits() { return worldMap.values().stream()
-            .filter(o -> o instanceof Creature).map(o -> (Creature) o).toList(); }
-    public List<Item> getItems() { return worldMap.values().stream()
-            .filter(o -> o instanceof Item).map(o -> (Item) o).toList(); }
+    public List<Creature> getUnits() { return actors.stream().filter(o -> o instanceof Creature)
+            .map(o -> (Creature) o).toList(); }
+    public List<Item> getItems() { return actors.stream().filter(o -> o instanceof Item)
+            .map(o -> (Item) o).toList(); }
 
     // Play Turn: iterate through each unit attempting to move them
     public void playTurn() {
         // May need to switch to an iterator instead of for loop so units can be removed during loop    // or record units to remove at end of loop
+        // iterate over turn order deque
         for (var unit : getUnits()) {
-            if (!worldMap.containsValue(unit)) continue;
+            if (!unit.doesExist()) continue;
             menu.displayMenu(unit);
         }
+        actors = actors.stream().filter(Actor::doesExist).collect(Collectors.toCollection(HashSet::new));
     }
 
-    public void movement(Creature unit) {       // TODO: move elsewhere
-        List<Direction> directions = new ArrayList<>();
-        Land current = getLandByOccupant(unit);
-        for (var d : Direction.values()) {
-            switch (d) {
-                case NORTH -> { if (landExists(current.getNorth())) directions.add(Direction.NORTH); }
-                case EAST -> { if (landExists(current.getEast())) directions.add(Direction.EAST); }
-                case WEST -> { if (landExists(current.getSouth())) directions.add(Direction.SOUTH); }
-                case SOUTH -> { if (landExists(current.getWest())) directions.add(Direction.WEST); }
+
+    public static ArrayList<Land> generateSquare(int size) {
+        ArrayList<Land> square = new ArrayList<>();
+        if (size < 1) return square;
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) square.add(new Land(row,col));
+        }
+        return square;
+    }
+    public static ArrayList<Land> generateDiamond(int size) {
+        ArrayList<Land> diamond = new ArrayList<>();
+        final int s = size - 1;
+        if (size < 1) return diamond;
+        for (int row = 0; row < size; row++) {
+            for (int col = s; col >= 0; col--) {
+                diamond.add(new Land(row + s, col + s));
+                if (col != 0) diamond.add(new Land(row + s, -col + s));
+                if (row != 0) {
+                    diamond.add(new Land(-row + s, col + s));
+                    if (col != 0) diamond.add(new Land(-row + s, -col + s));
+                }
             }
         }
-        Direction direction;
-        if (unit.isNPC()) {
-            direction  = directions.get(ThreadLocalRandom.current().nextInt(0, directions.size()));
-        } else direction = getDirection(String.format("Please choose a direction to move (%s)",
-                String.join(", ", directions.stream().map(Enum::name).toList())));
-
-        Land land = switch (direction) {
-            case NORTH -> current.getNorth();
-            case EAST -> current.getEast();
-            case WEST -> current.getWest();
-            case SOUTH -> current.getSouth();
-        };
-        moveTo(land, unit);
+        return diamond;
     }
 
+    public void generatePlayers(int playerCount) {
+        if (playerCount < 1 || lands == null) return;
+        for (int i = 0; i < playerCount; i++) {
+            var land = lands.stream()                      // start with all lands,
+                    .filter(x -> !actors.stream()                       // filter away any lands
+                            .map(Actor::getPosition)                    // occupied by an actor
+                            .toList().contains(x))
+                    .findAny().orElse(null);
+            if (land == null) return;
+            var player = new Human(this, false);
+            spawnActor(player, land);
+        }
+        String pause = "Stop again";
+    }
+    public void generateEnemies(int amount) {
+        if (amount < 1 || lands == null) return;
+        for (int i = 0; i < amount; i++) {
+            var opt = lands.stream()
+                    .filter(x -> !actors.stream()
+                            .map(Actor::getPosition)
+                            .toList().contains(x))
+                    .findAny();
+            if (opt.isEmpty()) break;
+            spawnActor(new Goblin(this), opt.get());
+        }
+    }
+    public void generateAllies(int playerCount) {
+        if (playerCount < 1 || lands == null) return;
+        for (int i = 0; i < playerCount; i++) {
+            var opt = lands.stream()
+                    .filter(x -> !actors.stream()
+                            .map(Actor::getPosition)
+                            .toList().contains(x))
+                    .findAny();
+            if (opt.isEmpty()) return;
+            spawnActor(new Human(this), opt.get());
+        }
+    }
+    public void generateItems(int amount) {
+        if (amount < 1 || lands == null) return;
+        for (int i = 0; i < amount; i++) {
+            var opt = lands.stream()
+                    .filter(x -> !actors.stream()
+                            .map(Actor::getPosition)
+                            .toList().contains(x))
+                    .findAny();
+            if (opt.isEmpty()) break;
+            spawnActor(createItem(), opt.get());
+        }
+    }
+    public Item createItem() {
+        int type = ThreadLocalRandom.current().nextInt(1, 7);
+        int stat = ThreadLocalRandom.current().nextInt(10);
+        return switch (type) {
+            case 1 -> new Armor(this, stat);
+            case 2 -> new Melee(this, stat);
+            case 3 -> new Ranged(this, stat);
+            case 4 -> new Magic(this, stat);
+            case 5 -> new Shield(this, stat);
+            case 6 -> new HealthPotion(this);
+            default -> null;
+        };
+    }
+    public void spawnWave(int enemies, int allies, int items) {
+        generateEnemies(enemies);
+        generateAllies(allies);
+        generateItems(items);
+    }
+
+
+    // DEPRECATED
     public void displayMap() {
         // for each key, if map has value display value, else display key
         var keys = worldMap.keySet();
@@ -117,20 +202,6 @@ public class World {
             if (i != 0) System.out.println('\u2560' + "\u2550\u256c".repeat(boardWidth - 1) + "\u2550\u2563");
         }
         System.out.println('\u255a' + "\u2550\u2569".repeat(boardWidth - 1) + "\u2550\u255d");
-    }
-
-    public boolean contains(Human human) {
-        return getUnits().contains(human);
-    }
-    public boolean contains(List<Human> humans) {
-        if (humans == null || humans.size() < 1) return false;
-        for (Human h : humans) if (getUnits().contains(h)) return true;
-        return false;
-    }
-
-    public boolean hasEnemies() {
-        for (var unit : getUnits()) if (unit instanceof Goblin) return true;
-        return false;
     }
 
 

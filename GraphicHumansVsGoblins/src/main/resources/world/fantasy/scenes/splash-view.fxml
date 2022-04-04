@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+
+<HBox alignment="CENTER" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="world.fantasy.controllers.SplashController">
+   <children>
+      <ImageView fx:id="welcome" onKeyPressed="#changeScene" onMouseClicked="#changeScene" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../../../../../../../../Users/Brian/Pictures/DOR/CustomCreatures/Harpy%202.jpg" />
+         </image>
+      </ImageView>
+   </children>
+</HBox>

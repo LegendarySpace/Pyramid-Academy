@@ -1,8 +1,10 @@
 package world.fantasy.items.equipment;
 
+import world.fantasy.world.World;
+
 public class Shield extends Weapon {
-    public Shield(int damage) {
-        super(damage);
+    public Shield(World world, int damage) {
+        super(world, damage);
     }
 
     @Override
@@ -12,5 +14,5 @@ public class Shield extends Weapon {
     }
 
     @Override
-    public String name() { return "Shield of Defending"; }
+    public String getName() { return "Shield of Defending"; }
 }

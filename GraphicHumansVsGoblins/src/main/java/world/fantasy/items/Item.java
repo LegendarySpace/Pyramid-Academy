@@ -1,14 +1,20 @@
 package world.fantasy.items;
 
+import world.fantasy.Actor;
 import world.fantasy.creatures.Creature;
+import world.fantasy.world.World;
 
 import java.util.List;
 
-public class Item {
+public class Item extends Actor {
     // This will include dropped item and treasure chests
     // toString gives general information (what type of item)
     // toDetailedString gives stat information (can only be called if in possession)
     private Creature owner;
+
+    public Item(World world) {
+        super(world);
+    }
 
     public Creature getOwner() { return owner; }
     public void setOwner(Creature owner) { this.owner = owner; }

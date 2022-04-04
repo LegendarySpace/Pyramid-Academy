@@ -2,13 +2,14 @@ package world.fantasy.items.equipment;
 import world.fantasy.items.ItemOption;
 import world.fantasy.Menu;
 import world.fantasy.creatures.GearSlot;
+import world.fantasy.world.World;
 
 import java.util.List;
 
 public class Armor extends Equipment {
 
-    public Armor(int defence) {
-        super(defence);
+    public Armor(World world, int defence) {
+        super(world, defence);
     }
 
     public int getDefence() { return getTotal(); }
@@ -19,7 +20,7 @@ public class Armor extends Equipment {
     }
 
     @Override
-    public String name() {
+    public String getName() {
         return "Armor of protecting";
     }
 

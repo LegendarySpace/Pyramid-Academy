@@ -1,8 +1,10 @@
 package world.fantasy.items.equipment;
 
+import world.fantasy.world.World;
+
 public class Magic extends Weapon {
-    public Magic(int damage) {
-        super(damage);
+    public Magic(World world, int damage) {
+        super(world, damage);
     }
 
     @Override
@@ -11,5 +13,5 @@ public class Magic extends Weapon {
     }
 
     @Override
-    public String name() { return "Wand of witchcraft"; }
+    public String getName() { return "Wand of witchcraft"; }
 }

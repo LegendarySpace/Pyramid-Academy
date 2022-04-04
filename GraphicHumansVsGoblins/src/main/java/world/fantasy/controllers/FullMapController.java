@@ -1,11 +1,11 @@
-package world.fantasy;
+package world.fantasy.controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import world.fantasy.creatures.Creature;
 
-public class HelloController {
+public class FullMapController {
     Creature player;
 
     public Creature getPlayer() {
@@ -17,6 +17,7 @@ public class HelloController {
     }
 
     public Creature update() {
+        if (player == null) return null;
         health.setText(String.valueOf(player.getHealth()));
         mana.setText(String.valueOf(player.getMana()));
         intelligence.setText(String.valueOf(player.getIntelligence()));

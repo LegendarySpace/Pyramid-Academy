@@ -1,6 +1,12 @@
 package world.fantasy.items.consumable;
 
+import world.fantasy.world.World;
+
 public class HealthPotion extends Consumable{
+    public HealthPotion(World world) {
+        super(world);
+    }
+
     @Override
     public void use() {
         getOwner().setHealth(getOwner().getHealth() + 10);

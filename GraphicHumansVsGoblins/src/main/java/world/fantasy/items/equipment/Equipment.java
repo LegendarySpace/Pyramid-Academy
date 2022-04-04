@@ -13,7 +13,9 @@ public abstract class Equipment extends Item {
     private final int value;
     private final int bonus;
 
-    public Equipment(int value) {
+    public Equipment(World world, int value) {
+        super(world);
+        setName("Item that can be equipped");
         this.value = value;
         int x = ThreadLocalRandom.current().nextInt( 100);
         if (x < 1) this.bonus = 2;
@@ -21,7 +23,9 @@ public abstract class Equipment extends Item {
         else this.bonus = 0;
     }
 
-    public Equipment(int value, int bonus) {
+    public Equipment(World world, int value, int bonus) {
+        super(world);
+        setName("Item that can be equipped");
         this.value = value;
         this.bonus = bonus;
     }
@@ -36,6 +40,7 @@ public abstract class Equipment extends Item {
         return getOwner() != null && getOwner().wearEquipment(equipTo(), this);
     }
 
+    // TODO: This needs to use gui instead
     public GearSlot equipTo() {
         if (getOwner() == null) return null;
         String message = String.format("Current Gear: \n%sWhat slot will you equip to? (%s)", getOwner().displayEquipment(), availableSlots());
@@ -57,10 +62,8 @@ public abstract class Equipment extends Item {
 
     @Override
     public String toDetailedString() {
-        return name() + ((getBonus() > 0)? " +" + getBonus():"");
+        return getName() + ((getBonus() > 0)? " +" + getBonus():"");
     }
-
-    public String name() { return "Item that can be equipped"; }
 
     @Override
     public void activate(ItemOption option) {

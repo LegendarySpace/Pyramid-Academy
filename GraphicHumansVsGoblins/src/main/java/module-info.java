@@ -5,4 +5,6 @@ module world.fantasy.graphichumansvsgoblins {
 
     opens world.fantasy to javafx.fxml;
     exports world.fantasy;
+    exports world.fantasy.controllers;
+    opens world.fantasy.controllers to javafx.fxml;
 }

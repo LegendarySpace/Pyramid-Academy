@@ -4,6 +4,7 @@ import world.fantasy.items.Item;
 import world.fantasy.items.ItemOption;
 import world.fantasy.creatures.GearSlot;
 import world.fantasy.creatures.Creature;
+import world.fantasy.world.Land;
 import world.fantasy.world.World;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class Menu {
         String input;
         if (unit.isNPC()) input = unit.determineAction().name();
         else {
+            // TODO: inject gui control here
             String options = String.join(", ", unit.menuOptions().stream().map(Enum::name).toList());
             String message = String.format("Please select an option: (%s)", options);
             String error = "Trouble receiving input, please try again";
@@ -34,7 +36,7 @@ public class Menu {
                 // Process input
                 switch (opt) {
                     case MOVE -> {
-                        world.movement(unit);  // TODO: remove from world, not sure where to put
+                        unit.move(new Land());
                         return;
                     }
                     case INVENTORY -> inventoryMenu(unit);

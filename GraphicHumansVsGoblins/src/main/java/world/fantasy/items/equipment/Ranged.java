@@ -1,8 +1,10 @@
 package world.fantasy.items.equipment;
 
+import world.fantasy.world.World;
+
 public class Ranged extends Weapon {
-    public Ranged(int damage) {
-        super(damage);
+    public Ranged(World world, int damage) {
+        super(world, damage);
     }
 
     @Override
@@ -11,5 +13,5 @@ public class Ranged extends Weapon {
     }
 
     @Override
-    public String name() { return "Bow of Blessings"; }
+    public String getName() { return "Bow of Blessings"; }
 }

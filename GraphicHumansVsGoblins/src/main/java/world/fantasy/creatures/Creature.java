@@ -1,16 +1,21 @@
 package world.fantasy.creatures;
 
+import world.fantasy.Actor;
 import world.fantasy.items.consumable.Consumable;
 import world.fantasy.items.equipment.*;
 import world.fantasy.items.*;
+import world.fantasy.world.Direction;
+import world.fantasy.world.World;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static world.fantasy.world.World.*;
 
-public abstract class Creature {
+public abstract class Creature extends Actor {
     private int Health;         // Total health
     private int Mana;           // Used for casting magic
     private int intelligence;   // Affects magic and magic based weapons
@@ -23,14 +28,17 @@ public abstract class Creature {
     private Weapon offHand;       // Item held in humanoid offhand
     private Armor armor;        // Armor currently being worn by humanoid
     private boolean bIsNPC;     // Is NPC or Player
-
-    public Creature() {
+    public Creature(World world) {
+        super(world);
+        name = "Creature of the Night";
         inventory = new ArrayList<>();
         mainHand = null;
         offHand = null;
         armor = null;
         bIsNPC = true;
     }
+
+
 
     // Stat management
     public int getHealth() { return Health; }
@@ -46,6 +54,9 @@ public abstract class Creature {
     public int getDexterity() { return dexterity; }
     public void setDexterity(int dexterity) { this.dexterity = dexterity; }
     protected int getInitialSkillPoints() { return 5; }
+    public int getRemainingSkillPoints() {
+        return remainingSkillPoints;
+    }
     public boolean isNPC() { return bIsNPC; }
     public void setIsNPC(boolean bIsNPC) { this.bIsNPC = bIsNPC; }
     private int statModifier(int stat) { return (stat / 2) - 5; }
@@ -87,13 +98,16 @@ public abstract class Creature {
         var slots = getAllSlots();
         for (var slot : slots) {
             sb.append("\n").append(slot.name()).append(": ");
-            sb.append(switch (slot) {
-                case ARMOR -> (armor == null)? "none":armor.toDetailedString();
-                case MAINHAND -> (mainHand == null)? "none":mainHand.toDetailedString();
-                case OFFHAND -> (offHand == null)? "none":offHand.toDetailedString();
-            });
+            sb.append(getGearFromSlot(slot).toDetailedString());
         }
         return sb.toString();
+    }
+    public Equipment getGearFromSlot(GearSlot slot) {
+        return switch (slot) {
+            case ARMOR -> armor;
+            case MAINHAND -> mainHand;
+            case OFFHAND -> offHand;
+        };
     }
     public Weapon getMainHand() { return mainHand; }
     public void equipMainHand(Weapon item) {
@@ -107,7 +121,7 @@ public abstract class Creature {
         Weapon e = mainHand;
         inventory.add(mainHand);
         mainHand = null;
-        System.out.println(String.format("%s was unequipped from %s slot%n", e.toDetailedString(), GearSlot.MAINHAND));
+        System.out.printf("%s was unequipped from %s slot%n", e.toDetailedString(), GearSlot.MAINHAND);
         return e;
     }
     public Weapon getOffHand() { return offHand; }
@@ -121,7 +135,7 @@ public abstract class Creature {
         Weapon e = offHand;
         inventory.add(offHand);
         offHand = null;
-        System.out.println(String.format("%s was unequipped from %s slot%n", e.toDetailedString(), GearSlot.OFFHAND));
+        System.out.printf("%s was unequipped from %s slot%n", e.toDetailedString(), GearSlot.OFFHAND);
         return e;
     }
     public Armor getArmor() { return armor; }
@@ -135,12 +149,12 @@ public abstract class Creature {
         Armor a = armor;
         inventory.add(armor);
         armor = null;
-        System.out.println(String.format("%s was unequipped from %s slot%n", a.toDetailedString(), GearSlot.ARMOR));
+        System.out.printf("%s was unequipped from %s slot%n", a.toDetailedString(), GearSlot.ARMOR);
         return a;
     }
     public boolean wearEquipment(GearSlot slot, Equipment item) {
         if (item == null) return false;
-        System.out.println(String.format("%s was equipped to %s slot\n", item.toDetailedString(), slot.name()));
+        System.out.printf("%s was equipped to %s slot%n", item.toDetailedString(), slot.name());
         switch (slot) {
             case ARMOR:
                 if (item instanceof Armor a) {
@@ -160,8 +174,23 @@ public abstract class Creature {
         }
         return false;
     }
+    public void autoEquip() {
+        removeAll();
+        for (var slot : getArmorSlots()) {
+            wearEquipment(slot, getInventory().stream().filter(item -> item instanceof Armor)
+                    .map(i -> (Armor) i).max(Comparator.comparingInt(Equipment::getTotal)).orElse(null));
+        }
+        for (var slot : getWeaponSlots()) {
+            wearEquipment(slot, getInventory().stream().filter(item -> item instanceof Weapon)
+                    .map(i -> (Weapon) i).max(Comparator.comparingInt(Equipment::getTotal)).orElse(null));
+        }
+    }
     public boolean autoEquip(Equipment equipment) {
-        for (var slot : getAllSlots()) if (wearEquipment(slot, equipment)) return true;
+        for (var slot : getAllSlots()) {
+            if (getGearFromSlot(slot) == null || getGearFromSlot(slot).getTotal() < equipment.getTotal()) {
+                if (wearEquipment(slot, equipment)) return true;
+            }
+        }
         return false;
     }
     public boolean removeEquipment(Equipment item) {
@@ -177,9 +206,9 @@ public abstract class Creature {
     public boolean removeEquipment(GearSlot slot) {
         if (slot == null) return false;
         switch (slot) {
-            case ARMOR -> { unequipArmor(); }
-            case MAINHAND -> { unequipMainHand(); }
-            case OFFHAND -> { unequipOffHand(); }
+            case ARMOR -> unequipArmor();
+            case MAINHAND -> unequipMainHand();
+            case OFFHAND -> unequipOffHand();
             default -> { return false; }
         }
         return true;
@@ -202,7 +231,7 @@ public abstract class Creature {
     public List<GearSlot> getArmorSlots() { return List.of(GearSlot.ARMOR); }
 
     // Encounter mechanics
-    public Item encounter(Object obj) {
+    public Actor encounter(Actor obj) {
         if (obj == null) return null;
         Item loot = null;
         if (obj instanceof Creature h) {
@@ -241,6 +270,7 @@ public abstract class Creature {
     public int attack(Creature creature) {
         int primary;
         int secondary;
+        // TODO: Work this math into a single function
         if (mainHand == null) { primary = (int) ((getStrength() * 2 / 3) * .9); }
         else if (mainHand instanceof Melee) { primary = (getStrength() * 2 / 3) + mainHand.getDamage(); }
         else if (mainHand instanceof Ranged) { primary = (getDexterity() * 2 / 3) + mainHand.getDamage(); }
@@ -260,6 +290,7 @@ public abstract class Creature {
     public int applyDamage(int damage) {
         int reducedDamage = damageReduction(damage);
         setHealth(getHealth()-reducedDamage);
+        if (getHealth() <= 0) setPosition(null);
         return reducedDamage;
     }
     private int damageReduction(int damage) {
@@ -283,6 +314,22 @@ public abstract class Creature {
         if (selection < 1 || selection > 6) applyStatPoint();
         else increaseStatByID(selection);
     }
+    public void statUp(int id) {
+        increaseStatByID(id);
+        remainingSkillPoints -= 1;
+    }
+    protected void increaseStatByID(int i) {
+        if (i < 1 || i > 6) return;
+        switch (i) {
+            case 1 -> setHealth(getHealth() + 2);
+            case 2 -> setMana(getMana() + 1);
+            case 3 -> setIntelligence(getIntelligence() + 1);
+            case 4 -> setStrength(getStrength() + 1);
+            case 5 -> setConstitution(getConstitution() + 1);
+            case 6 -> setDexterity(getDexterity() + 1);
+        }
+    }
+    // TODO: Deprecate this
     protected boolean validateStat(String stat) {
         if (stat == null || stat.isEmpty()) return false;
         if (stat.equals("1") || stat.equalsIgnoreCase("h") ||
@@ -298,6 +345,7 @@ public abstract class Creature {
         return stat.equals("6") || stat.equalsIgnoreCase("d") ||
                 stat.equalsIgnoreCase("Dexterity");
     }
+    // TODO: Deprecate this
     protected int statToID(String stat) {
         if (stat == null || stat.isEmpty()) return 0;
         if (stat.equals("1") || stat.equalsIgnoreCase("h") ||
@@ -314,24 +362,14 @@ public abstract class Creature {
                 stat.equalsIgnoreCase("Dexterity")) return 6;
         return 0;
     }
-    protected void increaseStatByID(int i) {
-        if (i < 1 || i > 6) return;
-        switch (i) {
-            case 1 -> setHealth(getHealth() + 2);
-            case 2 -> setMana(getMana() + 1);
-            case 3 -> setIntelligence(getIntelligence() + 1);
-            case 4 -> setStrength(getStrength() + 1);
-            case 5 -> setConstitution(getConstitution() + 1);
-            case 6 -> setDexterity(getDexterity() + 1);
-        }
+
+    // Movement mechanics
+    public List<Direction> validMovements() {
+        return Arrays.stream(Direction.values()).filter(dir -> world.landExists(getPosition().getDirection(dir))).toList();
     }
 
     // Menu system
     public List<UnitOption> menuOptions() { return new ArrayList<>(List.of(UnitOption.MOVE)); }
     public UnitOption determineAction() { return UnitOption.MOVE; }
 
-    @Override
-    public String toString() {
-        return Character.toString('\u2640');
-    }
 }
