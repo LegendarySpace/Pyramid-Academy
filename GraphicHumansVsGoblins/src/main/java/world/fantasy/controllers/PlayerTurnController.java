@@ -6,91 +6,55 @@ import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import world.fantasy.Gate;
 import world.fantasy.creatures.Creature;
-import world.fantasy.items.Item;
-import world.fantasy.items.consumable.Consumable;
 import world.fantasy.items.equipment.Equipment;
-import world.fantasy.world.Direction;
 
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.stream.Collectors;
 
 public class PlayerTurnController {
     Creature unit;
     int selectedIdx = -1;
-
-    public PlayerTurnController() {
-        optionInit();
-    }
-
-    public void setUnit(Creature unit) {
-        this.unit = unit;
-    }
-
     public Creature update() {
         if (unit == null) return null;
-        health.setText(String.valueOf(unit.getHealth()));
-        mana.setText(String.valueOf(unit.getMana()));
-        intelligence.setText(String.valueOf(unit.getIntelligence()));
-        strength.setText(String.valueOf(unit.getStrength()));
-        constitution.setText(String.valueOf(unit.getConstitution()));
-        dexterity.setText(String.valueOf(unit.getDexterity()));
-        skillPoint.setText(String.valueOf(0));
-        optionInit();
+        optionBase();
         fillGearDisplay();
 
         return unit;
     }
-
     protected void optionReset() {
-        order.setVisible(false);
+        details.getChildren().remove(order);
         gearInput.setVisible(false);
         gearInput.setDisable(true);
-        moveInput.setVisible(false);
-        moveInput.setDisable(true);
-        inv.setVisible(false);
-        inv.setDisable(true);
+        details.getChildren().remove(inv);
+        details.getChildren().remove(move);
         btnInventory.setDisable(false);
         btnGear.setDisable(false);
         btnMove.setDisable(false);
         selectedIdx = -1;
     }
-
-    protected void optionInit() {
+    public void optionBase() {
         optionReset();
-        order.setVisible(true);
+        details.getChildren().add(0, order);
     }
-
-    protected void fillInventoryDisplay() {
-        fillInventoryDisplay(unit.getInventory());
+    public void init() {
+        optionBase();
+        turnEnd();
     }
-
-    protected void fillInventoryDisplay(List<Item> list) {
-        inventoryDisplay.getChildren().clear();
-        if (list == null || list.isEmpty()) list = unit.getInventory();
-        for (var item : list) {
-            inventoryDisplay.getChildren().add(new Label(item.toDetailedString()) {
-                public void handle(MouseEvent mouseEvent) {
-                    selectedIdx = inventoryDisplay.getChildren().indexOf(this);
-                    enableValidInventoryInput();
-
-                    getOnMouseClicked().handle(mouseEvent);
-                }
-            });
-        }
-    }
-
-    private void enableValidInventoryInput() {
-        inventoryInput.setVisible(true);
-        inventoryInput.setDisable(false);
-        btnDrop.setDisable(selectedIdx < 0);
-        btnUse.setDisable(!(unit.getInventory().get(selectedIdx) instanceof Consumable));
-        btnWear.setDisable(!(unit.getInventory().get(selectedIdx) instanceof Equipment));
+    public ArrayDeque<Creature> getTurnQueue() {
+        return Gate.getInstance().getWorld().actors.stream()
+                .filter(a -> a instanceof Creature).map(a -> (Creature) a)
+                // TODO: Sort by speed so fastest goes first
+                .collect(Collectors.toCollection(ArrayDeque::new));
     }
 
     protected void fillGearDisplay() {
         equipmentDisplay.getChildren().clear();
         for (var slot : unit.getAllSlots()) {
-            String str = slot.name() + ": " + unit.getGearFromSlot(slot).getName();
+            var e = unit.getGearFromSlot(slot);
+            String str = slot.name() + ": " + ((e == null)?"NONE":e.getName());
             equipmentDisplay.getChildren().add(new Label(str) {
                 public void handle(MouseEvent mouseEvent) {
                     selectedIdx = equipmentDisplay.getChildren().indexOf(this);
@@ -110,52 +74,47 @@ public class PlayerTurnController {
         btnUnequip.setDisable(unit.getGearFromSlot(unit.getAllSlots().get(selectedIdx)) == null);
     }
 
-    private void enableValidMoveInput() {
-        var valid = unit.validMovements();
-        btnNorth.setDisable(!valid.contains(Direction.NORTH));
-        btnEast.setDisable(!valid.contains(Direction.EAST));
-        btnSouth.setDisable(!valid.contains(Direction.SOUTH));
-        btnWest.setDisable(!valid.contains(Direction.WEST));
-    }
-
     public void turnEnd() {
         // Don't know how this will work yet, but it will handle telling world to progress to the next player's turn
-        optionInit();
-        // TODO: Pass turn control
+        optionBase();
+        // TODO: If all enemies are dead return to player leveling
+        // TODO: Else if all players are dead display game over
+        var q = getTurnQueue();
+        if (unit != null && q.contains(unit)) {
+            while (q.peek() != unit) q.add(q.pop());
+            q.add(q.pop());
+        }
+        unit = q.peek();
+        ((Stage) details.getScene().getWindow()).setUserData(unit);
+        // Update controllers
+        orderController.setOrder(q);
+        infoController.update();
+        update();
+        // TODO: Pass turn control to next creature
     }
+
+
+
+    @FXML
+    private VBox map;
+
+    @FXML
+    private FullMapController mapController;
+
+    @FXML
+    private VBox details;
 
     @FXML
     private HBox order;
 
     @FXML
-    private VBox currentPlayer;
+    private TurnOrderController orderController;
 
     @FXML
-    private VBox player2;
+    private VBox info;
 
     @FXML
-    private Label name;
-
-    @FXML
-    private Label health;
-
-    @FXML
-    private Label mana;
-
-    @FXML
-    private Label intelligence;
-
-    @FXML
-    private Label strength;
-
-    @FXML
-    private Label constitution;
-
-    @FXML
-    private Label dexterity;
-
-    @FXML
-    private Label skillPoint;
+    private UnitInfoController infoController;
 
     @FXML
     private VBox equipmentDisplay;
@@ -173,6 +132,9 @@ public class PlayerTurnController {
     private Button btnAuto;
 
     @FXML
+    public VBox unitOptions;
+
+    @FXML
     private Button btnInventory;
 
     @FXML
@@ -182,60 +144,34 @@ public class PlayerTurnController {
     private Button btnMove;     // Pass just calls move with the current location
 
     @FXML
+    public Button btnPass;
+
+    @FXML
     private VBox inv;
 
     @FXML
-    private VBox inventoryDisplay;
+    private InventoryController invController;
 
     @FXML
-    private VBox inventoryInput;
+    private VBox move;
 
     @FXML
-    private Button btnUse;
-
-    @FXML
-    private Button btnWear;
-
-    @FXML
-    private Button btnDrop;
-
-    @FXML
-    private VBox moveInput;
-
-    @FXML
-    private Button btnNorth;
-
-    @FXML
-    private Button btnEast;
-
-    @FXML
-    private Button btnSouth;
-
-    @FXML
-    private Button btnWest;
-
+    private MoveInputController moveController;
 
     // Unit Options
+
     @FXML
     protected void onInventoryClick() {
         optionReset();
         btnInventory.setDisable(true);
-        inv.setVisible(true);
-        inv.setDisable(false);
-        fillInventoryDisplay();
-        inventoryInput.setDisable(true);
-        inventoryInput.setVisible(false);
-        btnUse.setDisable(true);
-        btnEquip.setDisable(true);
-        btnDrop.setDisable(true);
+        details.getChildren().add(6, inv);
+        invController.fillInventoryDisplay();
     }
 
     @FXML
     protected void onGearClick() {
         optionReset();
         btnGear.setDisable(true);
-        gearInput.setVisible(true);
-        gearInput.setDisable(false);
         fillGearDisplay();
     }
 
@@ -243,87 +179,37 @@ public class PlayerTurnController {
     protected void onMoveClick() {
         optionReset();
         btnMove.setDisable(true);
-        moveInput.setVisible(true);
-        moveInput.setDisable(false);
-        enableValidMoveInput();
+        details.getChildren().add(6, move);
+        moveController.update();
     }
 
     @FXML
     protected void onPassClick() {
-        optionInit();
+        optionBase();
         unit.move(unit.getPosition());
         turnEnd();
     }
-
-
-    // Inventory
-    @FXML
-    protected void onUseClick() {
-        if (selectedIdx == -1) return;
-        ((Consumable) unit.getInventory().get(selectedIdx)).use();
-        optionInit();
-    }
-
-    @FXML
-    protected void onWearClick() {
-        if (selectedIdx == -1) return;
-        ((Equipment) unit.getInventory().get(selectedIdx)).equip();
-        optionInit();
-    }
-
-    @FXML
-    protected void onDropClick() {
-        if (selectedIdx == -1) return;
-        unit.getInventory().get(selectedIdx).drop();
-        optionInit();
-    }
-
 
 
     // Gear
     @FXML
     protected void onEquipClick() {
         onInventoryClick();
-        fillInventoryDisplay(unit.getInventory().stream().filter(item -> item instanceof Equipment).toList());
+        if (unit == null) return;
+        invController.fillInventoryDisplay(unit.getInventory().stream()
+                .filter(item -> item instanceof Equipment).toList());
     }
 
     @FXML
     protected void onUnequipClick() {
         if (selectedIdx < 0) return;
         unit.removeEquipment(unit.getAllSlots().get(selectedIdx));
-        optionInit();
+        optionBase();
     }
 
     @FXML
     protected void onAutoClick() {
         unit.autoEquip();
-    }
-
-
-
-    // Movement
-    @FXML
-    protected void onNorthClick() {
-        unit.move(unit.getPosition().getNorth());
-        turnEnd();
-    }
-
-    @FXML
-    protected void onEastClick() {
-        unit.move(unit.getPosition().getEast());
-        turnEnd();
-    }
-
-    @FXML
-    protected void onSouthClick() {
-        unit.move(unit.getPosition().getSouth());
-        turnEnd();
-    }
-
-    @FXML
-    protected void onWestClick() {
-        unit.move(unit.getPosition().getWest());
-        turnEnd();
     }
 
 }

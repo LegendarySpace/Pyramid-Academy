@@ -61,7 +61,10 @@ public class NewGameController {
         var gate = Gate.getInstance();
         gate.setWorld(world);
         gate.setWaveLimit(Integer.parseInt(wavesInput.getText()));
-        Gate.loadScene("leveling-view.fxml");
+        var loader = Gate.getLoader("leveling-view.fxml");
+        Gate.loadScene(loader);
+        var con = (LevelingController) loader.getController();
+        con.nextPlayer();
     }
 
     @FXML

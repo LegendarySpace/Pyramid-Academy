@@ -6,63 +6,15 @@
   <component name="ChangeListManager">
     <list default="true" id="cff108c0-f440-4993-afd5-7ddc42347d86" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../SpringBoot/SpringFrameworkDemo/.idea/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/.idea/compiler.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../SpringBoot/SpringFrameworkDemo/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/.idea/jarRepositories.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../SpringBoot/SpringFrameworkDemo/.idea/jarRepositories.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/.idea/libraries/Maven__org_apiguardian_apiguardian_api_1_1_2.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/.idea/libraries/Maven__org_junit_jupiter_junit_jupiter_api_5_8_1.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/.idea/libraries/Maven__org_junit_jupiter_junit_jupiter_engine_5_8_1.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/.idea/libraries/Maven__org_junit_platform_junit_platform_commons_1_8_1.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/.idea/libraries/Maven__org_junit_platform_junit_platform_engine_1_8_1.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/.idea/libraries/Maven__org_openjfx_javafx_base_17_0_1.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/.idea/libraries/Maven__org_openjfx_javafx_base_win_17_0_1.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/.idea/libraries/Maven__org_openjfx_javafx_controls_17_0_1.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/.idea/libraries/Maven__org_openjfx_javafx_controls_win_17_0_1.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/.idea/libraries/Maven__org_openjfx_javafx_fxml_17_0_1.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/.idea/libraries/Maven__org_openjfx_javafx_fxml_win_17_0_1.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/.idea/libraries/Maven__org_openjfx_javafx_graphics_17_0_1.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/.idea/libraries/Maven__org_openjfx_javafx_graphics_win_17_0_1.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/.idea/libraries/Maven__org_opentest4j_opentest4j_1_2_0.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/.idea/uiDesigner.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/GraphicHumansVsGoblinsSetup.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/pom.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/src/main/java/module-info.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/src/main/java/world/fantasy/graphichumansvsgoblins/GameWindow.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/src/main/java/world/fantasy/graphichumansvsgoblins/WindowApplication.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/src/main/resources/world/fantasy/graphichumansvsgoblins/GameWindow.fxml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../GraphicHumansVsGoblinsSetup/target/classes/world/fantasy/graphichumansvsgoblins/GameWindow.fxml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Reverse/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Reverse/.idea/compiler.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Reverse/.idea/jarRepositories.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Reverse/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../SpringBoot/SpringFrameworkDemo/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Reverse/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Reverse/pom.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Reverse/src/main/java/Reverse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ReverseInt/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ReverseInt/.idea/compiler.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ReverseInt/.idea/jarRepositories.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ReverseInt/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ReverseInt/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ReverseInt/pom.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ReverseInt/src/main/java/ReverseInt.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../SpringFrameworkDemo/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../SpringFrameworkDemo/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../SpringBoot/SpringFrameworkDemo/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../SpringFrameworkDemo/.idea/encodings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../SpringFrameworkDemo/.idea/jarRepositories.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../SpringFrameworkDemo/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../SpringFrameworkDemo/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../SpringBoot/SpringFrameworkDemo/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../SpringFrameworkDemo/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../SpringBoot/SpringFrameworkDemo/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../SpringFrameworkDemo/src/main/java/upsher/ryusei/Address.java" beforeDir="false" afterPath="$PROJECT_DIR$/../SpringBoot/SpringFrameworkDemo/src/main/java/upsher/ryusei/Address.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../SpringFrameworkDemo/src/main/java/upsher/ryusei/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/../SpringBoot/SpringFrameworkDemo/src/main/java/upsher/ryusei/App.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../SpringFrameworkDemo/src/main/java/upsher/ryusei/Phone.java" beforeDir="false" afterPath="$PROJECT_DIR$/../SpringBoot/SpringFrameworkDemo/src/main/java/upsher/ryusei/Phone.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../SpringFrameworkDemo/src/main/java/upsher/ryusei/Student.java" beforeDir="false" afterPath="$PROJECT_DIR$/../SpringBoot/SpringFrameworkDemo/src/main/java/upsher/ryusei/Student.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../SpringFrameworkDemo/src/main/resources/Spring.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../SpringBoot/SpringFrameworkDemo/src/main/resources/Spring.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../SpringFrameworkDemo/src/test/java/upsher/ryusei/AppTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/../SpringBoot/SpringFrameworkDemo/src/test/java/upsher/ryusei/AppTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../SpringFrameworkDemo/target/classes/Spring.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../SpringBoot/SpringFrameworkDemo/target/classes/Spring.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/Gate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/Gate.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/HVGApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/HVGApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/LevelingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/LevelingController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/NewGameController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/NewGameController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/PlayerTurnController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/PlayerTurnController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/world/fantasy/scenes/map-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/world/fantasy/scenes/map-view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/world/fantasy/scenes/turn-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/world/fantasy/scenes/turn-view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/world/fantasy/scenes/map-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/world/fantasy/scenes/map-view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/world/fantasy/scenes/turn-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/world/fantasy/scenes/turn-view.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

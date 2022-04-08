@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<HBox alignment="CENTER" spacing="5.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="world.fantasy.controllers.TurnOrderController">
+   <children>
+      <VBox fx:id="currentPlayer" alignment="CENTER" prefHeight="100.0" prefWidth="100.0" styleClass="playerTurnIcon">
+         <children>
+            <ImageView fitHeight="80.0" fitWidth="80.0" pickOnBounds="true">
+               <image>
+                  <Image url="@../../../../../../../../Users/Brian/Pictures/DOR/CustomCreatures/Harpy.jpg" />
+               </image>
+            </ImageView>
+         </children>
+      </VBox>
+      <ImageView fitHeight="70.0" fitWidth="70.0" layoutX="10.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../Selector.png" />
+         </image>
+      </ImageView>
+      <VBox fx:id="player2" alignment="CENTER" layoutX="30.0" layoutY="10.0" prefHeight="70.0" prefWidth="70.0" styleClass="playerTurnIcon">
+         <children>
+            <ImageView fitHeight="56.0" fitWidth="56.0" pickOnBounds="true">
+               <image>
+                  <Image url="@../../../../../../../../Users/Brian/Pictures/DOR/CustomCreatures/Boar.jpg" />
+               </image>
+            </ImageView>
+         </children>
+      </VBox>
+   </children>
+   <opaqueInsets>
+      <Insets />
+   </opaqueInsets>
+   <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+   </padding>
+</HBox>

@@ -12,6 +12,7 @@ import java.io.IOException;
 public class HVGApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
+
         Gate.getInstance().setStage(stage);
         stage.setTitle("Humans Vs Goblins");
         Scene scene = Gate.loadScene("splash-view.fxml");

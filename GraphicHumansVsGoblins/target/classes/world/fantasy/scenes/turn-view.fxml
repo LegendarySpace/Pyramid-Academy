@@ -4,143 +4,15 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 
-<fx:root alignment="CENTER" type="HBox" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="world.fantasy.controllers.PlayerTurnController">
+<HBox alignment="CENTER" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="world.fantasy.controllers.PlayerTurnController">
    <children>
-      <VBox alignment="CENTER" layoutX="10.0" layoutY="10.0">
-         <children>
-            <ImageView pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../../../../../../../../Users/Brian/Pictures/CircleTriangleCircle.png" />
-               </image>
-            </ImageView>
-         </children>
-         <padding>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-         </padding>
-      </VBox>
-      <VBox alignment="TOP_CENTER" spacing="5.0">
-         <padding>
-            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-         </padding>
-         <HBox fx:id="order" alignment="CENTER">
-            <children>
-               <VBox fx:id="currentPlayer" alignment="CENTER" prefHeight="100.0" prefWidth="100.0" styleClass="playerTurnIcon">
-                  <children>
-                     <ImageView fitHeight="80.0" fitWidth="80.0" pickOnBounds="true">
-                        <image>
-                           <Image url="@../../../../../../../../Users/Brian/Pictures/DOR/CustomCreatures/Harpy.jpg" />
-                        </image>
-                     </ImageView>
-                  </children>
-               </VBox>
-               <ImageView fitHeight="70.0" fitWidth="70.0" layoutX="10.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
-                  <image>
-                     <Image url="@../Selector.png" />
-                  </image>
-               </ImageView>
-               <VBox fx:id="player2" alignment="CENTER" layoutX="30.0" layoutY="10.0" prefHeight="70.0" prefWidth="70.0" styleClass="playerTurnIcon">
-                  <children>
-                     <ImageView fitHeight="56.0" fitWidth="56.0" pickOnBounds="true">
-                        <image>
-                           <Image url="@../../../../../../../../Users/Brian/Pictures/DOR/CustomCreatures/Boar.jpg" />
-                        </image>
-                     </ImageView>
-                  </children>
-               </VBox>
-            </children>
-         </HBox>
-         <HBox alignment="CENTER" spacing="5.0">
-            <children>
-               <Label text="Name: ">
-                  <font>
-                     <Font size="14.0" />
-                  </font></Label>
-               <Label fx:id="name" text="drak">
-                  <font>
-                     <Font size="14.0" />
-                  </font></Label>
-            </children>
-            <VBox.margin>
-               <Insets top="10.0" />
-            </VBox.margin>
-         </HBox>
-         <VBox alignment="CENTER">
-            <children>
-               <HBox alignment="CENTER" spacing="10.0">
-                  <children>
-                     <HBox spacing="5.0">
-                        <children>
-                           <Label text="Health:" />
-                           <Label fx:id="health" text="0000" />
-                        </children>
-                     </HBox>
-                     <Separator focusTraversable="false" visible="false" HBox.hgrow="ALWAYS" />
-                     <HBox layoutX="202.0" layoutY="15.0">
-                        <children>
-                           <Label text="Mana: " />
-                           <Label fx:id="mana" text="0000" />
-                        </children>
-                     </HBox>
-                  </children>
-                  <padding>
-                     <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
-                  </padding>
-               </HBox>
-               <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" spacing="10.0">
-                  <children>
-                     <HBox spacing="5.0">
-                        <children>
-                           <Label text="Int:" />
-                           <Label fx:id="intelligence" text="00" />
-                        </children>
-                     </HBox>
-                     <Separator focusTraversable="false" visible="false" HBox.hgrow="ALWAYS" />
-                     <HBox layoutX="202.0" layoutY="15.0" spacing="5.0">
-                        <children>
-                           <Label text="Str:" />
-                           <Label fx:id="strength" text="00" />
-                        </children>
-                     </HBox>
-                     <Separator focusTraversable="false" layoutX="65.0" layoutY="22.0" visible="false" HBox.hgrow="ALWAYS" />
-                     <HBox layoutX="122.0" layoutY="15.0" spacing="5.0">
-                        <children>
-                           <Label text="Con:" />
-                           <Label fx:id="constitution" text="00" />
-                        </children>
-                     </HBox>
-                  </children>
-                  <padding>
-                     <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
-                  </padding>
-               </HBox>
-               <HBox alignment="CENTER" layoutX="10.0" layoutY="38.0" spacing="10.0">
-                  <children>
-                     <HBox spacing="5.0">
-                        <children>
-                           <Label text="Dex:" />
-                           <Label fx:id="dexterity" text="00" />
-                        </children>
-                     </HBox>
-                     <Separator focusTraversable="false" visible="false" HBox.hgrow="ALWAYS" />
-                     <HBox layoutX="202.0" layoutY="15.0" spacing="5.0">
-                        <children>
-                           <Label text="SP:" />
-                           <Label fx:id="skillPoint" text="00" />
-                        </children>
-                     </HBox>
-                  </children>
-                  <padding>
-                     <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
-                  </padding>
-               </HBox>
-            </children>
-         </VBox>
+      <fx:include fx:id="map" source="map-view.fxml" />
+      <VBox fx:id="details" alignment="TOP_CENTER" spacing="5.0">
+         <fx:include fx:id="order" source="turn-order-view.fxml" />
+         <fx:include fx:id="info" source="unit-info-view.fxml" />
          <Separator layoutX="127.0" layoutY="292.0" orientation="VERTICAL" visible="false" VBox.vgrow="ALWAYS" />
          <VBox alignment="TOP_CENTER" layoutX="30.0" layoutY="229.0">
             <children>
@@ -165,25 +37,25 @@
                </HBox>
             </children>
          </VBox>
-         <Separator focusTraversable="false" orientation="VERTICAL" visible="false" VBox.vgrow="ALWAYS" />
+         <Separator orientation="VERTICAL" visible="false" VBox.vgrow="ALWAYS" />
          <VBox fx:id="unitOptions" spacing="10.0">
             <children>
                <HBox alignment="CENTER" spacing="10.0">
                   <children>
-                     <Separator focusTraversable="false" visible="false" />
+                     <Separator visible="false" />
                      <Button fx:id="btnInventory" mnemonicParsing="false" onAction="#onInventoryClick" prefWidth="75.0" text="Inventory" />
-                     <Separator focusTraversable="false" layoutX="52.0" layoutY="21.0" visible="false" />
+                     <Separator layoutX="52.0" layoutY="21.0" visible="false" />
                      <Button fx:id="btnGear" mnemonicParsing="false" onAction="#onGearClick" prefWidth="75.0" text="Gear" />
-                     <Separator focusTraversable="false" layoutX="189.0" layoutY="21.0" visible="false" />
+                     <Separator layoutX="189.0" layoutY="21.0" visible="false" />
                   </children>
                </HBox>
                <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" spacing="10.0">
                   <children>
-                     <Separator focusTraversable="false" visible="false" />
+                     <Separator visible="false" />
                      <Button fx:id="btnMove" mnemonicParsing="false" onAction="#onMoveClick" prefWidth="75.0" text="Move" />
-                     <Separator focusTraversable="false" visible="false" />
+                     <Separator visible="false" />
                      <Button fx:id="btnPass" layoutX="97.0" layoutY="20.0" mnemonicParsing="false" onAction="#onPassClick" prefWidth="75.0" text="Pass" />
-                     <Separator focusTraversable="false" visible="false" />
+                     <Separator visible="false" />
                   </children>
                </HBox>
             </children>
@@ -191,52 +63,10 @@
                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
             </padding>
          </VBox>
-         <Separator focusTraversable="false" layoutX="147.0" layoutY="390.0" orientation="VERTICAL" visible="false" />
-         <VBox fx:id="inv">
-            <children>
-               <VBox fx:id="inventoryDisplay" alignment="TOP_CENTER" spacing="10.0">
-                  <padding>
-                     <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                  </padding>
-                  <children>
-                     <Label text="Equipment: 1" />
-                     <Label layoutX="101.0" layoutY="20.0" text="Equipment: 2" />
-                  </children>
-               </VBox>
-               <VBox fx:id="inventoryInput" spacing="10.0">
-                  <children>
-                     <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" spacing="10.0">
-                        <children>
-                           <Button fx:id="btnUse" mnemonicParsing="false" onAction="#onUseClick" text="Use" />
-                           <Separator focusTraversable="false" visible="false" />
-                           <Button fx:id="btnWear" mnemonicParsing="false" onAction="#onWearClick" text="Wear" />
-                           <Separator focusTraversable="false" visible="false" />
-                           <Button fx:id="btnDrop" layoutX="97.0" layoutY="20.0" mnemonicParsing="false" onAction="#onDropClick" text="Drop" />
-                        </children>
-                     </HBox>
-                  </children>
-                  <padding>
-                     <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                  </padding>
-               </VBox>
-            </children>
-         </VBox>
-         <VBox fx:id="moveInput" alignment="CENTER" layoutX="30.0" layoutY="134.0" spacing="10.0">
-            <children>
-               <Button fx:id="btnNorth" mnemonicParsing="false" onAction="#onNorthClick" prefWidth="75.0" text="North" />
-               <HBox alignment="CENTER" spacing="20.0">
-                  <children>
-                     <Button fx:id="btnWest" mnemonicParsing="false" onAction="#onWestClick" prefWidth="75.0" text="West" />
-                     <Button fx:id="btnEast" layoutX="63.0" layoutY="20.0" mnemonicParsing="false" onAction="#onEastClick" prefWidth="75.0" text="East" />
-                  </children>
-               </HBox>
-               <Button fx:id="btnSouth" mnemonicParsing="false" onAction="#onSouthClick" prefWidth="75.0" text="South" />
-            </children>
-            <padding>
-               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-            </padding>
-         </VBox>
-         <Separator focusTraversable="false" layoutX="142.0" layoutY="403.0" orientation="VERTICAL" visible="false" VBox.vgrow="ALWAYS" />
+         <Separator layoutX="147.0" layoutY="390.0" orientation="VERTICAL" visible="false" />
+         <fx:include fx:id="inv" source="inventory-view.fxml" />
+         <fx:include fx:id="move" source="move-input-view.fxml" />
+         <Separator layoutX="142.0" layoutY="403.0" orientation="VERTICAL" visible="false" VBox.vgrow="ALWAYS" />
       </VBox>
    </children>
-</fx:root>
+</HBox>

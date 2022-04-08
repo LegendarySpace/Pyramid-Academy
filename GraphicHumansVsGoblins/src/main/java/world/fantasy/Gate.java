@@ -5,10 +5,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import world.fantasy.controllers.PlayerTurnController;
 import world.fantasy.world.World;
 
 public final class Gate {
     private World world;
+    public static final int SCENE_WIDTH = 950;  // 950 base
+    public static final int SCENE_HEIGHT = 630; // 630 base
 
     private static Stage stage;
 
@@ -52,18 +55,21 @@ public final class Gate {
         int items = (int) Math.pow(1.2,currentWave) * defaults[2];
         world.spawnWave(enemies, allies, items);
 
-        // TODO: switch to turn view
-        System.out.println("Starting turn view");
-        //loadScene("turn-view.fxml");
+        var load = getLoader("turn-view.fxml");
+        loadScene(load);
+        ((PlayerTurnController) load.getController()).init();
     }
 
     public static Scene loadScene(String fxml) {
         if (fxml == null || fxml.isEmpty()) return null;
-        fxml = "scenes/" + fxml;
-        //Object[] res = new Object[2];
+        var loader = getLoader(fxml);
+        return loadScene(loader);
+    }
+
+    public static Scene loadScene(FXMLLoader loader) {
+        if (loader == null) return null;
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(HVGApplication.class.getResource(fxml));
-            Scene s = new Scene(fxmlLoader.load(), 950, 630);
+            Scene s = new Scene(loader.load(), SCENE_WIDTH, SCENE_HEIGHT);
             if (stage != null) {
                 stage.close();
                 stage.setScene(s);
@@ -71,10 +77,15 @@ public final class Gate {
             }
             return s;
         } catch (Exception e) {
-            System.out.printf("Failed to load xml %s%n", fxml);
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static FXMLLoader getLoader(String fxml) {
+        if (fxml == null || fxml.isEmpty()) return null;
+        fxml = "scenes/" + fxml;
+        return new FXMLLoader(HVGApplication.class.getResource(fxml));
     }
 
     public static Scene loadScene(String fxml, ActionEvent event) {

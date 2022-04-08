@@ -7,6 +7,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import world.fantasy.Gate;
 import world.fantasy.creatures.Creature;
+import world.fantasy.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +18,7 @@ public class LevelingController {
     private Creature player;
 
     public LevelingController() {
-        remainingPlayers = playerList();
-        nextPlayer();
+        remainingPlayers = playerList(Gate.getInstance().getWorld());
     }
 
     public Creature getPlayer() {
@@ -31,7 +31,6 @@ public class LevelingController {
 
     public Creature update() {
         if (player == null) return null;
-        // TODO: Somehow name is null
         name.setText(player.getName());
         health.setText(String.valueOf(player.getHealth()));
         mana.setText(String.valueOf(player.getMana()));
@@ -45,15 +44,14 @@ public class LevelingController {
         return player;
     }
 
-    private List<Creature> playerList() {
-        // This is null when it shouldn't be
-        var w = Gate.getInstance().getWorld();
-        var p = w.getPlayers();
+    private List<Creature> playerList(World world) {
+        if (world == null) return null;
+        var p = world.getPlayers();
         return Gate.getInstance().getWorld().getPlayers().stream().filter(c -> c.getRemainingSkillPoints() > 0).collect(Collectors.toCollection(ArrayList::new));
     }
 
     public void nextPlayer() {
-        if (remainingPlayers.isEmpty()) {
+        if (remainingPlayers == null || remainingPlayers.isEmpty()) {
             Gate.getInstance().startWave();
             return;
         }
