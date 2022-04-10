@@ -315,6 +315,7 @@ public abstract class Creature extends Actor {
         else increaseStatByID(selection);
     }
     public void statUp(int id) {
+        if (getRemainingSkillPoints() < 1) return;
         increaseStatByID(id);
         remainingSkillPoints -= 1;
     }

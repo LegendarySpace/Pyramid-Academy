@@ -6,15 +6,17 @@
   <component name="ChangeListManager">
     <list default="true" id="cff108c0-f440-4993-afd5-7ddc42347d86" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/Gate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/Gate.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/Actor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/Actor.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/FullMapController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/FullMapController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/LevelingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/LevelingController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/MoveInputController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/MoveInputController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/PlayerTurnController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/PlayerTurnController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/creatures/Creature.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/creatures/Creature.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/creatures/Human.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/creatures/Human.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/world/Land.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/world/Land.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/world/World.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/world/World.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/world/fantasy/scenes/map-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/world/fantasy/scenes/map-view.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/world/fantasy/scenes/turn-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/world/fantasy/scenes/turn-view.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/world/fantasy/scenes/map-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/world/fantasy/scenes/map-view.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/world/fantasy/scenes/turn-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/world/fantasy/scenes/turn-view.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../TerminalHumansVsGoblins/src/main/java/world/fantasy/creatures/Human.java" beforeDir="false" afterPath="$PROJECT_DIR$/../TerminalHumansVsGoblins/src/main/java/world/fantasy/creatures/Human.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/world/fantasy/scenes/leveling-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/world/fantasy/scenes/leveling-view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/world/fantasy/scenes/leveling-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/world/fantasy/scenes/leveling-view.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

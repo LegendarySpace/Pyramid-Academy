@@ -44,6 +44,7 @@ public class PlayerTurnController {
     public void init() {
         optionBase();
         mapController.createMap(Gate.getInstance().getWorld().boardSize);
+        moveController.setTurnCon(this);
         turnEnd();
     }
     public ArrayDeque<Creature> getTurnQueue() {

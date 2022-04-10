@@ -46,6 +46,7 @@ public class Actor {
             }
         }
         if (doesExist()) setPosition(moveTo);
+        world.gc();
         return true;
     }
 

@@ -31,6 +31,8 @@ public class LevelingController {
 
     public Creature update() {
         if (player == null) return null;
+        final int LIMIT = 999;
+
         name.setText(player.getName());
         health.setText(String.valueOf(player.getHealth()));
         mana.setText(String.valueOf(player.getMana()));
@@ -38,8 +40,15 @@ public class LevelingController {
         strength.setText(String.valueOf(player.getStrength()));
         constitution.setText(String.valueOf(player.getConstitution()));
         dexterity.setText(String.valueOf(player.getDexterity()));
-        skillPoints.setText(String.valueOf(player.getRemainingSkillPoints()));
+        int sp = player.getRemainingSkillPoints();
+        skillPoints.setText(String.valueOf(sp));
         // TODO: Disable increase button for max stats
+        hthUp.setDisable(sp < 1 || player.getHealth() > 1000000);
+        mnaUp.setDisable(sp < 1 || player.getMana() > 10000);
+        intUp.setDisable(sp < 1 || player.getIntelligence() > LIMIT);
+        strUp.setDisable(sp < 1 || player.getStrength() > LIMIT);
+        conUp.setDisable(sp < 1 || player.getConstitution() > LIMIT);
+        dexUp.setDisable(sp < 1 || player.getDexterity() > LIMIT);
 
         return player;
     }
@@ -58,6 +67,10 @@ public class LevelingController {
         setPlayer(remainingPlayers.get(0));
         remainingPlayers.remove(0);
         update();
+    }
+
+    private void applyChanges() {
+        player.setName(name.getText());
     }
 
     @FXML
@@ -104,7 +117,50 @@ public class LevelingController {
 
     @FXML
     protected void onAcceptClick(ActionEvent event) {
+        applyChanges();
         nextPlayer();
+    }
+
+    @FXML
+    protected void onHthUpClick(ActionEvent event) {
+        player.statUp(1);
+        applyChanges();
+        update();
+    }
+
+    @FXML
+    protected void onMnaUpClick(ActionEvent event) {
+        player.statUp(2);
+        applyChanges();
+        update();
+    }
+
+    @FXML
+    protected void onIntUpClick(ActionEvent event) {
+        player.statUp(3);
+        applyChanges();
+        update();
+    }
+
+    @FXML
+    protected void onStrUpClick(ActionEvent event) {
+        player.statUp(4);
+        applyChanges();
+        update();
+    }
+
+    @FXML
+    protected void onConUpClick(ActionEvent event) {
+        player.statUp(5);
+        applyChanges();
+        update();
+    }
+
+    @FXML
+    protected void onDexUpClick(ActionEvent event) {
+        player.statUp(6);
+        applyChanges();
+        update();
     }
 
 }

@@ -56,7 +56,7 @@ public class Human extends Creature {
 
     @Override
     protected int getInitialSkillPoints() {
-        return 10;
+        return 1;
     }
 
     @Override

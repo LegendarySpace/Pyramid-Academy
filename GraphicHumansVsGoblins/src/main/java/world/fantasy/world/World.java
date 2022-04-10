@@ -78,6 +78,9 @@ public class World {
             .map(o -> (Creature) o).toList(); }
     public List<Item> getItems() { return actors.stream().filter(o -> o instanceof Item)
             .map(o -> (Item) o).toList(); }
+    public void gc() {
+        actors = actors.stream().filter(Actor::doesExist).collect(Collectors.toCollection(HashSet::new));
+    }
 
     // Play Turn: iterate through each unit attempting to move them
     public void playTurn() {

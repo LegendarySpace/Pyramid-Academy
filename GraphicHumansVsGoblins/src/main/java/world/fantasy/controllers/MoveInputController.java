@@ -7,29 +7,37 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import world.fantasy.Gate;
 import world.fantasy.creatures.Creature;
 import world.fantasy.items.Item;
 import world.fantasy.items.consumable.Consumable;
 import world.fantasy.items.equipment.Equipment;
 import world.fantasy.world.Direction;
+import world.fantasy.world.World;
 
 import java.util.List;
 
 public class MoveInputController {
     private Creature unit;
+    private PlayerTurnController turnCon;
+
+    public void setTurnCon(PlayerTurnController turnCon) {
+        this.turnCon = turnCon;
+    }
 
     public void update() {
         unit = (Creature) ((Stage) btnNorth.getScene().getWindow()).getUserData();
-        if (unit == null) {
+        if (unit == null || turnCon == null) {
             btnNorth.setDisable(true);
             btnEast.setDisable(true);
             btnSouth.setDisable(true);
             btnWest.setDisable(true);
         } else {
-            btnNorth.setDisable(false);
-            btnEast.setDisable(false);
-            btnSouth.setDisable(false);
-            btnWest.setDisable(false);
+            World w = Gate.getInstance().getWorld();
+            btnNorth.setDisable(!w.landExists(unit.getPosition().getNorth()));
+            btnEast.setDisable(!w.landExists(unit.getPosition().getEast()));
+            btnSouth.setDisable(!w.landExists(unit.getPosition().getSouth()));
+            btnWest.setDisable(!w.landExists(unit.getPosition().getWest()));
         }
     }
 
@@ -55,25 +63,25 @@ public class MoveInputController {
     @FXML
     protected void onNorthClick() {
         unit.move(unit.getPosition().getNorth());
-        turnEnd();
+        turnCon.turnEnd();
     }
 
     @FXML
     protected void onEastClick() {
         unit.move(unit.getPosition().getEast());
-        turnEnd();
+        turnCon.turnEnd();
     }
 
     @FXML
     protected void onSouthClick() {
         unit.move(unit.getPosition().getSouth());
-        turnEnd();
+        turnCon.turnEnd();
     }
 
     @FXML
     protected void onWestClick() {
         unit.move(unit.getPosition().getWest());
-        turnEnd();
+        turnCon.turnEnd();
     }
 
 }

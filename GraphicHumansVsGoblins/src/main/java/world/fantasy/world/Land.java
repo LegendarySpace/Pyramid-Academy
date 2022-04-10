@@ -19,9 +19,9 @@ public class Land implements Comparable<Land> {
     public int getColumn() { return column; }
     public void setColumn(int column) { this.column = column; }
 
-    public Land getNorth() { return new Land(row + 1, column); }
+    public Land getNorth() { return new Land(row - 1, column); }
     public Land getEast() { return new Land(row, column + 1); }
-    public Land getSouth() { return new Land(row - 1, column); }
+    public Land getSouth() { return new Land(row + 1, column); }
     public Land getWest() { return new Land(row, column - 1); }
 
     public Land getDirection(Direction dir) {
