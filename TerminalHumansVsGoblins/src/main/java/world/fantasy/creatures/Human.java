@@ -11,7 +11,7 @@ public class Human extends Humanoid {
     public Human() {
         // AI
         super();
-        setHealth((d6()+ d6()) * 2);
+        setHealth((d6() + d6()) * 2);
         setMana(d6() + d6());
         setIntelligence(d6() + d6());
         setStrength(d6() + d6());
@@ -20,22 +20,10 @@ public class Human extends Humanoid {
         for (int i = 0; i < getInitialSkillPoints(); i++) applyStatPoint();
     }
 
-    @Override
-    protected int getInitialSkillPoints() {
-        return 1;
-    }
-
-    @Override
-    public List<UnitOption> menuOptions() {
-        var list = super.menuOptions();
-        list.addAll(List.of(UnitOption.INVENTORY, UnitOption.GEAR, /*UnitOption.SPELLS,*/ UnitOption.QUIT));
-        return list;
-    }
-
     public Human(Boolean NPC) {
         // Player
         super();
-        setHealth((d6()+ d6()) * 2);
+        setHealth((d6() + d6()) * 2);
         setMana(d6() + d6());
         setIntelligence(d6() + d6());
         setStrength(d6() + d6());
@@ -70,17 +58,28 @@ public class Human extends Humanoid {
         setIsNPC(npc);
     }
 
+    @Override
+    protected int getInitialSkillPoints() {
+        return 1;
+    }
+
+    @Override
+    public List<UnitOption> menuOptions() {
+        var list = super.menuOptions();
+        list.addAll(List.of(UnitOption.INVENTORY, UnitOption.GEAR, /*UnitOption.SPELLS,*/ UnitOption.QUIT));
+        return list;
+    }
+
     public void chooseStatPoint() {
         System.out.printf("You have %s Skill Points remaining, Currents Stats:\n", remainingSkillPoints);
         System.out.printf("Health: %s    Intelligence: %s    Constitution: %s\n", getHealth(), getIntelligence(), getConstitution());
         System.out.printf("Mana: %s    Strength: %s    Dexterity: %s\n", getMana(), getStrength(), getDexterity());
         System.out.println("Please choose a stat");
-        String selection = ensureInput("1: Health\n2: Mana\n3: Intelligence\n4: Strength\n5: Constitution\n6: Dexterity\n","That was not valid input");
+        String selection = ensureInput("1: Health\n2: Mana\n3: Intelligence\n4: Strength\n5: Constitution\n6: Dexterity\n", "That was not valid input");
         if (validateStat(selection)) {
             increaseStatByID(statToID(selection));
             remainingSkillPoints -= 1;
-        }
-        else {
+        } else {
             System.out.println("That was not a valid stat!!");
             chooseStatPoint();
         }

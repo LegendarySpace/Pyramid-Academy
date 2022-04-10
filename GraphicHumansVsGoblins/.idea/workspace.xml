@@ -7,14 +7,14 @@
     <list default="true" id="cff108c0-f440-4993-afd5-7ddc42347d86" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/Gate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/Gate.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/HVGApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/HVGApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/LevelingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/LevelingController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/NewGameController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/NewGameController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/FullMapController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/FullMapController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/PlayerTurnController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/PlayerTurnController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/world/World.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/world/World.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/world/fantasy/scenes/map-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/world/fantasy/scenes/map-view.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/world/fantasy/scenes/turn-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/world/fantasy/scenes/turn-view.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/world/fantasy/scenes/map-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/world/fantasy/scenes/map-view.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/world/fantasy/scenes/turn-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/world/fantasy/scenes/turn-view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../TerminalHumansVsGoblins/src/main/java/world/fantasy/creatures/Human.java" beforeDir="false" afterPath="$PROJECT_DIR$/../TerminalHumansVsGoblins/src/main/java/world/fantasy/creatures/Human.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

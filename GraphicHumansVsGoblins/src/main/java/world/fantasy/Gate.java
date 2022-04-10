@@ -56,7 +56,7 @@ public final class Gate {
         world.spawnWave(enemies, allies, items);
 
         var load = getLoader("turn-view.fxml");
-        loadScene(load);
+        if (getStage() == null || loadScene(load) == null) return;
         ((PlayerTurnController) load.getController()).init();
     }
 

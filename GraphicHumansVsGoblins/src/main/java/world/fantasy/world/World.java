@@ -34,8 +34,9 @@ public class World {
 
     public static Scanner scan;
     private HashMap<Land, Actor> worldMap;
-    public int boardHeight, boardWidth;
+    public static int boardHeight, boardWidth;
     public Menu menu;
+    public int boardSize;
     // Holds information about all objects in the world and maps their position on the map
 
     public World() {
@@ -44,6 +45,9 @@ public class World {
 
     public World(int size) {
         this(generateSquare(size));
+
+        // TODO: This should be reworked to accommodate any land collection
+        boardSize = size;
     }
 
     public World(List<Land> lands) {
@@ -68,6 +72,8 @@ public class World {
         actors.add(actor);
         return true;
     }
+    public static int getHeight() { return boardHeight; }
+    public static int getWidth() { return boardWidth; }
     public List<Creature> getUnits() { return actors.stream().filter(o -> o instanceof Creature)
             .map(o -> (Creature) o).toList(); }
     public List<Item> getItems() { return actors.stream().filter(o -> o instanceof Item)
@@ -86,6 +92,8 @@ public class World {
 
 
     public static ArrayList<Land> generateSquare(int size) {
+        boardHeight = size;
+        boardWidth = size;
         ArrayList<Land> square = new ArrayList<>();
         if (size < 1) return square;
         for (int row = 0; row < size; row++) {
@@ -94,6 +102,8 @@ public class World {
         return square;
     }
     public static ArrayList<Land> generateDiamond(int size) {
+        boardHeight = size;
+        boardWidth = size;
         ArrayList<Land> diamond = new ArrayList<>();
         final int s = size - 1;
         if (size < 1) return diamond;

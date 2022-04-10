@@ -5,6 +5,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import world.fantasy.Gate;
@@ -25,6 +26,7 @@ public class PlayerTurnController {
         return unit;
     }
     protected void optionReset() {
+        if (details == null) return;
         details.getChildren().remove(order);
         gearInput.setVisible(false);
         gearInput.setDisable(true);
@@ -41,6 +43,7 @@ public class PlayerTurnController {
     }
     public void init() {
         optionBase();
+        mapController.createMap(Gate.getInstance().getWorld().boardSize);
         turnEnd();
     }
     public ArrayDeque<Creature> getTurnQueue() {
@@ -87,6 +90,7 @@ public class PlayerTurnController {
         unit = q.peek();
         ((Stage) details.getScene().getWindow()).setUserData(unit);
         // Update controllers
+        mapController.updateTileContents();  //
         orderController.setOrder(q);
         infoController.update();
         update();
@@ -96,7 +100,7 @@ public class PlayerTurnController {
 
 
     @FXML
-    private VBox map;
+    private Pane mapS;
 
     @FXML
     private FullMapController mapController;
