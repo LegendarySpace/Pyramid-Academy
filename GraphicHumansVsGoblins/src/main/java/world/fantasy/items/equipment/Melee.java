@@ -14,4 +14,10 @@ public class Melee extends Weapon {
 
     @Override
     public String getName() { return "Sword of slashing"; }
+
+    @Override
+    public String getImagePath() {
+        return "D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\images\\melee.png";
+    }
+
 }

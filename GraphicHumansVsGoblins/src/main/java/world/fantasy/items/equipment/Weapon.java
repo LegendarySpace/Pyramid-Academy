@@ -37,4 +37,10 @@ public abstract class Weapon extends Equipment {
         }
     }
 
+    @Override
+    public String getImagePath() {
+        return "D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\images\\weapon.png";
+    }
+
+
 }

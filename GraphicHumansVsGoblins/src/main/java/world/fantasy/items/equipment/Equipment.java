@@ -84,4 +84,10 @@ public abstract class Equipment extends Item {
         list.add(ItemOption.UNEQUIP);   // should only show up if equipped
         return list;
     }
+
+    @Override
+    public String getImagePath() {
+        return "D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\images\\equipment.png";
+    }
+
 }

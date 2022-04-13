@@ -30,6 +30,11 @@ public class Item extends Actor {
     }
 
     @Override
+    public String getImagePath() {
+        return "D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\images\\item.png";
+    }
+
+    @Override
     public String toString() {
         return Character.toString('\u26b1');
     }

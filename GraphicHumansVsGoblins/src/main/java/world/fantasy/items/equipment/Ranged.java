@@ -14,4 +14,10 @@ public class Ranged extends Weapon {
 
     @Override
     public String getName() { return "Bow of Blessings"; }
+
+    @Override
+    public String getImagePath() {
+        return "D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\images\\ranged.png";
+    }
+
 }

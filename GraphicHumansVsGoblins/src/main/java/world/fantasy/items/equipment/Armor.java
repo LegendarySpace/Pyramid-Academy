@@ -38,4 +38,9 @@ public class Armor extends Equipment {
         }
     }
 
+    @Override
+    public String getImagePath() {
+        return "D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\images\\armor.png";
+    }
+
 }

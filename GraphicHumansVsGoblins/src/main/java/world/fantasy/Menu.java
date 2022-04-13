@@ -20,7 +20,6 @@ public class Menu {
             System.out.println("A unit is required to display this menu");
             return;
         }
-        world.displayMap();
         String input;
         if (unit.isNPC()) input = unit.determineAction().name();
         else {

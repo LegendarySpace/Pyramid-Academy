@@ -15,4 +15,10 @@ public class Shield extends Weapon {
 
     @Override
     public String getName() { return "Shield of Defending"; }
+
+    @Override
+    public String getImagePath() {
+        return "D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\images\\shield.png";
+    }
+
 }

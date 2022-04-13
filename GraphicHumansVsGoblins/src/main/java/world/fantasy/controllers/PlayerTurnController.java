@@ -3,6 +3,7 @@ package world.fantasy.controllers;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -10,7 +11,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import world.fantasy.Gate;
 import world.fantasy.creatures.Creature;
+import world.fantasy.creatures.UnitOption;
 import world.fantasy.items.equipment.Equipment;
+import world.fantasy.world.Land;
 
 import java.util.ArrayDeque;
 import java.util.stream.Collectors;
@@ -84,6 +87,9 @@ public class PlayerTurnController {
         // TODO: If all enemies are dead return to player leveling
         // TODO: Else if all players are dead display game over
         var q = getTurnQueue();
+        if (q.isEmpty()) {      // All players are dead
+
+        }
         if (unit != null && q.contains(unit)) {
             while (q.peek() != unit) q.add(q.pop());
             q.add(q.pop());
@@ -95,13 +101,27 @@ public class PlayerTurnController {
         orderController.setOrder(q);
         infoController.update();
         update();
-        // TODO: Pass turn control to next creature
+        if (unit.isNPC()) processAIAction(unit);
+    }
+
+    private void processAIAction(Creature unit) {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ie) {
+            System.out.println("Failed to sleep");
+            ie.printStackTrace();
+        }
+        if (unit == null) return;
+        if (unit.determineAction() == UnitOption.MOVE) {
+            unit.move(new Land());
+        }
+        turnEnd();
     }
 
 
 
     @FXML
-    private Pane mapS;
+    private ScrollPane map;
 
     @FXML
     private FullMapController mapController;

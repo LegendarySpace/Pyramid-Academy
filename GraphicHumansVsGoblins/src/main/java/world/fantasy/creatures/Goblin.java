@@ -23,4 +23,9 @@ public class Goblin extends Creature {
         setIsNPC(true);
     }
 
+    @Override
+    public String getImagePath() {
+        return "D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\images\\goblin.png";
+    }
+
 }

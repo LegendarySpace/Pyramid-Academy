@@ -41,11 +41,6 @@ public class MoveInputController {
         }
     }
 
-    public void turnEnd() {
-        // Don't know how this will work yet, but it will handle telling world to progress to the next player's turn
-        // TODO: Should call turnEnd on parent      // May move back into turn controller
-    }
-
     @FXML
     private Button btnNorth;
 

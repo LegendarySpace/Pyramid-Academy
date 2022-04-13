@@ -57,7 +57,7 @@ public class World {
 
     public boolean landExists(Land land) { return lands.contains(land); }
     public List<Creature> getPlayers() {
-        return actors.stream().filter(a -> a instanceof  Creature)
+        return actors.stream().filter(a -> a instanceof Creature)
                 .map(a -> (Creature) a).filter(a -> !a.isNPC()).toList();
     }
     public boolean hasPlayers() {
@@ -81,18 +81,6 @@ public class World {
     public void gc() {
         actors = actors.stream().filter(Actor::doesExist).collect(Collectors.toCollection(HashSet::new));
     }
-
-    // Play Turn: iterate through each unit attempting to move them
-    public void playTurn() {
-        // May need to switch to an iterator instead of for loop so units can be removed during loop    // or record units to remove at end of loop
-        // iterate over turn order deque
-        for (var unit : getUnits()) {
-            if (!unit.doesExist()) continue;
-            menu.displayMenu(unit);
-        }
-        actors = actors.stream().filter(Actor::doesExist).collect(Collectors.toCollection(HashSet::new));
-    }
-
 
     public static ArrayList<Land> generateSquare(int size) {
         boardHeight = size;
@@ -123,14 +111,21 @@ public class World {
         return diamond;
     }
 
+    public Land getRandomLand() {
+        var list = lands.stream()
+                .filter(x -> !actors.stream()
+                        .map(Actor::getPosition)
+                        .toList().contains(x))
+                .collect(Collectors.toCollection(ArrayList::new));
+        if (list.isEmpty()) return null;
+        Collections.shuffle(list);
+        return list.get(0);
+    }
+
     public void generatePlayers(int playerCount) {
         if (playerCount < 1 || lands == null) return;
         for (int i = 0; i < playerCount; i++) {
-            var land = lands.stream()                      // start with all lands,
-                    .filter(x -> !actors.stream()                       // filter away any lands
-                            .map(Actor::getPosition)                    // occupied by an actor
-                            .toList().contains(x))
-                    .findAny().orElse(null);
+            var land = getRandomLand();
             if (land == null) return;
             var player = new Human(this, false);
             spawnActor(player, land);
@@ -140,37 +135,25 @@ public class World {
     public void generateEnemies(int amount) {
         if (amount < 1 || lands == null) return;
         for (int i = 0; i < amount; i++) {
-            var opt = lands.stream()
-                    .filter(x -> !actors.stream()
-                            .map(Actor::getPosition)
-                            .toList().contains(x))
-                    .findAny();
-            if (opt.isEmpty()) break;
-            spawnActor(new Goblin(this), opt.get());
+            var land = getRandomLand();
+            if (land == null) break;
+            spawnActor(new Goblin(this), land);
         }
     }
     public void generateAllies(int playerCount) {
         if (playerCount < 1 || lands == null) return;
         for (int i = 0; i < playerCount; i++) {
-            var opt = lands.stream()
-                    .filter(x -> !actors.stream()
-                            .map(Actor::getPosition)
-                            .toList().contains(x))
-                    .findAny();
-            if (opt.isEmpty()) return;
-            spawnActor(new Human(this), opt.get());
+            var land = getRandomLand();
+            if (land == null) return;
+            spawnActor(new Human(this), land);
         }
     }
     public void generateItems(int amount) {
         if (amount < 1 || lands == null) return;
         for (int i = 0; i < amount; i++) {
-            var opt = lands.stream()
-                    .filter(x -> !actors.stream()
-                            .map(Actor::getPosition)
-                            .toList().contains(x))
-                    .findAny();
-            if (opt.isEmpty()) break;
-            spawnActor(createItem(), opt.get());
+            var land = getRandomLand();
+            if (land == null) break;
+            spawnActor(createItem(), land);
         }
     }
     public Item createItem() {
@@ -191,6 +174,8 @@ public class World {
         generateAllies(allies);
         generateItems(items);
     }
+
+
 
 
     // DEPRECATED
@@ -245,17 +230,6 @@ public class World {
         }
     }
 
-    public static String ensureInputLine(String message, String error) {
-        try {
-            System.out.println(message);
-            return scan.nextLine();
-        } catch (Exception e) {
-            System.out.println(error);
-            e.printStackTrace();
-            return ensureInputLine(message, error);
-        }
-    }
-
     public static boolean isYesOrNo(String response) {
         if (response == null || response.isEmpty()) return false;
         return response.equalsIgnoreCase("y") || response.equalsIgnoreCase("yes") ||
@@ -271,21 +245,4 @@ public class World {
         return yn.equalsIgnoreCase("y") || yn.equalsIgnoreCase("yes");
     }
 
-    public static Direction validDirection(String response) {
-        if (response == null || response.isEmpty()) return null;
-        for (var d : Direction.values()) {
-            if (d.name().equalsIgnoreCase(response) || d.name().substring(0,1).equalsIgnoreCase(response)) return d;
-        }
-        return null;
-    }
-
-    public static Direction getDirection(String message) {
-        String input = ensureInput(message, "Problem receiving input");
-        var direction = validDirection(input);
-        if (direction == null) {
-            System.out.printf("%s is not a valid direction, please try again%n", direction);
-            return getDirection(message);
-        }
-        return direction;
-    }
 }

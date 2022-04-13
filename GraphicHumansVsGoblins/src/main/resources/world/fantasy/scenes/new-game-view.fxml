@@ -27,7 +27,7 @@
                      <Font name="System Italic" size="20.0" />
                   </font>
                </Label>
-               <TextField fx:id="sizeInput" alignment="CENTER" prefWidth="45.0" promptText="Square Board Size" text="5">
+               <TextField fx:id="sizeInput" alignment="CENTER" prefWidth="45.0" promptText="Square Board Size" text="20">
                   <font>
                      <Font size="16.0" />
                   </font>
@@ -44,7 +44,7 @@
                      <Font name="System Italic" size="20.0" />
                   </font>
                </Label>
-               <TextField fx:id="livesInput" alignment="CENTER" prefWidth="45.0" promptText="Square Board Size" text="3">
+               <TextField fx:id="livesInput" alignment="CENTER" prefWidth="45.0" promptText="Square Board Size" text="2">
                   <font>
                      <Font size="16.0" />
                   </font>

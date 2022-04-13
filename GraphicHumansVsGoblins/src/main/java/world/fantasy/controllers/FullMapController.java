@@ -3,23 +3,16 @@ package world.fantasy.controllers;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import world.fantasy.Actor;
 import world.fantasy.Gate;
-import world.fantasy.creatures.Creature;
-import world.fantasy.creatures.Goblin;
-import world.fantasy.creatures.Human;
-import world.fantasy.items.Item;
-import world.fantasy.items.consumable.Consumable;
-import world.fantasy.items.equipment.Equipment;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 
 public class FullMapController {
-    // TODO: Make map size of board, cells should range in size from MIN to MAX
     public Map map;
 
 
@@ -51,8 +44,8 @@ public class FullMapController {
         public int calculateTileSize(int size) {
             int min = Math.min(Gate.SCENE_HEIGHT, Gate.SCENE_WIDTH);
             int tileSize = Math.min(MAX_SIZE,Math.max(MIN_SIZE, (min / size)));
-            rows = Gate.SCENE_HEIGHT / tileSize;
-            cols = Gate.SCENE_HEIGHT / tileSize;         // TODO: This should take the details panel into consideration
+            rows = size;
+            cols = size;
 
             return tileSize;
         }
@@ -77,7 +70,7 @@ public class FullMapController {
         public void updateTile(Actor actor) {
             var land = actor.getPosition();
             var row = getRow(land.getRow());
-            row.updateImageAt(land.getColumn(), row.getImage(actor));
+            row.updateImageAt(land.getColumn(), actor.loadImage());
         }
 
         public void updateImageAt(int row, int col, Image image) {
@@ -116,29 +109,9 @@ public class FullMapController {
             }
         }
 
-        private Image getImage(Actor actor) {
-            String loc = "";
-            // TODO: This needs to be made relative instead of absolute
-            if (actor instanceof Creature c) {
-                if (c instanceof Human) loc = "D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\human.png";
-                if (c instanceof Goblin) loc = "D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\goblin.png";
-            }
-            else if (actor instanceof Item i) {
-                if (i instanceof Consumable) loc = "D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\item.png";
-                if (i instanceof Equipment) loc = "D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\item.png";
-            }
-
-            try {
-                return new Image(new FileInputStream(loc));
-            } catch (IOException e) {
-                System.out.println("Map image could not be loaded!");
-                return null;
-            }
-        }
-
         private Image getImage() {
             try {
-                return new Image(new FileInputStream("D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\ground.png"));
+                return new Image(new FileInputStream("D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\images\\ground.png"));
             } catch (IOException e) {
                 System.out.println("Map image could not be loaded!");
                 return null;
@@ -161,5 +134,5 @@ public class FullMapController {
     }
 
     @FXML
-    private Pane display;
+    private AnchorPane display;
 }

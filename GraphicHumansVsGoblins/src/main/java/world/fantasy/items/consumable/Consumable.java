@@ -32,4 +32,10 @@ public class Consumable extends Item {
         super.activate(option);
         if (option == ItemOption.USE) use();
     }
+
+    @Override
+    public String getImagePath() {
+        return "D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\images\\consumable.png";
+    }
+
 }

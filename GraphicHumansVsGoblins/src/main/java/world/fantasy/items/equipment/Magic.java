@@ -14,4 +14,10 @@ public class Magic extends Weapon {
 
     @Override
     public String getName() { return "Wand of witchcraft"; }
+
+    @Override
+    public String getImagePath() {
+        return "D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\images\\magic.png";
+    }
+
 }

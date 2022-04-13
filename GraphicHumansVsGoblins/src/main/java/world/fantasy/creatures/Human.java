@@ -66,4 +66,9 @@ public class Human extends Creature {
         return list;
     }
 
+    @Override
+    public String getImagePath() {
+        return "D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\images\\human.png";
+    }
+
 }

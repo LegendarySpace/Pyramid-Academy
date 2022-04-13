@@ -79,6 +79,7 @@ public abstract class Creature extends Actor {
     public void pickupItem(Item item) {
         inventory.add(item);
         item.setOwner(this);
+        item.setPosition(null);
     }
     public boolean dropItem(Item item) {
         if (item != null) item.setOwner(null);
@@ -244,11 +245,8 @@ public abstract class Creature extends Actor {
         if (obj instanceof Item i) loot = i;
 
         if (loot != null) {
-            String message = String.format("Do you want to pick up %s?", loot.toDetailedString());
-            if (!isNPC() && !yesOrNo(message)) return loot;
             pickupItem(loot);
             if (loot instanceof Equipment e) {
-                if (!isNPC() && !yesOrNo("Would you like to auto equip this?")) return null;
                 autoEquip(e);
             }
         }
