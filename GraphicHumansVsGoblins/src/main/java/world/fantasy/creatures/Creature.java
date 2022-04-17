@@ -7,10 +7,7 @@ import world.fantasy.items.*;
 import world.fantasy.world.Direction;
 import world.fantasy.world.World;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static world.fantasy.world.World.*;
@@ -28,6 +25,7 @@ public abstract class Creature extends Actor {
     private Weapon offHand;       // Item held in humanoid offhand
     private Armor armor;        // Armor currently being worn by humanoid
     private boolean bIsNPC;     // Is NPC or Player
+    private Actor target;
     public Creature(World world) {
         super(world);
         name = "Creature of the Night";
@@ -36,6 +34,7 @@ public abstract class Creature extends Actor {
         offHand = null;
         armor = null;
         bIsNPC = true;
+        target = null;
     }
 
 
@@ -53,6 +52,8 @@ public abstract class Creature extends Actor {
     public void setConstitution(int constitution) { this.constitution = constitution; }
     public int getDexterity() { return dexterity; }
     public void setDexterity(int dexterity) { this.dexterity = dexterity; }
+    public Actor getTarget() { return target; }
+    public void setTarget(Actor actor) { this.target = actor; }
     protected int getInitialSkillPoints() { return 5; }
     public int getRemainingSkillPoints() {
         return remainingSkillPoints;
@@ -64,7 +65,7 @@ public abstract class Creature extends Actor {
     // Inventory management
     public ArrayList<Item> getInventory() { return inventory; }
     public String displayInventory() {
-        List<String> list = inventory.stream().map(Item::toDetailedString).toList();
+        List<String> list = inventory.stream().map(Item::toString).toList();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < list.size(); i++) {
             sb.append(String.format("\n%d: %s", i, list.get(i)));
@@ -99,7 +100,7 @@ public abstract class Creature extends Actor {
         var slots = getAllSlots();
         for (var slot : slots) {
             sb.append("\n").append(slot.name()).append(": ");
-            sb.append(getGearFromSlot(slot).toDetailedString());
+            sb.append(getGearFromSlot(slot).toString());
         }
         return sb.toString();
     }
@@ -122,7 +123,7 @@ public abstract class Creature extends Actor {
         Weapon e = mainHand;
         inventory.add(mainHand);
         mainHand = null;
-        System.out.printf("%s was unequipped from %s slot%n", e.toDetailedString(), GearSlot.MAINHAND);
+        System.out.printf("%s was unequipped from %s slot%n", e.toString(), GearSlot.MAINHAND);
         return e;
     }
     public Weapon getOffHand() { return offHand; }
@@ -136,7 +137,7 @@ public abstract class Creature extends Actor {
         Weapon e = offHand;
         inventory.add(offHand);
         offHand = null;
-        System.out.printf("%s was unequipped from %s slot%n", e.toDetailedString(), GearSlot.OFFHAND);
+        System.out.printf("%s was unequipped from %s slot%n", e.toString(), GearSlot.OFFHAND);
         return e;
     }
     public Armor getArmor() { return armor; }
@@ -150,12 +151,12 @@ public abstract class Creature extends Actor {
         Armor a = armor;
         inventory.add(armor);
         armor = null;
-        System.out.printf("%s was unequipped from %s slot%n", a.toDetailedString(), GearSlot.ARMOR);
+        System.out.printf("%s was unequipped from %s slot%n", a.toString(), GearSlot.ARMOR);
         return a;
     }
     public boolean wearEquipment(GearSlot slot, Equipment item) {
         if (item == null) return false;
-        System.out.printf("%s was equipped to %s slot%n", item.toDetailedString(), slot.name());
+        System.out.printf("%s was equipped to %s slot%n", item.toString(), slot.name());
         switch (slot) {
             case ARMOR:
                 if (item instanceof Armor a) {
@@ -266,43 +267,49 @@ public abstract class Creature extends Actor {
         return null;
     }
     public int attack(Creature creature) {
-        int primary;
-        int secondary;
-        // TODO: Work this math into a single function
-        if (mainHand == null) { primary = (int) ((getStrength() * 2 / 3) * .9); }
-        else if (mainHand instanceof Melee) { primary = (getStrength() * 2 / 3) + mainHand.getDamage(); }
-        else if (mainHand instanceof Ranged) { primary = (getDexterity() * 2 / 3) + mainHand.getDamage(); }
-        else if (mainHand instanceof Magic) { primary = (getIntelligence() * 2 / 3) + mainHand.getDamage(); }
-        else if (mainHand instanceof Shield) { primary = (int) ((getStrength() * 2 / 3) * .6) + mainHand.getDamage(); }
-        else { primary = getStrength(); }
-        if (offHand == null) { secondary = (int) ((getStrength() / 3) * .9); }
-        else if (offHand instanceof Melee) { secondary = (getStrength() / 3) + offHand.getDamage(); }
-        else if (offHand instanceof Ranged) { secondary = (getDexterity() / 3) + offHand.getDamage(); }
-        else if (offHand instanceof Magic) { secondary = (getIntelligence() / 3) + offHand.getDamage(); }
-        else if (offHand instanceof Shield) { secondary = (int) ((getStrength() / 3) * .6) + offHand.getDamage(); }
-        else { secondary = getStrength(); }
+        int output = getWeaponSlots().stream().mapToInt(this::damageAdjustedBySlot).sum();
 
-        // remove primary + secondary from humanoid
-        return creature.applyDamage((int) ((primary+secondary) * ThreadLocalRandom.current().nextDouble()));
+        return creature.applyDamage((int) (output * ThreadLocalRandom.current().nextDouble()));
+    }
+    protected int damageAdjustedBySlot(GearSlot slot) {
+        if (slot == GearSlot.OFFHAND) return (int) (calculateWeaponDamage(offHand) * .65);
+        return calculateWeaponDamage((Weapon) getGearFromSlot(slot));
+    }
+    protected int calculateWeaponDamage(Weapon weapon) {
+        if (mainHand == null) { return (int) ((getStrength() * 2 / 3) * .9); }
+        if (mainHand instanceof Melee) { return (getStrength() * 2 / 3) + mainHand.getDamage(); }
+        if (mainHand instanceof Ranged) { return (getDexterity() * 2 / 3) + mainHand.getDamage(); }
+        if (mainHand instanceof Magic) { return (getIntelligence() * 2 / 3) + mainHand.getDamage(); }
+        if (mainHand instanceof Shield) { return (int) ((getStrength() * 2 / 3) * .6) + mainHand.getDamage(); }
+        return getStrength();
     }
     public int applyDamage(int damage) {
         int reducedDamage = damageReduction(damage);
         setHealth(getHealth()-reducedDamage);
+        // TODO: Call to GUI to display damage
         if (getHealth() <= 0) setPosition(null);
         return reducedDamage;
     }
     private int damageReduction(int damage) {
-        int primary;
-        int secondary;
-        if (mainHand == null) { primary = (strength / 4); }
-        else if (mainHand instanceof Shield) { primary = (strength /4) + mainHand.getDamage() + statModifier(dexterity); }
-        else primary = strength / 4;
-        if (offHand == null) { secondary = (strength / 8); }
-        else if (offHand instanceof  Shield) { secondary = (strength / 8) + offHand.getDamage() + (statModifier(dexterity) / 2); }
-        else secondary = strength / 8;
-        int incomingDamage = (armor == null)? (primary + secondary) : (primary + secondary + armor.getDefence());
+        int incomingDamage = calculateTotalArmor() + calculateTotalBlock();
         int reduction = (int) (incomingDamage * ThreadLocalRandom.current().nextDouble());
         return Math.max(3, damage - reduction);
+    }
+    protected int calculateTotalBlock() {
+        return getWeaponSlots().stream().mapToInt(this::blockAdjustedBySlot).sum();
+    }
+    protected int blockAdjustedBySlot(GearSlot slot) {
+        if (slot == GearSlot.OFFHAND) return (int) (calculateWeaponDefence(offHand) *.6);
+        return calculateWeaponDefence((Weapon) getGearFromSlot(slot));
+    }
+    protected int calculateWeaponDefence(Weapon weapon) {
+        if (mainHand == null) return (strength / 5);
+        if (mainHand instanceof Shield) return (strength /4) + mainHand.getDamage() + statModifier(dexterity);
+        return strength / 4;
+    }
+    protected int calculateTotalArmor() {
+        return getArmorSlots().stream().map(this::getGearFromSlot).filter(Objects::nonNull)
+                .map(e -> (Armor)e).mapToInt(Armor::getDefence).sum();
     }
     public boolean hasDied() { return getHealth() <= 0; }
 
@@ -328,40 +335,6 @@ public abstract class Creature extends Actor {
             case 6 -> setDexterity(getDexterity() + 1);
         }
     }
-    // TODO: Deprecate this
-    protected boolean validateStat(String stat) {
-        if (stat == null || stat.isEmpty()) return false;
-        if (stat.equals("1") || stat.equalsIgnoreCase("h") ||
-                stat.equalsIgnoreCase("health")) return true;
-        if (stat.equals("2") || stat.equalsIgnoreCase("m") ||
-                stat.equalsIgnoreCase("Mana")) return true;
-        if (stat.equals("3") || stat.equalsIgnoreCase("i") ||
-                stat.equalsIgnoreCase("Intelligence")) return true;
-        if (stat.equals("4") || stat.equalsIgnoreCase("s") ||
-                stat.equalsIgnoreCase("Strength")) return true;
-        if (stat.equals("5") || stat.equalsIgnoreCase("c") ||
-                stat.equalsIgnoreCase("Constitution")) return true;
-        return stat.equals("6") || stat.equalsIgnoreCase("d") ||
-                stat.equalsIgnoreCase("Dexterity");
-    }
-    // TODO: Deprecate this
-    protected int statToID(String stat) {
-        if (stat == null || stat.isEmpty()) return 0;
-        if (stat.equals("1") || stat.equalsIgnoreCase("h") ||
-                stat.equalsIgnoreCase("health")) return 1;
-        if (stat.equals("2") || stat.equalsIgnoreCase("m") ||
-                stat.equalsIgnoreCase("Mana")) return 2;
-        if (stat.equals("3") || stat.equalsIgnoreCase("i") ||
-                stat.equalsIgnoreCase("Intelligence")) return 3;
-        if (stat.equals("4") || stat.equalsIgnoreCase("s") ||
-                stat.equalsIgnoreCase("Strength")) return 4;
-        if (stat.equals("5") || stat.equalsIgnoreCase("c") ||
-                stat.equalsIgnoreCase("Constitution")) return 5;
-        if (stat.equals("6") || stat.equalsIgnoreCase("d") ||
-                stat.equalsIgnoreCase("Dexterity")) return 6;
-        return 0;
-    }
-
     // Movement mechanics
     public List<Direction> validMovements() {
         return Arrays.stream(Direction.values()).filter(dir -> world.landExists(getPosition().getDirection(dir))).toList();
@@ -371,4 +344,7 @@ public abstract class Creature extends Actor {
     public List<UnitOption> menuOptions() { return new ArrayList<>(List.of(UnitOption.MOVE)); }
     public UnitOption determineAction() { return UnitOption.MOVE; }
 
+    // Setup
+    protected abstract String chooseName();
+    protected abstract String chooseImage();
 }

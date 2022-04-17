@@ -1,5 +1,9 @@
 package world.fantasy.world;
 
+import world.fantasy.Actor;
+
+import java.util.concurrent.ThreadLocalRandom;
+
 public class Land implements Comparable<Land> {
     private int row;
     private int column;
@@ -33,6 +37,30 @@ public class Land implements Comparable<Land> {
         };
     }
 
+    public Land moveTowards(Actor actor) {
+        if (actor == null || actor.getPosition() == null) return posFromInt(ThreadLocalRandom.current().nextInt(1,10));
+
+        Land land;
+        int vert = Math.min(Math.max(-1, actor.getPosition().getRow() - this.getRow()), 1)+2;
+        int hori = Math.min(Math.max(-1, actor.getPosition().getColumn() - this.getColumn()), 1)+2;
+
+        return posFromInt(((vert - 1) * 3) + hori);
+    }
+
+    private Land posFromInt(int i) {
+        return switch (i) {
+            case 1 -> getNorth().getWest();
+            case 2 -> getNorth();
+            case 3 -> getNorth().getEast();
+            case 4 -> getWest();
+            case 6 -> getEast();
+            case 7 -> getSouth().getWest();
+            case 8 -> getSouth();
+            case 9 -> getSouth().getEast();
+            default -> this;
+        };
+    }
+
     @Override
     public int hashCode() {
         return row + column;
@@ -56,7 +84,7 @@ public class Land implements Comparable<Land> {
 
     @Override
     public String toString() {
-        return Character.toString('\u2395');
+        return "Ground";
         // alternate land: '\u26cb'  '\u26f6'    '\u2337'    '\u2395'
     }
     // Allow land to hold an object

@@ -16,6 +16,9 @@ import world.fantasy.items.equipment.Equipment;
 import world.fantasy.world.Land;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 public class PlayerTurnController {
@@ -84,8 +87,18 @@ public class PlayerTurnController {
     public void turnEnd() {
         // Don't know how this will work yet, but it will handle telling world to progress to the next player's turn
         optionBase();
-        // TODO: If all enemies are dead return to player leveling
-        // TODO: Else if all players are dead display game over
+        // All enemies are dead return to player leveling
+        if (!Gate.getInstance().getWorld().hasEnemies()) {
+            var loader = Gate.getLoader("leveling-view.fxml");
+            Gate.loadScene(loader);
+            var con = (LevelingController) loader.getController();
+            con.nextPlayer();
+        }
+        // All players are dead display game over
+        if (Gate.getInstance().getWorld().getPlayers().size() < 1) {
+            System.out.println("YOU LOSE");
+            System.exit(0);
+        }
         var q = getTurnQueue();
         if (q.isEmpty()) {      // All players are dead
 
@@ -111,9 +124,21 @@ public class PlayerTurnController {
             System.out.println("Failed to sleep");
             ie.printStackTrace();
         }
-        if (unit == null) return;
+        if (unit == null) {
+            turnEnd();
+            return;
+        }
+        if (unit.getTarget() == null || !unit.getTarget().doesExist()) {
+            var players = new ArrayList<>(Gate.getInstance().getWorld().getPlayers());
+            if (players.isEmpty()) {
+                turnEnd();
+                return;
+            }
+            Collections.shuffle(players);
+            unit.setTarget(players.get(0));
+        }
         if (unit.determineAction() == UnitOption.MOVE) {
-            unit.move(new Land());
+            unit.move(unit.getPosition().moveTowards(unit.getTarget()));
         }
         turnEnd();
     }

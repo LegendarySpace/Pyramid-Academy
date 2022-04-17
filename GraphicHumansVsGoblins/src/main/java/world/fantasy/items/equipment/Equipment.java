@@ -16,6 +16,7 @@ public abstract class Equipment extends Item {
     public Equipment(World world, int value) {
         super(world);
         setName("Item that can be equipped");
+        setImagePath("/equipment.png");
         this.value = value;
         int x = ThreadLocalRandom.current().nextInt( 100);
         if (x < 1) this.bonus = 2;
@@ -37,18 +38,7 @@ public abstract class Equipment extends Item {
     public int getBonus() { return bonus; }
 
     public boolean equip() {
-        return getOwner() != null && getOwner().wearEquipment(equipTo(), this);
-    }
-
-    // TODO: This needs to use gui instead
-    public GearSlot equipTo() {
-        if (getOwner() == null) return null;
-        String message = String.format("Current Gear: \n%sWhat slot will you equip to? (%s)", getOwner().displayEquipment(), availableSlots());
-        String error = "Error receiving player input";
-        String res = World.ensureInput(message, error);
-        for (var gs: availableSlots()) if (gs.name().equalsIgnoreCase(res) || gs.name().substring(0,1).equalsIgnoreCase(res)) return gs;
-        System.out.printf("%s was not a valid slot", res);
-        return equipTo();
+        return getOwner() != null && getOwner().autoEquip(this);
     }
 
     public boolean unequip() { return false;}
@@ -57,12 +47,7 @@ public abstract class Equipment extends Item {
 
     @Override
     public String toString() {
-        return Character.toString('\u2692');
-    }
-
-    @Override
-    public String toDetailedString() {
-        return getName() + ((getBonus() > 0)? " +" + getBonus():"");
+        return super.toString() + ((getBonus() > 0)? " +" + getBonus():"");
     }
 
     @Override
@@ -83,11 +68,6 @@ public abstract class Equipment extends Item {
         list.add(ItemOption.EQUIP);     // Should only show up if not equipped
         list.add(ItemOption.UNEQUIP);   // should only show up if equipped
         return list;
-    }
-
-    @Override
-    public String getImagePath() {
-        return "D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\images\\equipment.png";
     }
 
 }

@@ -26,18 +26,20 @@ public class MoveInputController {
     }
 
     public void update() {
+        btnNorth.setDisable(true);
+        btnEast.setDisable(true);
+        btnSouth.setDisable(true);
+        btnWest.setDisable(true);
         unit = (Creature) ((Stage) btnNorth.getScene().getWindow()).getUserData();
-        if (unit == null || turnCon == null) {
-            btnNorth.setDisable(true);
-            btnEast.setDisable(true);
-            btnSouth.setDisable(true);
-            btnWest.setDisable(true);
-        } else {
-            World w = Gate.getInstance().getWorld();
-            btnNorth.setDisable(!w.landExists(unit.getPosition().getNorth()));
-            btnEast.setDisable(!w.landExists(unit.getPosition().getEast()));
-            btnSouth.setDisable(!w.landExists(unit.getPosition().getSouth()));
-            btnWest.setDisable(!w.landExists(unit.getPosition().getWest()));
+        if (unit == null) return;
+
+        for (var dir : unit.validMovements()) {
+            switch (dir) {
+                case NORTH -> btnNorth.setDisable(false);
+                case EAST -> btnEast.setDisable(false);
+                case SOUTH -> btnSouth.setDisable(false);
+                case WEST -> btnWest.setDisable(false);
+            }
         }
     }
 

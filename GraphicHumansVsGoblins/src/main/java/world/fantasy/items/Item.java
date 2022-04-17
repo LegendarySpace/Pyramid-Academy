@@ -14,6 +14,8 @@ public class Item extends Actor {
 
     public Item(World world) {
         super(world);
+        setName("Item");
+        setImagePath("/item.png");
     }
 
     public Creature getOwner() { return owner; }
@@ -23,29 +25,13 @@ public class Item extends Actor {
         return List.of(ItemOption.INSPECT, ItemOption.DROP);
     }
 
-    public void inspect() { System.out.println(toDetailedString()); }
-
     public void drop() {
         if (getOwner() != null) getOwner().dropItem(this);
     }
 
-    @Override
-    public String getImagePath() {
-        return "D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\images\\item.png";
-    }
-
-    @Override
-    public String toString() {
-        return Character.toString('\u26b1');
-    }
-
-    public String toDetailedString() {
-        return "Item";
-    }
-
     public void activate(ItemOption option) {
         switch (option) {
-            case INSPECT -> inspect();
+            case INSPECT -> toString();         // UPDATE: This should update text on some view
             case DROP -> drop();
         }
     }

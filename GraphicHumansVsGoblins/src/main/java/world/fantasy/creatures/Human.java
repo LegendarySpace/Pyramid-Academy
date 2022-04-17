@@ -2,7 +2,11 @@ package world.fantasy.creatures;
 
 import world.fantasy.world.World;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static world.fantasy.world.World.*;
 
@@ -16,17 +20,20 @@ public class Human extends Creature {
 
     public Human(World world, Boolean NPC) {
         // Player
-        this(world, (d6()+ d6()) * 2, d6() + d6(), d6() + d6(),
+        this(world, "", "", (d6()+ d6()) * 2, d6() + d6(), d6() + d6(),
                 d6() + d6(), d6() + d6(), d6() + d6(), NPC);
+        setName(chooseName());
+        setImagePath(chooseImage());
+
         if (NPC) for (int i = 0; i < getInitialSkillPoints(); i++) applyStatPoint();
         else remainingSkillPoints = getInitialSkillPoints();
     }
 
-    public Human(World world, int health, int mana, int intelligence, int strength, int constitution, int dexterity) {
-        this(world, health, mana, intelligence, strength, constitution, dexterity, false);
+    public Human(World world, String name, String image, int health, int mana, int intelligence, int strength, int constitution, int dexterity) {
+        this(world, name, image, health, mana, intelligence, strength, constitution, dexterity, false);
     }
 
-    public Human(World world, int health, int mana, int intelligence, int strength, int constitution, int dexterity, boolean npc) {
+    public Human(World world, String name, String image, int health, int mana, int intelligence, int strength, int constitution, int dexterity, boolean npc) {
         super(world);
         setHealth(health);
         setMana(mana);
@@ -37,22 +44,7 @@ public class Human extends Creature {
         setIsNPC(npc);
     }
 
-    // TODO: Deprecate this
-    public void chooseStatPoint() {
-        System.out.printf("You have %s Skill Points remaining, Currents Stats:\n", remainingSkillPoints);
-        System.out.printf("Health: %s    Intelligence: %s    Constitution: %s\n", getHealth(), getIntelligence(), getConstitution());
-        System.out.printf("Mana: %s    Strength: %s    Dexterity: %s\n", getMana(), getStrength(), getDexterity());
-        System.out.println("Please choose a stat");
-        String selection = ensureInput("1: Health\n2: Mana\n3: Intelligence\n4: Strength\n5: Constitution\n6: Dexterity\n","That was not valid input");
-        if (validateStat(selection)) {
-            increaseStatByID(statToID(selection));
-            remainingSkillPoints -= 1;
-        }
-        else {
-            System.out.println("That was not a valid stat!!");
-            chooseStatPoint();
-        }
-    }
+
 
     @Override
     protected int getInitialSkillPoints() {
@@ -67,8 +59,24 @@ public class Human extends Creature {
     }
 
     @Override
-    public String getImagePath() {
-        return "D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\images\\human.png";
+    protected String chooseName() {
+        try {
+            var names = Files.readAllLines(Paths.get("src/main/resources/world/fantasy/humannames.txt"));
+            Collections.shuffle(names);
+            return names.get(0);
+        } catch (Exception e) {
+            return "Human";
+        }
     }
 
+    @Override
+    protected String chooseImage() {
+        return switch (ThreadLocalRandom.current().nextInt(1, 5)) {
+            case 1 -> "/human1.png";
+            case 2 -> "/human2.png";
+            case 3 -> "/human3.png";
+            case 4 -> "/human4.png";
+            default -> "/human.png";
+        };
+    }
 }

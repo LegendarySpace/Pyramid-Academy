@@ -1,7 +1,6 @@
 package world.fantasy.world;
 
 import world.fantasy.Actor;
-import world.fantasy.Menu;
 import world.fantasy.creatures.Goblin;
 import world.fantasy.creatures.Human;
 import world.fantasy.creatures.Creature;
@@ -14,7 +13,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 public class World {
-    public static final int MAX_DISPLAY_SIZE = 10;        // if bound is passed map turns to scroll
+    public static final int MIN_SIZE = 5;
+
     public HashSet<Land> lands;
 
     public HashSet<Land> getLands() {
@@ -32,10 +32,7 @@ public class World {
 
     public HashSet<Actor> actors;
 
-    public static Scanner scan;
-    private HashMap<Land, Actor> worldMap;
     public static int boardHeight, boardWidth;
-    public Menu menu;
     public int boardSize;
     // Holds information about all objects in the world and maps their position on the map
 
@@ -83,16 +80,17 @@ public class World {
     }
 
     public static ArrayList<Land> generateSquare(int size) {
+        size = Math.max(MIN_SIZE, size);
         boardHeight = size;
         boardWidth = size;
         ArrayList<Land> square = new ArrayList<>();
-        if (size < 1) return square;
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) square.add(new Land(row,col));
         }
         return square;
     }
     public static ArrayList<Land> generateDiamond(int size) {
+        size = Math.min(MIN_SIZE, size);
         boardHeight = size;
         boardWidth = size;
         ArrayList<Land> diamond = new ArrayList<>();
@@ -178,71 +176,7 @@ public class World {
 
 
 
-    // DEPRECATED
-    public void displayMap() {
-        // for each key, if map has value display value, else display key
-        var keys = worldMap.keySet();
-        System.out.println('\u2554' + "\u2550\u2566".repeat(boardWidth - 1) + "\u2550\u2557");
-        for (int i = boardHeight-1; i >= 0; i--) {
-            System.out.print('\u2551');
-            for (int j = 0; j < boardWidth; j++) {
-                Land land = new Land(i,j);
-                if (keys.contains(land)) {
-                    // display tile or object on it
-                    var obj = worldMap.get(land);
-                    if (obj != null) System.out.print(obj.toString());
-                    else System.out.print(land.toString());
-                } else System.out.print(" ");
-
-                System.out.print('\u2551');
-            }
-            System.out.print("\n");
-            if (i != 0) System.out.println('\u2560' + "\u2550\u256c".repeat(boardWidth - 1) + "\u2550\u2563");
-        }
-        System.out.println('\u255a' + "\u2550\u2569".repeat(boardWidth - 1) + "\u2550\u255d");
-    }
-
-
-
-
 
     public static int d6() { return ThreadLocalRandom.current().nextInt(1, 7); }
-
-    public static int ensureIntInput(String message, String error) {
-        try {
-            System.out.println(message);
-            return Integer.parseInt(scan.next());
-        } catch (Exception e) {
-            System.out.println(error);
-            if (!(e instanceof NumberFormatException)) e.printStackTrace();
-            return ensureIntInput(message, error);
-        }
-    }
-
-    public static String ensureInput(String message, String error) {
-        try {
-            System.out.println(message);;
-            return scan.next();
-        } catch (Exception e) {
-            System.out.println(error);
-            e.printStackTrace();
-            return ensureInput(message, error);
-        }
-    }
-
-    public static boolean isYesOrNo(String response) {
-        if (response == null || response.isEmpty()) return false;
-        return response.equalsIgnoreCase("y") || response.equalsIgnoreCase("yes") ||
-                response.equalsIgnoreCase("n") || response.equalsIgnoreCase("no");
-    }
-
-    public static boolean yesOrNo(String message) {
-        String yn = ensureInput(message, "Problem receiving input");
-        if (!isYesOrNo(yn)) {
-            System.out.println("A yes or no response is required");
-            return yesOrNo(message);
-        }
-        return yn.equalsIgnoreCase("y") || yn.equalsIgnoreCase("yes");
-    }
 
 }

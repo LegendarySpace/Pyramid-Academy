@@ -33,7 +33,10 @@ public final class Gate {
         setWaveLimit(waves);
     }
 
-    public void setWorld(World world) { this.world = world; }
+    public void setWorld(World world) {
+        // TODO: determine defaults based on world size
+        this.world = world;
+    }
 
     public World getWorld() { return world; }
 

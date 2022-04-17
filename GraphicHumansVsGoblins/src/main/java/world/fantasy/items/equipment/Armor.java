@@ -1,6 +1,5 @@
 package world.fantasy.items.equipment;
 import world.fantasy.items.ItemOption;
-import world.fantasy.Menu;
 import world.fantasy.creatures.GearSlot;
 import world.fantasy.world.World;
 
@@ -10,18 +9,15 @@ public class Armor extends Equipment {
 
     public Armor(World world, int defence) {
         super(world, defence);
+        setName("Armor of protecting");
+        setImagePath(chooseImage());
     }
 
     public int getDefence() { return getTotal(); }
 
-    @Override
-    public String toString() {
-        return Character.toString('\u2645');
-    }
-
-    @Override
-    public String getName() {
-        return "Armor of protecting";
+    protected String chooseImage() {
+        if (getBonus() < 1) return "/armor.png";
+        return "/armor+.png";
     }
 
     @Override
@@ -34,13 +30,8 @@ public class Armor extends Equipment {
         super.activate(option);
         if (getOwner() == null) return;
         switch (option) {
-            case EQUIP -> getOwner().wearEquipment(Menu.getEquipmentSlot(getOwner().getArmorSlots()), this);
+            case EQUIP -> getOwner().autoEquip(this);
         }
-    }
-
-    @Override
-    public String getImagePath() {
-        return "D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\images\\armor.png";
     }
 
 }

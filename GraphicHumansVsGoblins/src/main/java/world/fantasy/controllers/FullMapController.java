@@ -1,16 +1,15 @@
 package world.fantasy.controllers;
 
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import world.fantasy.Actor;
 import world.fantasy.Gate;
-
-import java.io.FileInputStream;
-import java.io.IOException;
 
 public class FullMapController {
     public Map map;
@@ -23,7 +22,6 @@ public class FullMapController {
     }
 
     public void updateTileContents() {
-        // TODO: This will handle updating the display
         // Reset display, for each actor in the world update the display at their position
         map.reset();
         for (Actor actor :Gate.getInstance().getWorld().actors) map.updateTile(actor);
@@ -42,6 +40,7 @@ public class FullMapController {
         }
 
         public int calculateTileSize(int size) {
+            size = Math.max(5, size);
             int min = Math.min(Gate.SCENE_HEIGHT, Gate.SCENE_WIDTH);
             int tileSize = Math.min(MAX_SIZE,Math.max(MIN_SIZE, (min / size)));
             rows = size;
@@ -70,12 +69,9 @@ public class FullMapController {
         public void updateTile(Actor actor) {
             var land = actor.getPosition();
             var row = getRow(land.getRow());
-            row.updateImageAt(land.getColumn(), actor.loadImage());
+            row.updateTile(land.getColumn(), actor);
         }
 
-        public void updateImageAt(int row, int col, Image image) {
-            ((Row) getChildren().get(row)).updateImageAt(col, image);
-        }
     }
 
     private class Row extends HBox {
@@ -87,10 +83,8 @@ public class FullMapController {
             var children = getChildren();
             try {
                 for (int i = 0; i < cols; i++) {
-                    var pic = new ImageView();
-                    resetView(pic);
-                    pic.setFitHeight(size);
-                    pic.setFitWidth(size);
+                    var pic = new Tile(size);
+                    pic.reset();
                     children.add(pic);
                 }
             } catch (Exception e) {
@@ -99,31 +93,18 @@ public class FullMapController {
             }
         }
 
-        private void resetView(ImageView iv) {
-            iv.setImage(getImage());
-        }
-
         public void reset() {
             for (var c : getChildren()) {
-                resetView((ImageView) c);
+                ((Tile) c).reset();
             }
         }
 
-        private Image getImage() {
-            try {
-                return new Image(new FileInputStream("D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\images\\ground.png"));
-            } catch (IOException e) {
-                System.out.println("Map image could not be loaded!");
-                return null;
-            }
+        public Tile get(int index) {
+            return (Tile) getChildren().get(index);
         }
 
-        public ImageView get(int index) {
-            return (ImageView) getChildren().get(index);
-        }
-
-        public void updateImageAt(int column, Image image) {
-            get(column).setImage(image);
+        public void updateTile(int column, Actor actor) {
+            get(column).add(actor);
         }
 
         public void clear() {
@@ -131,6 +112,61 @@ public class FullMapController {
         }
 
         public int size() { return getChildren().size(); }
+    }
+
+    private class Tile extends StackPane {
+        private static final String GROUND="/ground.png";
+        private ImageView background;
+        private int size;
+
+        public Tile() {
+            background = create();
+            reset();
+        }
+
+        public Tile(int size) {
+            this();
+            this.size = size;
+            background.setFitHeight(size);
+            background.setFitWidth(size);
+        }
+
+        public Tile(Node... nodes) {
+            super(nodes);
+            background = new ImageView();
+            setBackground(new Image(GROUND));
+            getChildren().add(0, background);
+        }
+
+        public void setBackground(Image image) {
+            background.setImage(image);
+        }
+
+        public void clear() {
+            var c = getChildren();
+            c.clear();
+            c.add(0, background);
+        }
+
+        public void reset() {
+            setBackground(new Image(GROUND));
+            clear();
+        }
+
+        public void add(Actor actor) {
+            // TODO: Should give actor a way to temporarily display string
+            var iv = create();
+            iv.setImage(actor.loadImage());
+            getChildren().add(iv);
+        }
+
+        private ImageView create() {
+            var iv = new ImageView();
+            size = Math.min(128, Math.max(size, 32));
+            iv.setFitWidth(size);
+            iv.setFitHeight(size);
+            return iv;
+        }
     }
 
     @FXML

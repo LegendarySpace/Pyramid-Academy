@@ -20,34 +20,48 @@ public class InventoryController {
     private int selectedIdx = -1;
 
     protected void fillInventoryDisplay() {
-        Creature unit = (Creature) ((Stage) inventoryDisplay.getScene().getWindow()).getUserData();
+        unit = (Creature) ((Stage) inventoryDisplay.getScene().getWindow()).getUserData();
         if (unit == null) return;
         fillInventoryDisplay(unit.getInventory());
     }
 
     protected void fillInventoryDisplay(List<Item> list) {
         inventoryDisplay.getChildren().clear();
-        Creature unit = (Creature) ((Stage) inventoryDisplay.getScene().getWindow()).getUserData();
+        unit = (Creature) ((Stage) inventoryDisplay.getScene().getWindow()).getUserData();
+        if (unit == null) return;
         if (list == null || list.isEmpty()) list = unit.getInventory();
         for (var item : list) {
-            inventoryDisplay.getChildren().add(new Label(item.toDetailedString()) {
-                public void handle(MouseEvent mouseEvent) {
-                    selectedIdx = inventoryDisplay.getChildren().indexOf(this);
-                    enableValidInventoryInput();
-
-                    getOnMouseClicked().handle(mouseEvent);
-                }
-            });
+            inventoryDisplay.getChildren().add(new ItemDisplay(item.toString()));
         }
+        enableValidInventoryInput();
     }
 
     private void enableValidInventoryInput() {
         inventoryInput.setVisible(true);
         inventoryInput.setDisable(false);
+        btnUse.setDisable(true);
+        btnWear.setDisable(true);
         btnDrop.setDisable(selectedIdx < 0);
-        if (unit == null) return;
+        if (unit == null || selectedIdx < 0) return;
         btnUse.setDisable(!(unit.getInventory().get(selectedIdx) instanceof Consumable));
         btnWear.setDisable(!(unit.getInventory().get(selectedIdx) instanceof Equipment));
+    }
+
+    private class ItemDisplay extends Button {
+        public ItemDisplay() {
+            super();
+            setOnAction(event -> {
+                selectedIdx = inventoryDisplay.getChildren().indexOf(this);
+                enableValidInventoryInput();
+            });
+        }
+
+        public ItemDisplay(String label) {
+            this();
+            setText(label);
+        }
+
+
     }
 
     @FXML
@@ -69,19 +83,19 @@ public class InventoryController {
     // Inventory
     @FXML
     protected void onUseClick() {
-        if (selectedIdx == -1) return;
+        if (selectedIdx < 0) return;
         ((Consumable) unit.getInventory().get(selectedIdx)).use();
     }
 
     @FXML
     protected void onWearClick() {
-        if (selectedIdx == -1) return;
+        if (selectedIdx < 0) return;
         ((Equipment) unit.getInventory().get(selectedIdx)).equip();
     }
 
     @FXML
     protected void onDropClick() {
-        if (selectedIdx == -1) return;
+        if (selectedIdx < 0) return;
         unit.getInventory().get(selectedIdx).drop();
     }
 

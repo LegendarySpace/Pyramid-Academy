@@ -4,13 +4,12 @@ import javafx.scene.image.Image;
 import world.fantasy.world.Land;
 import world.fantasy.world.World;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-
 public class Actor {
     protected String name;
     protected final World world;
     protected Land position;
+    protected String description;
+    protected String imagePath;
 
 
     public Land getPosition() {
@@ -26,6 +25,7 @@ public class Actor {
     }
 
     public void setName(String name) {
+        if (name == null) return;
         this.name = name;
     }
 
@@ -34,6 +34,9 @@ public class Actor {
     }
 
     public Actor(World world, Land position) {
+        name = "Actor";
+        description = "Object in space";
+        setImagePath("/actor.png");
         this.world = world;
         this.position = position;
     }
@@ -63,15 +66,19 @@ public class Actor {
         return null;
     }
 
-    // TODO: All overrides needs to be relative
+    public void setImagePath(String path) {
+        if (path == null) return;
+        imagePath = path;
+    }
+
     public String getImagePath() {
-        return "D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\images\\actor.png";
+        return imagePath;
     }
 
     public Image loadImage() {
         try {
-            return new Image(new FileInputStream(getImagePath()));
-        } catch (IOException e) {
+            return new Image(getImagePath());
+        } catch (Exception e) {
             System.out.printf("Image invalid for %s%n", getName());
             return null;
         }
@@ -79,6 +86,10 @@ public class Actor {
 
     @Override
     public String toString() {
-        return name;
+        return getName();
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

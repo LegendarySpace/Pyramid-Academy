@@ -10,6 +10,8 @@ import java.util.List;
 public class Consumable extends Item {
     public Consumable(World world) {
         super(world);
+        description = "A consumable item good for one use";
+        setImagePath("/consumable.png");
     }
 
     public void use() {
@@ -23,19 +25,9 @@ public class Consumable extends Item {
     }
 
     @Override
-    public String toDetailedString() {
-        return "A consumable item good for one use";
-    }
-
-    @Override
     public void activate(ItemOption option) {
         super.activate(option);
         if (option == ItemOption.USE) use();
-    }
-
-    @Override
-    public String getImagePath() {
-        return "D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\images\\consumable.png";
     }
 
 }

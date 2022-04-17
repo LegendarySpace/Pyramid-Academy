@@ -5,20 +5,14 @@ import world.fantasy.world.World;
 public class Shield extends Weapon {
     public Shield(World world, int damage) {
         super(world, damage);
+        setName("Shield of Defending");
+        setImagePath(chooseImage());
     }
 
-    @Override
-    public String toString() {
-        return Character.toString('\u26c9');
-        // alternate shield (may be used for heal spot instead): '\u26e8'
-    }
-
-    @Override
-    public String getName() { return "Shield of Defending"; }
-
-    @Override
-    public String getImagePath() {
-        return "D:\\Pyramid-Academy\\GraphicHumansVsGoblins\\src\\main\\resources\\world\\fantasy\\images\\shield.png";
+    protected String chooseImage() {
+        if (getBonus() < 1) return "/shield.png";
+        if (getBonus() < 2) return "/shield+.png";
+        return "/dragonShield.png";
     }
 
 }
