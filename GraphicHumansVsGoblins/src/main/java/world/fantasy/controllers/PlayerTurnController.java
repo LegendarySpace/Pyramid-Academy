@@ -2,23 +2,18 @@ package world.fantasy.controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import world.fantasy.Gate;
 import world.fantasy.creatures.Creature;
 import world.fantasy.creatures.UnitOption;
 import world.fantasy.items.equipment.Equipment;
-import world.fantasy.world.Land;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.stream.Collectors;
 
 public class PlayerTurnController {
@@ -27,20 +22,17 @@ public class PlayerTurnController {
     public Creature update() {
         if (unit == null) return null;
         optionBase();
-        fillGearDisplay();
+        gearController.fillGearDisplay();
 
         return unit;
     }
     protected void optionReset() {
         if (details == null) return;
         details.getChildren().remove(order);
-        gearInput.setVisible(false);
-        gearInput.setDisable(true);
+        // TODO: hide gear input
         details.getChildren().remove(inv);
-        details.getChildren().remove(move);
         btnInventory.setDisable(false);
         btnGear.setDisable(false);
-        btnMove.setDisable(false);
         selectedIdx = -1;
     }
     public void optionBase() {
@@ -49,8 +41,7 @@ public class PlayerTurnController {
     }
     public void init() {
         optionBase();
-        mapController.createMap(Gate.getInstance().getWorld().boardSize);
-        moveController.setTurnCon(this);
+        mapController.createMap(Gate.getInstance().getWorld().boardSize, this);
         turnEnd();
     }
     public ArrayDeque<Creature> getTurnQueue() {
@@ -60,32 +51,7 @@ public class PlayerTurnController {
                 .collect(Collectors.toCollection(ArrayDeque::new));
     }
 
-    protected void fillGearDisplay() {
-        equipmentDisplay.getChildren().clear();
-        for (var slot : unit.getAllSlots()) {
-            var e = unit.getGearFromSlot(slot);
-            String str = slot.name() + ": " + ((e == null)?"NONE":e.getName());
-            equipmentDisplay.getChildren().add(new Label(str) {
-                public void handle(MouseEvent mouseEvent) {
-                    selectedIdx = equipmentDisplay.getChildren().indexOf(this);
-                    enableValidGearInput();
-
-                    getOnMouseClicked().handle(mouseEvent);
-                }
-            });
-        }
-    }
-
-    private void enableValidGearInput() {
-        gearInput.setVisible(true);
-        gearInput.setDisable(false);
-        btnEquip.setDisable(false);
-        btnAuto.setDisable(false);
-        btnUnequip.setDisable(unit.getGearFromSlot(unit.getAllSlots().get(selectedIdx)) == null);
-    }
-
     public void turnEnd() {
-        // Don't know how this will work yet, but it will handle telling world to progress to the next player's turn
         optionBase();
         // All enemies are dead return to player leveling
         if (!Gate.getInstance().getWorld().hasEnemies()) {
@@ -104,6 +70,7 @@ public class PlayerTurnController {
 
         }
         if (unit != null && q.contains(unit)) {
+            // cycle through queue until next player selected
             while (q.peek() != unit) q.add(q.pop());
             q.add(q.pop());
         }
@@ -111,6 +78,7 @@ public class PlayerTurnController {
         ((Stage) details.getScene().getWindow()).setUserData(unit);
         // Update controllers
         mapController.updateTileContents();  //
+        mapController.updateMove(unit);
         orderController.setOrder(q);
         infoController.update();
         update();
@@ -119,7 +87,7 @@ public class PlayerTurnController {
 
     private void processAIAction(Creature unit) {
         try {
-            Thread.sleep(1000);
+            Thread.sleep(10);
         } catch (InterruptedException ie) {
             System.out.println("Failed to sleep");
             ie.printStackTrace();
@@ -167,19 +135,10 @@ public class PlayerTurnController {
     private UnitInfoController infoController;
 
     @FXML
-    private VBox equipmentDisplay;
+    public VBox gear;
 
     @FXML
-    private HBox gearInput;
-
-    @FXML
-    private Button btnEquip;
-
-    @FXML
-    private Button btnUnequip;
-
-    @FXML
-    private Button btnAuto;
+    public GearController gearController;
 
     @FXML
     public VBox unitOptions;
@@ -191,9 +150,6 @@ public class PlayerTurnController {
     private Button btnGear;
 
     @FXML
-    private Button btnMove;     // Pass just calls move with the current location
-
-    @FXML
     public Button btnPass;
 
     @FXML
@@ -201,12 +157,6 @@ public class PlayerTurnController {
 
     @FXML
     private InventoryController invController;
-
-    @FXML
-    private VBox move;
-
-    @FXML
-    private MoveInputController moveController;
 
     // Unit Options
 
@@ -222,15 +172,7 @@ public class PlayerTurnController {
     protected void onGearClick() {
         optionReset();
         btnGear.setDisable(true);
-        fillGearDisplay();
-    }
-
-    @FXML
-    protected void onMoveClick() {
-        optionReset();
-        btnMove.setDisable(true);
-        details.getChildren().add(6, move);
-        moveController.update();
+        gearController.fillEquipmentList();
     }
 
     @FXML
@@ -240,26 +182,5 @@ public class PlayerTurnController {
         turnEnd();
     }
 
-
-    // Gear
-    @FXML
-    protected void onEquipClick() {
-        onInventoryClick();
-        if (unit == null) return;
-        invController.fillInventoryDisplay(unit.getInventory().stream()
-                .filter(item -> item instanceof Equipment).toList());
-    }
-
-    @FXML
-    protected void onUnequipClick() {
-        if (selectedIdx < 0) return;
-        unit.removeEquipment(unit.getAllSlots().get(selectedIdx));
-        optionBase();
-    }
-
-    @FXML
-    protected void onAutoClick() {
-        unit.autoEquip();
-    }
 
 }

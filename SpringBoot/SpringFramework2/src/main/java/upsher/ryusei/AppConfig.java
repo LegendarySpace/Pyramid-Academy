@@ -18,6 +18,11 @@ public class AppConfig {
     }
 
     @Bean
+    public Address getAddress1() {
+        return new Address("Somewher", "Else", "Intheworld", "677866745");
+    }
+
+    @Bean
     public Phone getPhone1() {
         return new Phone("(468) 646 6454");
     }

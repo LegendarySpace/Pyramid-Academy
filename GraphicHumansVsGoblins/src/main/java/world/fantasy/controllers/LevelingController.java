@@ -42,7 +42,6 @@ public class LevelingController {
         dexterity.setText(String.valueOf(player.getDexterity()));
         int sp = player.getRemainingSkillPoints();
         skillPoints.setText(String.valueOf(sp));
-        // TODO: Disable increase button for max stats
         hthUp.setDisable(sp < 1 || player.getHealth() > 1000000);
         mnaUp.setDisable(sp < 1 || player.getMana() > 10000);
         intUp.setDisable(sp < 1 || player.getIntelligence() > LIMIT);

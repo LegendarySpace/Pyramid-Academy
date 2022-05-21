@@ -15,6 +15,7 @@ import world.fantasy.items.equipment.Equipment;
 import world.fantasy.world.Direction;
 import world.fantasy.world.World;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class MoveInputController {
@@ -26,25 +27,49 @@ public class MoveInputController {
     }
 
     public void update() {
-        btnNorth.setDisable(true);
-        btnEast.setDisable(true);
-        btnSouth.setDisable(true);
-        btnWest.setDisable(true);
+        for (var dir : Direction.values()) enableDirection(dir, false);
         unit = (Creature) ((Stage) btnNorth.getScene().getWindow()).getUserData();
         if (unit == null) return;
 
-        for (var dir : unit.validMovements()) {
-            switch (dir) {
-                case NORTH -> btnNorth.setDisable(false);
-                case EAST -> btnEast.setDisable(false);
-                case SOUTH -> btnSouth.setDisable(false);
-                case WEST -> btnWest.setDisable(false);
-            }
+        var moves = unit.validMovements();
+        for (var dir : Direction.values()) {
+            if (moves.contains(dir)) enableDirection(dir, true);
+        }
+    }
+
+    private void enableDirection(Direction dir, boolean enable) {
+        var button = getButton(dir);
+        button.setDisable(!enable);
+        // TODO: Also need to set the color to clear or #42E6F55A
+    }
+
+    private Button getButton(Direction dir) {
+        return switch (dir) {
+            case NORTHWEST -> btnNorthWest;
+            case NORTH -> btnNorth;
+            case NORTHEAST -> btnNorthEast;
+            case WEST -> btnWest;
+            case EAST -> btnEast;
+            case SOUTHWEST -> btnSouthWest;
+            case SOUTH -> btnSouth;
+            case SOUTHEAST -> btnSouthEast;
+        };
+    }
+
+    public void setTileSize(double size) {
+        for (var dir : Direction.values()) {
+            getButton(dir).setPrefSize(size, size);
         }
     }
 
     @FXML
     private Button btnNorth;
+
+    @FXML
+    private Button btnNorthWest;
+
+    @FXML
+    private Button btnNorthEast;
 
     @FXML
     private Button btnEast;
@@ -53,13 +78,38 @@ public class MoveInputController {
     private Button btnSouth;
 
     @FXML
+    private Button btnSouthWest;
+
+    @FXML
+    private Button btnSouthEast;
+
+    @FXML
     private Button btnWest;
 
 
     // Movement
+
+    @FXML
+    protected void onNorthWestClick() {
+        unit.move(unit.getPosition().getNorth().getWest());
+        turnCon.turnEnd();
+    }
+
     @FXML
     protected void onNorthClick() {
         unit.move(unit.getPosition().getNorth());
+        turnCon.turnEnd();
+    }
+
+    @FXML
+    protected void onNorthEastClick() {
+        unit.move(unit.getPosition().getNorth().getEast());
+        turnCon.turnEnd();
+    }
+
+    @FXML
+    protected void onWestClick() {
+        unit.move(unit.getPosition().getWest());
         turnCon.turnEnd();
     }
 
@@ -76,8 +126,14 @@ public class MoveInputController {
     }
 
     @FXML
-    protected void onWestClick() {
-        unit.move(unit.getPosition().getWest());
+    protected void onSouthWestClick() {
+        unit.move(unit.getPosition().getSouth().getWest());
+        turnCon.turnEnd();
+    }
+
+    @FXML
+    protected void onSouthEastClick() {
+        unit.move(unit.getPosition().getSouth().getEast());
         turnCon.turnEnd();
     }
 

@@ -21,18 +21,15 @@ public abstract class Creature extends Actor {
     private int dexterity;      // Affects range based weapons
     protected int remainingSkillPoints;
     private final ArrayList<Item> inventory;  // Everything a humanoid is carrying
-    private Weapon mainHand;      // Item held in humanoid main hand
-    private Weapon offHand;       // Item held in humanoid offhand
-    private Armor armor;        // Armor currently being worn by humanoid
+    private final HashMap<GearSlot, Equipment> gear; // Gear currently equipped
     private boolean bIsNPC;     // Is NPC or Player
     private Actor target;
     public Creature(World world) {
         super(world);
         name = "Creature of the Night";
         inventory = new ArrayList<>();
-        mainHand = null;
-        offHand = null;
-        armor = null;
+        gear = new HashMap<>();
+        initializeGear();
         bIsNPC = true;
         target = null;
     }
@@ -62,6 +59,19 @@ public abstract class Creature extends Actor {
     public void setIsNPC(boolean bIsNPC) { this.bIsNPC = bIsNPC; }
     private int statModifier(int stat) { return (stat / 2) - 5; }
 
+
+    // Define initial gear slots
+    private void initializeGear() {
+        for (var slot : getAllSlots()) gear.put(slot, null);
+    }
+    public List<GearSlot> getAllSlots() {
+        ArrayList<GearSlot> slots = new ArrayList<>(getArmorSlots());
+        slots.addAll(getWeaponSlots());
+        return slots;
+    }
+    public List<GearSlot> getWeaponSlots() { return List.of(GearSlot.MAINHAND, GearSlot.OFFHAND); }
+    public List<GearSlot> getArmorSlots() { return List.of(GearSlot.ARMOR); }
+
     // Inventory management
     public ArrayList<Item> getInventory() { return inventory; }
     public String displayInventory() {
@@ -86,13 +96,6 @@ public abstract class Creature extends Actor {
         if (item != null) item.setOwner(null);
         return inventory.remove(item);
     }
-    public void useItem(Item item) {
-        if (item == null) return;
-        if (item instanceof Consumable c) {
-            c.use();
-            dropItem(item);
-        }
-    }
 
     // Equipment management
     public String displayEquipment() {
@@ -105,76 +108,38 @@ public abstract class Creature extends Actor {
         return sb.toString();
     }
     public Equipment getGearFromSlot(GearSlot slot) {
-        return switch (slot) {
-            case ARMOR -> armor;
-            case MAINHAND -> mainHand;
-            case OFFHAND -> offHand;
-        };
+        return gear.get(slot);
     }
-    public Weapon getMainHand() { return mainHand; }
-    public void equipMainHand(Weapon item) {
-        if (mainHand != null) unequipMainHand();
-        mainHand = item;
-
-        dropItem(item);
+    public boolean equipGear(GearSlot slot, Equipment e){
+        if ((e instanceof Armor && getArmorSlots().contains(slot)) ||
+            (e instanceof Weapon && getWeaponSlots().contains(slot))) {
+            unequipSlot(slot);
+            gear.put(slot, e);
+            inventory.remove(e);
+            return true;
+        }
+        return false;
     }
-    public Weapon unequipMainHand() {
-        if (mainHand == null) return null;
-        Weapon e = mainHand;
-        inventory.add(mainHand);
-        mainHand = null;
-        System.out.printf("%s was unequipped from %s slot%n", e.toString(), GearSlot.MAINHAND);
+    public void unequipGear(Equipment e) {
+        gear.keySet().stream().filter(s -> gear.get(s) == e).forEach(s -> {
+            inventory.add(gear.get(s));
+            gear.put(s, null);
+            System.out.printf("%s was unequipped from %s slot%n", e.toString(), s.name());
+        });
+    }
+    public Equipment unequipSlot(GearSlot slot) {
+        var e = gear.get(slot);
+        if (e == null) return null;
+        gear.put(slot, null);
+        inventory.add(e);
+        System.out.printf("%s was unequipped from %s slot%n", e.toString(), slot.name());
         return e;
-    }
-    public Weapon getOffHand() { return offHand; }
-    public void equipOffHand(Weapon item) {
-        if (offHand != null) unequipOffHand();
-        offHand = item;
-        dropItem(item);
-    }
-    public Weapon unequipOffHand() {
-        if (offHand == null) return null;
-        Weapon e = offHand;
-        inventory.add(offHand);
-        offHand = null;
-        System.out.printf("%s was unequipped from %s slot%n", e.toString(), GearSlot.OFFHAND);
-        return e;
-    }
-    public Armor getArmor() { return armor; }
-    public void equipArmor(Armor item) {
-        if (armor != null) unequipArmor();
-        armor = item;
-        dropItem(item);
-    }
-    public Armor unequipArmor() {
-        if (armor == null) return null;
-        Armor a = armor;
-        inventory.add(armor);
-        armor = null;
-        System.out.printf("%s was unequipped from %s slot%n", a.toString(), GearSlot.ARMOR);
-        return a;
     }
     public boolean wearEquipment(GearSlot slot, Equipment item) {
         if (item == null) return false;
-        System.out.printf("%s was equipped to %s slot%n", item.toString(), slot.name());
-        switch (slot) {
-            case ARMOR:
-                if (item instanceof Armor a) {
-                    equipArmor(a);
-                    return true;
-                }
-            case MAINHAND:
-                if (item instanceof Weapon e) {
-                    equipMainHand(e);
-                    return true;
-                }
-            case OFFHAND:
-                if (item instanceof Weapon e) {
-                    equipOffHand(e);
-                    return true;
-                }
-        }
-        return false;
+        var b = equipGear(slot, item);
+        if (b) System.out.printf("%s was equipped to %s slot%n", item.toString(), slot.name());
+        return b;
     }
     public void autoEquip() {
         removeAll();
@@ -196,47 +161,30 @@ public abstract class Creature extends Actor {
         return false;
     }
     public boolean removeEquipment(Equipment item) {
-        if (item == null) return false;
-        switch (getSlotFromItem(item)) {
-            case ARMOR -> { if (item instanceof Armor a) if (a == getArmor()) unequipArmor(); }
-            case MAINHAND -> { if (item instanceof Weapon e) if (e == getMainHand()) unequipMainHand(); }
-            case OFFHAND -> { if (item instanceof Weapon e) if (e == getOffHand()) unequipOffHand(); }
-            default -> { return false; }
-        }
+        if (item == null || !gear.containsValue(item)) return false;
+        unequipGear(item);
         return true;
     }
     public boolean removeEquipment(GearSlot slot) {
-        if (slot == null) return false;
-        switch (slot) {
-            case ARMOR -> unequipArmor();
-            case MAINHAND -> unequipMainHand();
-            case OFFHAND -> unequipOffHand();
-            default -> { return false; }
-        }
+        if (slot == null || gear.get(slot) == null) return false;
+        unequipSlot(slot);
         return true;
     }
     public void removeAll() {
-        for (GearSlot slot : GearSlot.values()) removeEquipment(slot);
+        for (GearSlot slot : gear.keySet()) removeEquipment(slot);
     }
     public GearSlot getSlotFromItem(Equipment item) {
-        if (item == getArmor()) return GearSlot.ARMOR;
-        if (item == getMainHand()) return GearSlot.MAINHAND;
-        if (item == getOffHand()) return GearSlot.OFFHAND;
-        return null;
+        if (!gear.containsValue(item)) return null;
+        return gear.keySet().stream().filter(s -> gear.get(s) == item).findFirst().orElse(null);
     }
-    public List<GearSlot> getAllSlots() {
-        ArrayList<GearSlot> slots = new ArrayList<>(getArmorSlots());
-        slots.addAll(getWeaponSlots());
-        return slots;
-    }
-    public List<GearSlot> getWeaponSlots() { return List.of(GearSlot.MAINHAND, GearSlot.OFFHAND); }
-    public List<GearSlot> getArmorSlots() { return List.of(GearSlot.ARMOR); }
 
     // Encounter mechanics
+    @Override
     public Actor encounter(Actor obj) {
         if (obj == null) return null;
         Item loot = null;
         if (obj instanceof Creature h) {
+            // TODO: this will prompt a display of damage
             System.out.printf("%s attacked %s for %d damage, %s has %d health remaining %n",
                     this, h, attack(h), h, h.getHealth());
             if (!h.hasDied()) return h.encounter(this);
@@ -272,15 +220,17 @@ public abstract class Creature extends Actor {
         return creature.applyDamage((int) (output * ThreadLocalRandom.current().nextDouble()));
     }
     protected int damageAdjustedBySlot(GearSlot slot) {
-        if (slot == GearSlot.OFFHAND) return (int) (calculateWeaponDamage(offHand) * .65);
-        return calculateWeaponDamage((Weapon) getGearFromSlot(slot));
+        if (!getWeaponSlots().contains(slot)) return 0;
+        int dmg = calculateWeaponDamage((Weapon) getGearFromSlot(slot));
+        if (slot == GearSlot.OFFHAND) dmg *= .65;
+        return dmg;
     }
     protected int calculateWeaponDamage(Weapon weapon) {
-        if (mainHand == null) { return (int) ((getStrength() * 2 / 3) * .9); }
-        if (mainHand instanceof Melee) { return (getStrength() * 2 / 3) + mainHand.getDamage(); }
-        if (mainHand instanceof Ranged) { return (getDexterity() * 2 / 3) + mainHand.getDamage(); }
-        if (mainHand instanceof Magic) { return (getIntelligence() * 2 / 3) + mainHand.getDamage(); }
-        if (mainHand instanceof Shield) { return (int) ((getStrength() * 2 / 3) * .6) + mainHand.getDamage(); }
+        if (weapon == null) { return (int) ((getStrength() * 2 / 3) * .9); }
+        if (weapon instanceof Melee) { return (getStrength() * 2 / 3) + weapon.getDamage(); }
+        if (weapon instanceof Ranged) { return (getDexterity() * 2 / 3) + weapon.getDamage(); }
+        if (weapon instanceof Magic) { return (getIntelligence() * 2 / 3) + weapon.getDamage(); }
+        if (weapon instanceof Shield) { return (int) ((getStrength() * 2 / 3) * .6) + weapon.getDamage(); }
         return getStrength();
     }
     public int applyDamage(int damage) {
@@ -299,12 +249,14 @@ public abstract class Creature extends Actor {
         return getWeaponSlots().stream().mapToInt(this::blockAdjustedBySlot).sum();
     }
     protected int blockAdjustedBySlot(GearSlot slot) {
-        if (slot == GearSlot.OFFHAND) return (int) (calculateWeaponDefence(offHand) *.6);
-        return calculateWeaponDefence((Weapon) getGearFromSlot(slot));
+        if (!getWeaponSlots().contains(slot)) return 0;
+        int block = calculateWeaponDefence((Weapon) getGearFromSlot(slot));
+        if (slot == GearSlot.OFFHAND) block *= .65;
+        return block;
     }
     protected int calculateWeaponDefence(Weapon weapon) {
-        if (mainHand == null) return (strength / 5);
-        if (mainHand instanceof Shield) return (strength /4) + mainHand.getDamage() + statModifier(dexterity);
+        if (weapon == null) return (strength / 5);
+        if (weapon instanceof Shield) return (strength /4) + weapon.getDamage() + statModifier(dexterity);
         return strength / 4;
     }
     protected int calculateTotalArmor() {
@@ -335,6 +287,7 @@ public abstract class Creature extends Actor {
             case 6 -> setDexterity(getDexterity() + 1);
         }
     }
+
     // Movement mechanics
     public List<Direction> validMovements() {
         return Arrays.stream(Direction.values()).filter(dir -> world.landExists(getPosition().getDirection(dir))).toList();

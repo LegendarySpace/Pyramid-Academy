@@ -10,21 +10,39 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import world.fantasy.Actor;
 import world.fantasy.Gate;
+import world.fantasy.creatures.Creature;
+import world.fantasy.world.Direction;
 
 public class FullMapController {
     public Map map;
 
+    @FXML
+    private VBox move;
 
-    public void createMap(int size) {
+    @FXML
+    private MoveInputController moveController;
+
+    public void createMap(int size, PlayerTurnController turncon) {
         display.getChildren().clear();
+        moveController.setTurnCon(turncon);
         map = new Map(size);
         display.getChildren().add(0, map);
+        display.getChildren().add(1, move);
     }
 
     public void updateTileContents() {
         // Reset display, for each actor in the world update the display at their position
         map.reset();
         for (Actor actor :Gate.getInstance().getWorld().actors) map.updateTile(actor);
+    }
+
+    public void updateMove(Creature unit) {
+        var corner = unit.getPosition().getDirection(Direction.NORTHWEST);
+        var size = map.calculateTileSize(map.rows);
+
+        move.setLayoutX(corner.getColumn() * size);
+        move.setLayoutY(corner.getRow() * size);
+        moveController.update();
     }
 
     private class Map extends VBox {
@@ -37,6 +55,7 @@ public class FullMapController {
 
         public Map(int size) {
             addRows(calculateTileSize(size), rows, cols);
+            moveController.setTileSize(calculateTileSize(size));
         }
 
         public int calculateTileSize(int size) {
@@ -133,8 +152,8 @@ public class FullMapController {
 
         public Tile(Node... nodes) {
             super(nodes);
-            background = new ImageView();
-            setBackground(new Image(GROUND));
+            background = create();
+            reset();
             getChildren().add(0, background);
         }
 
@@ -157,6 +176,7 @@ public class FullMapController {
             // TODO: Should give actor a way to temporarily display string
             var iv = create();
             iv.setImage(actor.loadImage());
+
             getChildren().add(iv);
         }
 

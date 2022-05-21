@@ -10,6 +10,9 @@ public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int employeeID;
+
+
+
     private String name;
     private String email;
 
@@ -19,14 +22,6 @@ public class Employee {
     public Employee(String name, String email) {
         this.name = name;
         this.email = email;
-    }
-
-    public int getEmployeeID() {
-        return employeeID;
-    }
-
-    public void setEmployeeID(int employeeID) {
-        this.employeeID = employeeID;
     }
 
     public String getName() {

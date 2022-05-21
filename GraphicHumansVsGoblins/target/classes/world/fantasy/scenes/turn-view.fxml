@@ -52,7 +52,6 @@
                <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" spacing="10.0">
                   <children>
                      <Separator visible="false" />
-                     <Button fx:id="btnMove" mnemonicParsing="false" onAction="#onMoveClick" prefWidth="75.0" text="Move" />
                      <Separator visible="false" />
                      <Button fx:id="btnPass" layoutX="97.0" layoutY="20.0" mnemonicParsing="false" onAction="#onPassClick" prefWidth="75.0" text="Pass" />
                      <Separator visible="false" />
@@ -65,7 +64,6 @@
          </VBox>
          <Separator layoutX="147.0" layoutY="390.0" orientation="VERTICAL" visible="false" />
          <fx:include fx:id="inv" source="inventory-view.fxml" />
-         <fx:include fx:id="move" source="move-input-view.fxml" />
          <Separator layoutX="142.0" layoutY="403.0" orientation="VERTICAL" visible="false" VBox.vgrow="ALWAYS" />
       </VBox>
    </children>

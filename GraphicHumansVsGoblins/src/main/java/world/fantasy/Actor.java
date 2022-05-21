@@ -43,12 +43,12 @@ public class Actor {
 
     public boolean move(Land moveTo) {
         if (!world.landExists(moveTo)) return false;
-        var actors = world.actors.stream().filter(x -> x.getPosition().equals(getPosition())).toList();
+        var actors = world.actors.stream().filter(x -> x.getPosition().equals(moveTo)).toList();
         if (actors.size() > 0) {
             for (var act : actors) {
                 if (act == this) continue;
                 var a = encounter(act);
-                if (a != null) encounter(a);
+                // while (a != null) a = encounter(a);
             }
         }
         if (doesExist()) setPosition(moveTo);

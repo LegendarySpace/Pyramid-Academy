@@ -9,6 +9,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import world.fantasy.creatures.Creature;
 import world.fantasy.items.Item;
+import world.fantasy.items.ItemOption;
 import world.fantasy.items.consumable.Consumable;
 import world.fantasy.items.equipment.Equipment;
 import world.fantasy.world.Direction;
@@ -52,6 +53,8 @@ public class InventoryController {
             super();
             setOnAction(event -> {
                 selectedIdx = inventoryDisplay.getChildren().indexOf(this);
+                System.out.printf("clicking on inventory item, setting selectedIdx to %d\n", selectedIdx);
+
                 enableValidInventoryInput();
             });
         }
@@ -60,7 +63,6 @@ public class InventoryController {
             this();
             setText(label);
         }
-
 
     }
 
@@ -84,19 +86,23 @@ public class InventoryController {
     @FXML
     protected void onUseClick() {
         if (selectedIdx < 0) return;
-        ((Consumable) unit.getInventory().get(selectedIdx)).use();
+        ((Consumable) unit.getInventory().get(selectedIdx)).activate(ItemOption.USE);
+        selectedIdx = -1;
     }
 
     @FXML
     protected void onWearClick() {
         if (selectedIdx < 0) return;
-        ((Equipment) unit.getInventory().get(selectedIdx)).equip();
+        System.out.printf("Attempting to wear item at index %s%n", selectedIdx);
+        ((Equipment) unit.getInventory().get(selectedIdx)).activate(ItemOption.EQUIP);
+        selectedIdx = -1;
     }
 
     @FXML
     protected void onDropClick() {
         if (selectedIdx < 0) return;
-        unit.getInventory().get(selectedIdx).drop();
+        unit.getInventory().get(selectedIdx).activate(ItemOption.DROP);
+        selectedIdx = -1;
     }
 
 }

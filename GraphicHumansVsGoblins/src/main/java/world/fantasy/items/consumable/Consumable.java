@@ -7,15 +7,14 @@ import world.fantasy.world.World;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Consumable extends Item {
+public abstract class Consumable extends Item {
     public Consumable(World world) {
         super(world);
         description = "A consumable item good for one use";
         setImagePath("/consumable.png");
     }
 
-    public void use() {
-    }
+    protected abstract void use();
 
     @Override
     public List<ItemOption> getMenu() {
@@ -27,7 +26,10 @@ public class Consumable extends Item {
     @Override
     public void activate(ItemOption option) {
         super.activate(option);
-        if (option == ItemOption.USE) use();
+        if (option == ItemOption.USE) {
+            use();
+            getOwner().dropItem(this);
+        }
     }
 
 }

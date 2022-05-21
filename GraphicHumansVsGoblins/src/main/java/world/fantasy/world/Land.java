@@ -30,10 +30,15 @@ public class Land implements Comparable<Land> {
 
     public Land getDirection(Direction dir) {
         return switch (dir) {
+            case NORTHWEST -> getNorth().getWest();
             case NORTH -> getNorth();
+            case NORTHEAST -> getNorth().getEast();
             case EAST -> getEast();
-            case SOUTH -> getSouth();
             case WEST -> getWest();
+            case SOUTHWEST -> getSouth().getWest();
+            case SOUTH -> getSouth();
+            case SOUTHEAST -> getSouth().getEast();
+            default -> this;
         };
     }
 
@@ -49,14 +54,14 @@ public class Land implements Comparable<Land> {
 
     private Land posFromInt(int i) {
         return switch (i) {
-            case 1 -> getNorth().getWest();
-            case 2 -> getNorth();
-            case 3 -> getNorth().getEast();
-            case 4 -> getWest();
-            case 6 -> getEast();
-            case 7 -> getSouth().getWest();
-            case 8 -> getSouth();
-            case 9 -> getSouth().getEast();
+            case 1 -> getDirection(Direction.NORTHWEST);
+            case 2 -> getDirection(Direction.NORTH);
+            case 3 -> getDirection(Direction.NORTHEAST);
+            case 4 -> getDirection(Direction.WEST);
+            case 6 -> getDirection(Direction.EAST);
+            case 7 -> getDirection(Direction.SOUTHWEST);
+            case 8 -> getDirection(Direction.SOUTH);
+            case 9 -> getDirection(Direction.SOUTHEAST);
             default -> this;
         };
     }

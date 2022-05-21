@@ -6,6 +6,7 @@ import org.junit.jupiter.api.*;
 import java.io.ByteArrayInputStream;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.IntStream;
 
 class HangmanTest {
     public static final String nameSaveFile = "src/test/resources/SavedGame.txt";

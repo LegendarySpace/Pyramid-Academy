@@ -23,6 +23,8 @@ public final class Gate {
         waveLimit = 0;
         currentWave = 0;
         defaults = new int[]{3, 0, 2};
+        defaults[0] = 1;
+        defaults[2] = 10;
     }
 
     public static Gate getInstance() { return INSTANCE; }
