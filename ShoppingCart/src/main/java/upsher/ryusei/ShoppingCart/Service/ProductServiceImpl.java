@@ -6,6 +6,7 @@ import upsher.ryusei.ShoppingCart.DAO.ProductDAO;
 import upsher.ryusei.ShoppingCart.Entity.Product;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -14,7 +15,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> getAllProducts() {
-        return productDAO.findAll();
+        return productDAO.findApparelBy().stream().map(x -> (Product) x).collect(Collectors.toList());
     }
 
     @Override

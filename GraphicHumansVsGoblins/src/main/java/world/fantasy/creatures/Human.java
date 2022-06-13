@@ -35,6 +35,8 @@ public class Human extends Creature {
 
     public Human(World world, String name, String image, int health, int mana, int intelligence, int strength, int constitution, int dexterity, boolean npc) {
         super(world);
+        setName(name);
+        setImagePath(image);
         setHealth(health);
         setMana(mana);
         setIntelligence(intelligence);

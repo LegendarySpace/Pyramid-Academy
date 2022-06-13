@@ -1,6 +1,10 @@
 package world.fantasy;
 
+import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import world.fantasy.world.Land;
 import world.fantasy.world.World;
 
@@ -10,6 +14,8 @@ public class Actor {
     protected Land position;
     protected String description;
     protected String imagePath;
+
+    private UnitPane unitPane;
 
 
     public Land getPosition() {
@@ -34,17 +40,23 @@ public class Actor {
     }
 
     public Actor(World world, Land position) {
+        this(world, position, "/actor.png");
+    }
+
+    public Actor(World world, Land position, String imageURI) {
+        if (world == null) throw new RuntimeException("World not valid");
         name = "Actor";
         description = "Object in space";
-        setImagePath("/actor.png");
+        setImagePath(imageURI);
         this.world = world;
         this.position = position;
+        unitPane = createUnitPane();
     }
 
     public boolean move(Land moveTo) {
         if (!world.landExists(moveTo)) return false;
         var actors = world.actors.stream().filter(x -> x.getPosition().equals(moveTo)).toList();
-        if (actors.size() > 0) {
+        if (!actors.isEmpty()) {
             for (var act : actors) {
                 if (act == this) continue;
                 var a = encounter(act);
@@ -66,9 +78,14 @@ public class Actor {
         return null;
     }
 
+
+
+
+
     public void setImagePath(String path) {
         if (path == null) return;
         imagePath = path;
+        getUnitPane().updateImage(path);
     }
 
     public String getImagePath() {
@@ -84,6 +101,20 @@ public class Actor {
         }
     }
 
+    public UnitPane getUnitPane() {
+        return unitPane;
+    }
+
+    public UnitPane getUnitPane(int size) {
+        var p = getUnitPane();
+        p.setSize(size);
+        return p;
+    }
+
+    private UnitPane createUnitPane() {
+        return new UnitPane(getImagePath());
+    }
+
     @Override
     public String toString() {
         return getName();
@@ -92,4 +123,36 @@ public class Actor {
     public String getDescription() {
         return description;
     }
+
+    private class UnitPane extends StackPane {
+
+        private ImageView background;
+        private Label info;
+
+        public UnitPane(String imageURI) {
+            background = new ImageView(imageURI);
+        }
+
+        public UnitPane(Node... nodes) {
+            background = new ImageView();
+        }
+
+        public void updateImage(String imageURI) {
+            background.setImage(new Image(imageURI));
+        }
+
+        public void updateText() {
+            info.setText("");
+        }
+        public void updateText(String text) {
+            info.setText(text);
+        }
+
+        public void setSize(int size) {
+            background.setFitWidth(size);
+            background.setFitHeight(size);
+            // Resize info label
+        }
+    }
+
 }

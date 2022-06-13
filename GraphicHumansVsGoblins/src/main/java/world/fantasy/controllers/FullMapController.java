@@ -139,13 +139,12 @@ public class FullMapController {
         private int size;
 
         public Tile() {
-            background = create();
-            reset();
+            this(0);
         }
 
         public Tile(int size) {
-            this();
-            this.size = size;
+            background = create();
+            reset();
             background.setFitHeight(size);
             background.setFitWidth(size);
         }
@@ -154,7 +153,6 @@ public class FullMapController {
             super(nodes);
             background = create();
             reset();
-            getChildren().add(0, background);
         }
 
         public void setBackground(Image image) {
@@ -174,18 +172,23 @@ public class FullMapController {
 
         public void add(Actor actor) {
             // TODO: Should give actor a way to temporarily display string
-            var iv = create();
-            iv.setImage(actor.loadImage());
+            getChildren().add(actor.getUnitPane(size));
+        }
 
-            getChildren().add(iv);
+        public void remove(Actor actor) {
+            getChildren().remove(actor.getUnitPane());
         }
 
         private ImageView create() {
             var iv = new ImageView();
-            size = Math.min(128, Math.max(size, 32));
+            size = restrictSize(size);
             iv.setFitWidth(size);
             iv.setFitHeight(size);
             return iv;
+        }
+
+        private int restrictSize(int size) {
+            return Math.min(128, Math.max(size, 32));
         }
     }
 

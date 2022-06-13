@@ -8,7 +8,7 @@
    <children>
       <ImageView fx:id="welcome" onKeyPressed="#changeScene" onMouseClicked="#changeScene" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@../../../../../../../../Users/Brian/Pictures/DOR/CustomCreatures/Harpy%202.jpg" />
+            <Image url="@../../../../../../../../Users/Brian/Pictures/DOR/CustomCreatures/Harpy 2.jpg" />
          </image>
       </ImageView>
    </children>

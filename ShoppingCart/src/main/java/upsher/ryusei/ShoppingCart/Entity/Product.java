@@ -1,6 +1,8 @@
 package upsher.ryusei.ShoppingCart.Entity;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -13,6 +15,9 @@ public class Product {
 
     private String name;
     private double price;
+
+    @ManyToMany(mappedBy = "products")
+    private final Set<Cart> buyers = new HashSet<>();
 
     public Product() {
     }

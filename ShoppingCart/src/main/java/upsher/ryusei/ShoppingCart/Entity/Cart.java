@@ -1,6 +1,7 @@
 package upsher.ryusei.ShoppingCart.Entity;
 
 import javax.persistence.*;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -11,14 +12,17 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int cartId;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @ManyToMany
+    @JoinTable(name = "cart_product", joinColumns = @JoinColumn(name = "cart_id"), inverseJoinColumns = @JoinColumn(name = "product_id"))
     @MapKey(name = "product_id")
-    private Map<Product, Integer> products;
+    private final Map<Product, Integer> products;
 
     public Cart() {
+        products = new HashMap<>();
     }
 
     public Cart(Set<Product> products) {
+        this.products = new HashMap<>();
         for(var p : products) {
             this.products.put(p, 1);
         }
