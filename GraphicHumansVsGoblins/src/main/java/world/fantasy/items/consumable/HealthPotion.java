@@ -3,6 +3,8 @@ package world.fantasy.items.consumable;
 import world.fantasy.world.World;
 
 public class HealthPotion extends Consumable{
+    private int value = 10;
+    private float multiplier = 1.f;
     public HealthPotion(World world) {
         super(world);
         setName("Health Potion");
@@ -12,7 +14,7 @@ public class HealthPotion extends Consumable{
 
     @Override
     public void use() {
-        getOwner().setHealth(getOwner().getHealth() + 10);
+        getOwner().applyDamage(-1 * (int)(value * multiplier), true);
     }
 
 }

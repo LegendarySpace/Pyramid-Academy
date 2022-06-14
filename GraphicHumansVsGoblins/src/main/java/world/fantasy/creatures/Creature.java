@@ -183,13 +183,17 @@ public abstract class Creature extends Actor {
     public Actor encounter(Actor obj) {
         if (obj == null) return null;
         Item loot = null;
-        if (obj instanceof Creature h) {
+        getUnitPane().updateText();
+        obj.getUnitPane().updateText();
+        if (obj instanceof Creature opponent) {
             // TODO: this will prompt a display of damage
             System.out.printf("%s attacked %s for %d damage, %s has %d health remaining %n",
-                    this, h, attack(h), h, h.getHealth());
-            if (!h.hasDied()) return h.encounter(this);
-            System.out.printf("%s has died%n", h);
-            loot = h.lootDrop();
+                    this, opponent, attack(opponent), opponent, opponent.getHealth());
+            if (!opponent.hasDied()) return opponent.encounter(this);
+            System.out.printf("%s has died%n", opponent);
+            getUnitPane().updateText();
+            opponent.getUnitPane().updateText("\u2620");
+            loot = opponent.lootDrop();
         }
         if (obj instanceof Item i) loot = i;
 
@@ -206,7 +210,7 @@ public abstract class Creature extends Actor {
         if (dropChance == 1 || dropChance == 2) {
             removeAll();
             var dropTable = getInventory();
-            if (dropTable.size() < 1) return null;
+            if (dropTable.isEmpty()) return null;
             int pos = ThreadLocalRandom.current().nextInt(0, dropTable.size());
             Item dropped = dropTable.get(pos);
             clearInventory();
@@ -234,11 +238,14 @@ public abstract class Creature extends Actor {
         return getStrength();
     }
     public int applyDamage(int damage) {
-        int reducedDamage = damageReduction(damage);
-        setHealth(getHealth()-reducedDamage);
-        // TODO: Call to GUI to display damage
-        if (getHealth() <= 0) setPosition(null);
-        return reducedDamage;
+        return applyDamage(damage, false);
+    }
+    public int applyDamage(int damage, boolean trueDamage) {
+        int finalDamage = trueDamage?damage:damageReduction(damage);
+        setHealth(getHealth()-finalDamage);
+        getUnitPane().updateText(Integer.toString(finalDamage));
+        if (hasDied()) setPosition(null);
+        return finalDamage;
     }
     private int damageReduction(int damage) {
         int incomingDamage = calculateTotalArmor() + calculateTotalBlock();

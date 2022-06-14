@@ -16,6 +16,7 @@ public class World {
     public static final int MIN_SIZE = 5;
 
     public HashSet<Land> lands;
+    public HashSet<Actor> actors;
 
     public HashSet<Land> getLands() {
         return lands;
@@ -29,8 +30,6 @@ public class World {
     public void setActors(HashSet<Actor> actors) {
         this.actors = actors;
     }
-
-    public HashSet<Actor> actors;
 
     public static int boardHeight, boardWidth;
     public int boardSize;

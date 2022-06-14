@@ -5,22 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cff108c0-f440-4993-afd5-7ddc42347d86" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/Actor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/Actor.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/FullMapController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/controllers/FullMapController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/creatures/Creature.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/creatures/Creature.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/creatures/Human.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/creatures/Human.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/world/fantasy/scenes/splash-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/world/fantasy/scenes/splash-view.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/world/fantasy/scenes/inventory-view.fxml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/world/fantasy/scenes/move-input-view.fxml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/world/fantasy/scenes/splash-view.fxml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/world/fantasy/scenes/turn-view.fxml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ShoppingCart/src/main/java/upsher/ryusei/ShoppingCart/Controller/Controller.java" beforeDir="false" afterPath="$PROJECT_DIR$/../ShoppingCart/src/main/java/upsher/ryusei/ShoppingCart/Controller/Controller.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ShoppingCart/src/main/java/upsher/ryusei/ShoppingCart/DAO/ProductDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/../ShoppingCart/src/main/java/upsher/ryusei/ShoppingCart/DAO/ProductDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ShoppingCart/src/main/java/upsher/ryusei/ShoppingCart/Entity/Cart.java" beforeDir="false" afterPath="$PROJECT_DIR$/../ShoppingCart/src/main/java/upsher/ryusei/ShoppingCart/Entity/Cart.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ShoppingCart/src/main/java/upsher/ryusei/ShoppingCart/Entity/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/../ShoppingCart/src/main/java/upsher/ryusei/ShoppingCart/Entity/Product.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ShoppingCart/src/main/java/upsher/ryusei/ShoppingCart/Service/ProductServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/../ShoppingCart/src/main/java/upsher/ryusei/ShoppingCart/Service/ProductServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../TerminalHangman/src/main/java/HangingFromMyCuticle/Hangman.java" beforeDir="false" afterPath="$PROJECT_DIR$/../TerminalHangman/src/main/java/HangingFromMyCuticle/Hangman.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/items/consumable/HealthPotion.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/items/consumable/HealthPotion.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/world/fantasy/world/World.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/world/fantasy/world/World.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

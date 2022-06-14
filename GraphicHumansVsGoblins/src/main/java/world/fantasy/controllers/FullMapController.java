@@ -135,7 +135,7 @@ public class FullMapController {
 
     private class Tile extends StackPane {
         private static final String GROUND="/ground.png";
-        private ImageView background;
+        private final ImageView background;
         private int size;
 
         public Tile() {

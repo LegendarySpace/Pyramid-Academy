@@ -40,17 +40,13 @@ public class Actor {
     }
 
     public Actor(World world, Land position) {
-        this(world, position, "/actor.png");
-    }
-
-    public Actor(World world, Land position, String imageURI) {
         if (world == null) throw new RuntimeException("World not valid");
+        unitPane = createUnitPane();
         name = "Actor";
         description = "Object in space";
-        setImagePath(imageURI);
+        setImagePath("/actor.png");
         this.world = world;
         this.position = position;
-        unitPane = createUnitPane();
     }
 
     public boolean move(Land moveTo) {
@@ -85,7 +81,7 @@ public class Actor {
     public void setImagePath(String path) {
         if (path == null) return;
         imagePath = path;
-        getUnitPane().updateImage(path);
+        getUnitPane().updateImage();
     }
 
     public String getImagePath() {
@@ -96,7 +92,7 @@ public class Actor {
         try {
             return new Image(getImagePath());
         } catch (Exception e) {
-            System.out.printf("Image invalid for %s%n", getName());
+            System.out.printf("Image at location %s is invalid for %s%n", getImagePath(), getName());
             return null;
         }
     }
@@ -112,7 +108,7 @@ public class Actor {
     }
 
     private UnitPane createUnitPane() {
-        return new UnitPane(getImagePath());
+        return new UnitPane();
     }
 
     @Override
@@ -124,21 +120,31 @@ public class Actor {
         return description;
     }
 
-    private class UnitPane extends StackPane {
+    public class UnitPane extends StackPane {
 
         private ImageView background;
         private Label info;
 
-        public UnitPane(String imageURI) {
-            background = new ImageView(imageURI);
+        public UnitPane() {
+            super();
+            init();
         }
 
         public UnitPane(Node... nodes) {
-            background = new ImageView();
+            super(nodes);
+            init();
         }
 
-        public void updateImage(String imageURI) {
-            background.setImage(new Image(imageURI));
+        private void init() {
+            background = new ImageView();
+            info = new Label();
+            var c = getChildren();
+            c.add(0, background);
+            c.add(1, info);
+        }
+
+        public void updateImage() {
+            background.setImage(loadImage());
         }
 
         public void updateText() {
